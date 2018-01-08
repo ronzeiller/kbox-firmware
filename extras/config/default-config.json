@@ -7,7 +7,7 @@
     "mounting": "horizontalLeftSideToBow"
   },
   "barometer": {
-    "enabled": true,
+    "enabled": false,
     "frequency": 1
   },
   "wifi": {
