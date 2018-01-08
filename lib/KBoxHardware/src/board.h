@@ -68,7 +68,7 @@ static const pin_t wifi_cs = 31;
 #define WiFiSerial Serial1
 
 /* CAN Transceiver */
-static const pin_t can_standby = 33;
+static const pin_t can_standby = 32;
 
 /* INA219 Battery Monitor */
 static const uint8_t ina219_address = 0x40;
@@ -92,7 +92,7 @@ static const float analog_max_voltage = 3.3 / (10000/(10000+56000.0));
 static const pin_t adc1_analog = A12;
 static const pin_t adc2_analog = A11;
 static const pin_t adc3_analog = A10;
-static const float analog_max_voltage = 3.0 / (10000/(10000+56000.0));
+static const float analog_max_voltage = 1.1155 * 3.31 / (10000/(10000+56000.0));
 #endif
 static const pin_t supply_analog = A14;
 
