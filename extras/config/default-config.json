@@ -28,7 +28,7 @@
     "nmeaConverter": {
       "xdrPressure": true,
       "xdrAttitude": true,
-      "xdrBattery": true,
+      "xdrBattery": false,
       "hdm": true,
       "mwv": true,
       "rsa": true
@@ -40,9 +40,9 @@
     "baudRate": 4800,
     "nmeaConverter": {
       "xdrPressure": false,
-      "xdrAttitude": false,
+      "xdrAttitude": true,
       "xdrBattery": false,
-      "hdm": true,
+      "hdm": false,
       "mwv": true,
       "rsa": true
     }
