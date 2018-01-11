@@ -1,24 +1,33 @@
 {
   "imu": {
     "enabled": true,
-    "frequency": 20,
+    "frequency": 10,
     "enableHdg": true,
     "enableHeelPitch": true,
-    "mounting": "verticalPortHull"
+    "mounting": "horizontalLeftSideToBow"
   },
   "barometer": {
-    "enabled": true,
+    "enabled": false,
     "frequency": 1
   },
   "wifi": {
     "enabled": true,
     "nmeaConverter": {
-      "xdrPressure": true,
+      "xdrPressure": false,
       "xdrAttitude": true,
-      "xdrBattery": true,
+      "xdrBattery": false,
       "hdm": true,
       "mwv": true,
       "rsa": true
+    },
+    "accessPoint": {
+      "enabled": true,
+      "ssid": "KBox"
+    },
+    "client": {
+      "enabled": true,
+      "ssid": "bistdudeppert",
+      "password": "1140Anz7510"
     }
   },
   "serial1": {
@@ -26,9 +35,9 @@
     "outputMode": "nmea",
     "baudRate": 38400,
     "nmeaConverter": {
-      "xdrPressure": true,
+      "xdrPressure": false,
       "xdrAttitude": true,
-      "xdrBattery": true,
+      "xdrBattery": false,
       "hdm": true,
       "mwv": true,
       "rsa": true
@@ -40,9 +49,9 @@
     "baudRate": 4800,
     "nmeaConverter": {
       "xdrPressure": false,
-      "xdrAttitude": false,
+      "xdrAttitude": true,
       "xdrBattery": false,
-      "hdm": true,
+      "hdm": false,
       "mwv": true,
       "rsa": true
     }
@@ -50,10 +59,11 @@
   "nmea2000": {
     "txEnabled": true,
     "rxEnabled": true
-  },
+  }
+},
   "sdcard": {
     "enabled": true,
-    "logtype": "nmea+seasmart",
+    "logtype": "seasmart",
     "timestamp": true,
     "writeDebug": true
   }
