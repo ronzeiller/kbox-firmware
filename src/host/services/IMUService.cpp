@@ -65,7 +65,10 @@ void IMUService::setup() {
 
 void IMUService::loop() {
   bno055.getCalibration(&_sysCalib, &_gyroCalib, &_accelCalib, &_magCalib);
+  //DEBUG("Calib Sys: %i Accel: %i Gyro: %i Mag: %i", _sysCalib, _accelCalib, _gyroCalib, _magCalib);
+
   imu::Vector<3> eulerAngles = bno055.getVector(Adafruit_BNO055::VECTOR_EULER);
+  //DEBUG("Sensor Raw-datas: eulerAngles.z=%.3f eulerAngles.y=%.3f  eulerAngles.x=%.3f", eulerAngles.z(), eulerAngles.y(), eulerAngles.x());
 
   SKUpdateStatic<2> update;
 
@@ -113,6 +116,7 @@ void IMUService::loop() {
     saveCalibration();
     _timeSinceLastCalSave = 0;
   }
+  //DEBUG("Heel = %.3f | Pitch = %.3f | Heading = %.3f", SKRadToDeg( _roll + _offsetRoll), SKRadToDeg( _pitch + _offsetPitch), SKRadToDeg(_heading));
 }
 
 // get the actual values of calibrationData, heel & pitch (including offset) and heading for display
@@ -198,4 +202,3 @@ bool IMUService::restoreCalibration() {
     return false;
   }
 }
-
