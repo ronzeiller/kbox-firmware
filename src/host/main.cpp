@@ -42,7 +42,7 @@
 #include "host/services/USBService.h"
 #include "host/services/WiFiService.h"
 
-static const char *configFilename = "Sailmax-config.json";
+static const char *configFilename = "xSailmax-config.json";
 
 ILI9341GC gc(KBox.getDisplay(), Size(320, 240));
 MFD mfd(gc, KBox.getEncoder(), KBox.getButton());
