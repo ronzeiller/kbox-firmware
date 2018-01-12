@@ -11,7 +11,7 @@
     "frequency": 1
   },
   "wifi": {
-    "enabled": true,
+    "enabled": false,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
@@ -19,12 +19,21 @@
       "hdm": true,
       "mwv": true,
       "rsa": true
+    },
+    "accessPoint": {
+      "enabled": true,
+      "ssid": "KBox"
+    },
+    "client": {
+      "enabled": false,
+      "ssid": "bistdudeppert",
+      "password": "1140Anz7510"
     }
   },
   "serial1": {
     "inputMode": "nmea",
     "outputMode": "nmea",
-    "baudRate": 38400,
+    "baudRate": 4800,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
@@ -43,8 +52,8 @@
       "xdrAttitude": true,
       "xdrBattery": false,
       "hdm": false,
-      "mwv": true,
-      "rsa": true
+      "mwv": false,
+      "rsa": false
     }
   },
   "nmea2000": {
