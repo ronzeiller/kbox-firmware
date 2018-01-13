@@ -156,7 +156,7 @@ void SerialService::setup() {
   if (_skSourceInput == SKSourceInputNMEA0183_1) {
     NMEA1_SERIAL.begin(_config.baudRate);
     digitalWrite(nmea1_out_enable, _config.outputMode != SerialModeDisabled);
-    DEBUG("SerialService[1] Baudrate: %i Input: %s Output: %s",
+    INFO("SerialService[1] Baudrate: %i Input: %s Output: %s",
           _config.baudRate,
           _config.inputMode == SerialModeNMEA ? "true" : "false",
           _config.outputMode == SerialModeNMEA ? "true" : "false");
@@ -225,4 +225,3 @@ bool SerialService::write(const SKNMEASentence &nmeaSentence) {
     return false;
   }
 }
-
