@@ -66,4 +66,5 @@ class KBoxConfigParser {
     void parseWiFiConfig(const JsonObject &json, WiFiConfig &config);
     void parseNMEAConverterConfig(const JsonObject &json, SKNMEAConverterConfig &config);
     void parseSDCardConfig(const JsonObject &json, SDCardConfig &config);
+    void parseNMEA2000ParserConfig(const JsonObject &json, SKNMEA2000ParserConfig &config);
 };

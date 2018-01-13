@@ -46,7 +46,7 @@ void NMEA2000Service::publishN2kMessage(const tN2kMsg& msg) {
     NMEA2000Message m(msg, now());
     sendMessage(m);
 
-    SKNMEA2000Parser p;
+    SKNMEA2000Parser p(_config.nmea2000Parser);
     //FIXME: Get the time properly here!
     const SKUpdate &update = p.parse(SKSourceInputNMEA2000, msg, SKTime(0));
     if (update.getSize() > 0) {
