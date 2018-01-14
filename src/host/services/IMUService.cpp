@@ -61,6 +61,9 @@ void IMUService::setup() {
     // read calibrationData and offset values for heel & pitch from flash
     restoreCalibration();
   }
+  // external crystal use is bad
+  // bno055.setExtCrystalUse(true);
+  displaySensorDetails();
 }
 
 void IMUService::loop() {
@@ -112,7 +115,7 @@ void IMUService::loop() {
 
   // Save calibrationData values to EEPROM every 30 Minutes, if BNO055 is fully calibrated
   if (bno055.isFullyCalibrated() &&
-      _timeSinceLastCalSave > resaveCalibrationTimeMs) {
+      _timeSinceLastCalSave > resaveCalibrationTimeMs && millis() > 30000) {
     saveCalibration();
     _timeSinceLastCalSave = 0;
   }
@@ -201,4 +204,29 @@ bool IMUService::restoreCalibration() {
     ERROR("Error recalling IMU Calibration from flash");
     return false;
   }
+}
+
+void IMUService::displaySensorDetails(void) {
+    sensor_t sensor;
+    bno055.getSensor(&sensor);
+
+    // Get the system status values
+    uint8_t system_status, self_test_results, system_error;
+    system_status = self_test_results = system_error = 0;
+    bno055.getSystemStatus(&system_status, &self_test_results, &system_error);
+
+    Serial.println("------------------------------------");
+    Serial.print("Sensor:        "); Serial.println(sensor.name);
+    Serial.print("Driver Ver:    "); Serial.println(sensor.version);
+    Serial.print("Unique ID:     "); Serial.println(sensor.sensor_id);
+    Serial.print("Max Value:     "); Serial.print(sensor.max_value); Serial.println(" xxx");
+    Serial.print("Min Value:     "); Serial.print(sensor.min_value); Serial.println(" xxx");
+    Serial.print("Resolution:    "); Serial.print(sensor.resolution); Serial.println(" xxx");
+    Serial.print("System Status: 0x"); Serial.println(system_status, HEX);
+    Serial.print("Self Test:     0x"); Serial.println(self_test_results, HEX);
+    Serial.print("System Error:  0x"); Serial.println(system_error, HEX);
+    Serial.println("------------------------------------");
+    Serial.println("");
+
+    delay(500);
 }
