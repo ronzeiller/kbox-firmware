@@ -132,14 +132,14 @@ void setup() {
   taskManager.addTask(sdcardTask);
   taskManager.addTask(&usbService);
 
-  BatteryMonitorPage *batPage = new BatteryMonitorPage(skHub);
-  mfd.addPage(batPage);
-
   if (config.imuConfig.enabled) {
     // At the moment the IMUMonitorPage is working with built-in sensor only
     IMUMonitorPage *imuPage = new IMUMonitorPage(config.imuConfig, skHub, *imuService);
     mfd.addPage(imuPage);
   }
+
+  BatteryMonitorPage *batPage = new BatteryMonitorPage(skHub);
+  mfd.addPage(batPage);
 
   StatsPage *statsPage = new StatsPage();
   statsPage->setSDCardTask(sdcardTask);
