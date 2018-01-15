@@ -42,13 +42,25 @@ void IMUService::setup() {
   // Where each can be 00:X, 01: Y, 10:Z
   // Sign is the 3 lsb: 00000xyz
   switch (_config.mounting) {
-    case HorizontalLeftSideToBow:
+    case horizontalTopToBow:         // Bosch P0
+      _axisConfig = 0b00100001;
+      _signConfig = 0b00000100;
+    break;
+    case horizontalLeftSideToBow:    // Bosch P1 (default)
       _axisConfig = 0b00100100;
       _signConfig = 0b00000000;
     break;
-    case VerticalTopToBow:
-    case VerticalStbHull:
-    case VerticalPortHull:
+    case horizontalBottomToBow:      // Bosch P2
+      _axisConfig = 0b00100100;
+      _signConfig = 0b00000110;
+    break;
+    case horizontalRightSideToBow:   // Bosch P3
+      _axisConfig = 0b00100001;
+      _signConfig = 0b00000010;
+    break;
+    case verticalTopToBow:
+    case verticalStbHull:
+    case verticalPortHull:
       _axisConfig = 0b00001001;
       _signConfig = 0b00000000;
   }
@@ -61,6 +73,9 @@ void IMUService::setup() {
     // read calibrationData and offset values for heel & pitch from flash
     restoreCalibration();
   }
+  // external crystal use is bad
+  // bno055.setExtCrystalUse(true);
+  displaySensorDetails();
 }
 
 void IMUService::loop() {
@@ -76,22 +91,25 @@ void IMUService::loop() {
   //  roll:   Vessel roll, +ve is list to starboard
   //  pitch:  Pitch, +ve is bow up
   switch (_config.mounting) {
-    case VerticalPortHull:
+    case verticalPortHull:
       _roll = SKDegToRad(eulerAngles.z());
       _pitch = SKDegToRad(eulerAngles.y());
       _heading = SKDegToRad(fmod(eulerAngles.x() + 270, 360));
     break;
-    case VerticalStbHull:
+    case verticalStbHull:
       _roll = SKDegToRad(eulerAngles.z())*(-1);
       _pitch = SKDegToRad(eulerAngles.y())*(-1);
       _heading = SKDegToRad(eulerAngles.x());
     break;
-    case VerticalTopToBow:
+    case verticalTopToBow:
       _roll = SKDegToRad(eulerAngles.y());
       _pitch = SKDegToRad(eulerAngles.z());
       _heading = SKDegToRad(fmod(eulerAngles.x() + 180, 360));
     break;
-    case HorizontalLeftSideToBow:
+    case horizontalTopToBow:         // Bosch P0
+    case horizontalLeftSideToBow:    // Bosch P1 (default)
+    case horizontalBottomToBow:      // Bosch P2
+    case horizontalRightSideToBow:   // Bosch P3
       _roll = SKDegToRad(eulerAngles.y());
       _pitch = SKDegToRad(eulerAngles.z()) * (-1);
       _heading = SKDegToRad(eulerAngles.x());
@@ -112,7 +130,8 @@ void IMUService::loop() {
 
   // Save calibrationData values to EEPROM every 30 Minutes, if BNO055 is fully calibrated
   if (bno055.isFullyCalibrated() &&
-      _timeSinceLastCalSave > resaveCalibrationTimeMs) {
+      _timeSinceLastCalSave > resaveCalibrationTimeMs &&
+      millis() > 30000) {
     saveCalibration();
     _timeSinceLastCalSave = 0;
   }
@@ -132,7 +151,6 @@ void IMUService::getLastValues(int &sysCalibration, int &accelCalibration, doubl
 
 //  Calc offset for making Heel=0 and Pitch=0
 //  (e.g. called with long button press in IMUMonitorPage)
-//  If an setOffset will be done a second time within 5 Seconds,
 //  the values will be stored into EEPROM and loaded at start of KBox
 void IMUService::setRollPitchOffset() {
   bool changed = false;
@@ -201,4 +219,29 @@ bool IMUService::restoreCalibration() {
     ERROR("Error recalling IMU Calibration from flash");
     return false;
   }
+}
+
+void IMUService::displaySensorDetails(void) {
+    sensor_t sensor;
+    bno055.getSensor(&sensor);
+
+    // Get the system status values
+    uint8_t system_status, self_test_results, system_error;
+    system_status = self_test_results = system_error = 0;
+    bno055.getSystemStatus(&system_status, &self_test_results, &system_error);
+
+    Serial.println("------------------------------------");
+    Serial.print("Sensor:        "); Serial.println(sensor.name);
+    Serial.print("Driver Ver:    "); Serial.println(sensor.version);
+    Serial.print("Unique ID:     "); Serial.println(sensor.sensor_id);
+    Serial.print("Max Value:     "); Serial.print(sensor.max_value); Serial.println(" xxx");
+    Serial.print("Min Value:     "); Serial.print(sensor.min_value); Serial.println(" xxx");
+    Serial.print("Resolution:    "); Serial.print(sensor.resolution); Serial.println(" xxx");
+    Serial.print("System Status: 0x"); Serial.println(system_status, HEX);
+    Serial.print("Self Test:     0x"); Serial.println(self_test_results, HEX);
+    Serial.print("System Error:  0x"); Serial.println(system_error, HEX);
+    Serial.println("------------------------------------");
+    Serial.println("");
+
+    delay(500);
 }

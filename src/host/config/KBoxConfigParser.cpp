@@ -29,6 +29,7 @@
 */
 
 #include "KBoxConfigParser.h"
+#include <KBoxLogging.h>
 
 #define READ_VALUE_WITH_TYPE(name, type) if (json[#name].is<type>()) { config.name = json[#name].as<type>(); }
 #define READ_BOOL_VALUE(name) READ_VALUE_WITH_TYPE(name, bool)
@@ -57,7 +58,7 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.imuConfig.enabled = true;           // enable internal IMU sensor
   config.imuConfig.enableHdg = true;         // true if values taken from internal sensor
   config.imuConfig.enableHeelPitch = true;   // true if values taken from internal sensor
-  config.imuConfig.mounting = VerticalStbHull;
+  config.imuConfig.mounting = verticalStbHull;
 
   config.barometerConfig.enabled = true;
   config.barometerConfig.frequency = 1;
@@ -141,18 +142,28 @@ enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {
 }
 
 enum IMUMounting KBoxConfigParser::convertIMUMounting(const String &s) {
+  INFO("Config IMUMounting: %s", s);
   if (s == "verticalPortHull") {
-    return VerticalPortHull;
+    return verticalPortHull;
   }
   if (s == "verticalStarboardHull") {
-    return VerticalStbHull;
+    return verticalStbHull;
   }
   if (s == "verticalTopToBow") {
-    return VerticalTopToBow;
+    return verticalTopToBow;
   }
-  if (s == "horizontalLeftSideToBow") {
-    return HorizontalLeftSideToBow;
+  if (s == "horizontalTopToBow") {  // Bosch P0
+    return horizontalTopToBow;
+  }
+  if (s == "horizontalLeftSideToBow") { // Bosch P1 (default)
+    return horizontalLeftSideToBow;
+  }
+  if (s == "horizontaBottomToBow") { // Bosch P2
+    return horizontalBottomToBow;
+  }
+  if (s == "horizontaRightSideToBow") { // Bosch P3
+    return horizontalRightSideToBow;
   }
   // default
-  return VerticalPortHull;
+  return verticalPortHull;
 }

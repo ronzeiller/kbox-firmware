@@ -51,6 +51,8 @@ class IMUService : public Task {
     bool restoreCalibration();
     bool saveCalibration();
 
+    void displaySensorDetails(void);
+
   public:
     IMUService(IMUConfig &config, SKHub& skHub);
     void setup();
