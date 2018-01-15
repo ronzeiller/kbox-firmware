@@ -29,6 +29,7 @@
 */
 
 #include "KBoxConfigParser.h"
+#include <KBoxLogging.h>
 
 #define READ_VALUE_WITH_TYPE(name, type) if (json[#name].is<type>()) { config.name = json[#name].as<type>(); }
 #define READ_BOOL_VALUE(name) READ_VALUE_WITH_TYPE(name, bool)
@@ -141,6 +142,7 @@ enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {
 }
 
 enum IMUMounting KBoxConfigParser::convertIMUMounting(const String &s) {
+  INFO("Config IMUMounting: %s", s);
   if (s == "verticalPortHull") {
     return VerticalPortHull;
   }
@@ -150,8 +152,11 @@ enum IMUMounting KBoxConfigParser::convertIMUMounting(const String &s) {
   if (s == "verticalTopToBow") {
     return VerticalTopToBow;
   }
-  if (s == "horizontalLeftSideToBow") {
+  if (s == "horizontalLeftSideToBow") { // Bosch P1 (default)
     return HorizontalLeftSideToBow;
+  }
+  if (s == "horizontalTopToBow") {  // Bosch P0
+    return HorizontalTopToBow;
   }
   // default
   return VerticalPortHull;

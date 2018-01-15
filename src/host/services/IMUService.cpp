@@ -46,6 +46,10 @@ void IMUService::setup() {
       _axisConfig = 0b00100100;
       _signConfig = 0b00000000;
     break;
+    case HorizontalTopToBow:
+      _axisConfig = 0b000100001;
+      _signConfig = 0b00000100;
+    break;
     case VerticalTopToBow:
     case VerticalStbHull:
     case VerticalPortHull:
@@ -95,6 +99,7 @@ void IMUService::loop() {
       _heading = SKDegToRad(fmod(eulerAngles.x() + 180, 360));
     break;
     case HorizontalLeftSideToBow:
+    case HorizontalTopToBow:
       _roll = SKDegToRad(eulerAngles.y());
       _pitch = SKDegToRad(eulerAngles.z()) * (-1);
       _heading = SKDegToRad(eulerAngles.x());
