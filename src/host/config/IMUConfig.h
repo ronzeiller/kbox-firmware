@@ -35,9 +35,10 @@ enum IMUMounting {
   verticalPortHull,
   verticalTopToBow,
   //verticalTopToStern,
-  horizontalLeftSideToBow,
-  horizontalTopToBow,
-  //horizontalRightSideToBow
+  horizontalTopToBow,         // Bosch P0
+  horizontalLeftSideToBow,    // Bosch P1 (default)
+  horizontalBottomToBow,      // Bosch P2
+  horizontalRightSideToBow    // Bosch P3
 };
 
 struct IMUConfig {
