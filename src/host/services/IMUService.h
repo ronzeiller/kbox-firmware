@@ -68,11 +68,11 @@ class IMUService : public Task {
     // and orientation values will be off  The heading will jump to an absolute value
     // once the BNO finds magnetic north (the system calibrationData status jumps to 1 or higher).
     bool isMagCalibrated() {
-      return _magCalib == 3 && _sysCalib > 0;
+      return _magCalib >= 2 && _sysCalib > 0;
     };
 
     bool isRollAndPitchCalibrated() {
-      return _accelCalib >= 2 && _gyroCalib >= 2;
+      return _accelCalib >= 1 && _gyroCalib >= 1;
     };
 
     void getLastValues(int &_sysCalibration, int &accelCalibration, double &pitch, double &roll, int &magCalibration, double &heading);
