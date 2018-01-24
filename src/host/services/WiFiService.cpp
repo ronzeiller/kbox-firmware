@@ -22,6 +22,8 @@
   THE SOFTWARE.
 */
 
+// Über WiFi wird im Moment 23.1.2018 entweder $PCDIN
+
 #include <KBoxLogging.h>
 #include <KBoxHardware.h>
 #include <config/WiFiConfig.h>
@@ -69,6 +71,14 @@ void WiFiService::loop() {
   }
 }
 
+// ****************************************************************************
+// Vom NMEA2000Service kommend mit sendMessage() geht im KGenerator
+// die Message an alle connected Receivers, wo der Aufruf processMessage()
+// aufgerufen wird.
+// Je nach KMessage NMEA2000 oder NMEA0183 wird $PCDIN oder ein NMEA0183 String
+// mit getNMEAContent() abgeholt und über
+// _slip.writeFrame() an das WiFi geschrieben
+// ****************************************************************************
 void WiFiService::processMessage(const KMessage &m) {
   if (!_config.enabled) {
     return;
@@ -77,6 +87,7 @@ void WiFiService::processMessage(const KMessage &m) {
   KMessageNMEAVisitor v;
   m.accept(v);
 
+  // $PCDIN oder NMEA0183 je nach KMessage Typ
   String data = v.getNMEAContent();
 
   // TODO
@@ -88,6 +99,12 @@ void WiFiService::processMessage(const KMessage &m) {
   _slip.writeFrame(k.getBytes(), k.getSize());
 }
 
+// ****************************************************************************
+// Gegenstück zu processMessage()
+// Hier werden alle SKSubscriber von einem SignalK Update informiert
+// Im SKNMEAConverter wird das SignalK JSON in ein NMEA0183 konvertiert
+// und über _slip.writeFrame() an das WiFi geschrieben
+// ****************************************************************************
 void WiFiService::updateReceived(const SKUpdate& u) {
   /* This is where we convert the data in SignalK format that floats inside KBox
    * to messages that will be sent to WiFi clients.
@@ -99,6 +116,7 @@ void WiFiService::updateReceived(const SKUpdate& u) {
 
   SKNMEAConverter nmeaConverter(_config.nmeaConverter);
   // The converter will call this->write(NMEASentence) for every generated sentence
+  // convert(const SKUpdate& update, SKNMEAOutput& output)
   nmeaConverter.convert(u, *this);
 
   // Now send in JSON format
