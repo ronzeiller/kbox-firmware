@@ -87,7 +87,7 @@ void WiFiService::processMessage(const KMessage &m) {
   KMessageNMEAVisitor v;
   m.accept(v);
 
-  // $PCDIN oder NMEA0183 je nach KMessage Typ
+  // $PCDIN oder NMEA0183 je nach KMessage Typ NMEASentence oder NMEA2000Message
   String data = v.getNMEAContent();
 
   // TODO
@@ -103,7 +103,10 @@ void WiFiService::processMessage(const KMessage &m) {
 // Gegenstück zu processMessage()
 // Hier werden alle SKSubscriber von einem SignalK Update informiert
 // Im SKNMEAConverter wird das SignalK JSON in ein NMEA0183 konvertiert
-// und über _slip.writeFrame() an das WiFi geschrieben
+// über convert(u, *this); --> wird im SKNMEAConverter write(SKNMEASentence)
+// aufgerufen und der NMEA0183 Satz geschrieben.
+//
+// Danach "Now send in JSON format" scheint nicht zu funktionieren.....
 // ****************************************************************************
 void WiFiService::updateReceived(const SKUpdate& u) {
   /* This is where we convert the data in SignalK format that floats inside KBox
@@ -129,6 +132,10 @@ void WiFiService::updateReceived(const SKUpdate& u) {
   _slip.writeFrame(k.getBytes(), k.getSize());
 }
 
+// ****************************************************************************
+// Aufruf von write erfolgt im SKNMEAConverter mit output.write(sb.toNMEA());
+// womit der NMEA0183 Satz an das WiFi geschrieben wird
+// ****************************************************************************
 bool WiFiService::write(const SKNMEASentence& sentence) {
   // NMEA Sentences should always be 82 bytes or less
   FixedSizeKommand<100> k(KommandNMEASentence);
