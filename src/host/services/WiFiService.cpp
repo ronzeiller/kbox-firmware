@@ -22,7 +22,7 @@
   THE SOFTWARE.
 */
 
-// Über WiFi wird im Moment 23.1.2018 entweder $PCDIN
+// Über WiFi wird im Moment 23.1.2018 entweder $PCDIN oder NMEA0183 gesendet
 
 #include <KBoxLogging.h>
 #include <KBoxHardware.h>
