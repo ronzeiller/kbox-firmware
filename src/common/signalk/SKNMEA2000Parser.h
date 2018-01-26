@@ -34,7 +34,7 @@
 #include "SKUpdate.h"
 #include "SKUpdateStatic.h"
 #include "SKNMEA2000ParserConfig.h"
-#include "performance/Performance.h"
+#include "host/performance/Performance.h"
 
 class SKNMEA2000Parser {
   private:

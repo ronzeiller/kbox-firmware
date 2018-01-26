@@ -196,7 +196,8 @@ enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {
 }
 
 enum IMUMounting KBoxConfigParser::convertIMUMounting(const String &s) {
-  INFO("Config IMUMounting: %s", s);
+  //TODO: Error
+  //INFO("Config IMUMounting: %s", s);
   if (s == "verticalPortHull") {
     return verticalPortHull;
   }
