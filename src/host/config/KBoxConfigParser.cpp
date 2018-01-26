@@ -35,7 +35,10 @@
 #define READ_BOOL_VALUE(name) READ_VALUE_WITH_TYPE(name, bool)
 #define READ_INT_VALUE(name) READ_VALUE_WITH_TYPE(name, int)
 #define READ_INT_VALUE_WRANGE(name, min, max) if (json[#name].is<int>() && json[#name] > min && json[#name] < max) { config.name = json[#name].as<int>(); }
-
+#define READ_STRING_VALUE(name) if (json[#name].is<const char *>()) {\
+                                  config.name = \
+                                    String(json[#name].as<const char*>()); \
+                                }
 #define READ_ENUM_VALUE(name, converter) if (json[#name].is<const char *>()) { config.name = converter(json[#name].as<const char*>()); }
 
 void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
@@ -69,6 +72,12 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.sdcardConfig.enabled = true;
   config.sdcardConfig.writeTimestamp = true;
   config.sdcardConfig.dataFormatConfig.dataFormat = NMEA_Seasmart;
+
+  config.performanceConfig.enabled = true;
+  config.performanceConfig.boatSpeedCorrTableFileName = "boatspeedCorr.cal";
+  config.performanceConfig.leewayHullFactor = 100;
+  config.performanceConfig.windSensorHeight = 1250;
+  config.performanceConfig.polarDataFileName = "polarData.pol";
 }
 
 void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &config) {
@@ -81,6 +90,7 @@ void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &confi
   parseWiFiConfig(json["wifi"], config.wifiConfig);
   parseNMEA2000Config(json["nmea2000"], config.nmea2000Config);
   parseSDCardConfig(json["sdcard"], config.sdcardConfig);
+  parsePerformanceConfig(json["performance"], config.performanceConfig);
 }
 
 void KBoxConfigParser::parseIMUConfig(const JsonObject &json, IMUConfig &config) {
@@ -165,6 +175,14 @@ void KBoxConfigParser::parseSDCardConfig(const JsonObject &json, SDCardConfig &c
   READ_BOOL_VALUE(enabled);
   READ_BOOL_VALUE(writeTimestamp);
   parseDataFormatConfig(json["dataFormatConfig"], config.dataFormatConfig);
+}
+
+void KBoxConfigParser::parsePerformanceConfig(const JsonObject &json, PerformanceConfig &config) {
+  READ_BOOL_VALUE(enabled);
+  READ_STRING_VALUE(boatSpeedCorrTableFileName);
+  READ_INT_VALUE(leewayHullFactor);
+  READ_INT_VALUE(windSensorHeight);
+  READ_STRING_VALUE(polarDataFileName);
 }
 
 enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {

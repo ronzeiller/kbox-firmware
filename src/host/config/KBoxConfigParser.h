@@ -68,4 +68,5 @@ class KBoxConfigParser {
     void parseNMEA2000ParserConfig(const JsonObject &json, SKNMEA2000ParserConfig &config);
     void parseSDCardConfig(const JsonObject &json, SDCardConfig &config);
     void parseDataFormatConfig(const JsonObject &json, DataFormatConfig &config);
+    void parsePerformanceConfig(const JsonObject &json, PerformanceConfig &config);
 };

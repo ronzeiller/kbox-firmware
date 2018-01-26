@@ -6,8 +6,8 @@
        \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
 
   The MIT License
-
-  Copyright (c) 2017 Thomas Sarlandie thomas@sarlandie.net
+  Copyright (c) 2018 Ronnie Zeiller ronnie@zeiller.eu
+  Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -27,27 +27,22 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+/*
+  Annotation:
+  As we are here for sailboat performance calculations we use the common used
+  "heel" instead of "roll" as in the rest of KBox code.
+*/
 
 #pragma once
+#include "host/config/PerformanceConfig.h"
 
-#include "SerialConfig.h"
-#include "NMEA2000Config.h"
-#include "IMUConfig.h"
-#include "BarometerConfig.h"
-#include "WiFiConfig.h"
-#include "SDCardConfig.h"
-#include "PerformanceConfig.h"
+class Performance {
+  private:
+    // const PerformanceConfig &_config;
 
-/**
- * A KBox configuration in memory
- */
-struct KBoxConfig {
-  SerialConfig serial1Config;
-  SerialConfig serial2Config;
-  NMEA2000Config nmea2000Config;
-  IMUConfig imuConfig;
-  BarometerConfig barometerConfig;
-  WiFiConfig wifiConfig;
-  SDCardConfig sdcardConfig;
-  PerformanceConfig performanceConfig;
+  public:
+    Performance(){};
+    bool calcBoatSpeed(double &boatspeed, double &heel, double &leeway);
+    bool corrForNonLinearTransducer(double &bs_kts, double &heel);
+    bool calcLeeway(double &bs_kts, double &heel, double &leeway);
 };
