@@ -31,8 +31,10 @@
 #pragma once
 
 #include "common/signalk/SKNMEAConverterConfig.h"
+#include "DataFormatConfig.h"
 
 struct WiFiConfig {
   bool enabled;
   SKNMEAConverterConfig nmeaConverter;
+  DataFormatConfig dataFormatConfig;
 };

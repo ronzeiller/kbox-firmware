@@ -64,6 +64,11 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.barometerConfig.frequency = 1;
 
   config.wifiConfig.enabled = true;
+  config.wifiConfig.dataFormatConfig.dataFormat = NMEA;
+
+  config.sdcardConfig.enabled = true;
+  config.sdcardConfig.writeTimestamp = true;
+  config.sdcardConfig.dataFormatConfig.dataFormat = NMEA_Seasmart;
 }
 
 void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &config) {
@@ -75,6 +80,7 @@ void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &confi
   parseBarometerConfig(json["barometer"], config.barometerConfig);
   parseWiFiConfig(json["wifi"], config.wifiConfig);
   parseNMEA2000Config(json["nmea2000"], config.nmea2000Config);
+  parseSDCardConfig(json["sdcard"], config.sdcardConfig);
 }
 
 void KBoxConfigParser::parseIMUConfig(const JsonObject &json, IMUConfig &config) {
@@ -110,6 +116,14 @@ void KBoxConfigParser::parseNMEA2000Config(const JsonObject &json,
   parseNMEA2000ParserConfig(json["nmea2000Parser"], config.nmea2000Parser);
 }
 
+void KBoxConfigParser::parseDataFormatConfig(const JsonObject &json, DataFormatConfig &config) {
+  if (json == JsonObject::invalid()) {
+    return;
+  }
+
+  READ_ENUM_VALUE(dataFormat, convertDataFormatType);
+}
+
 void KBoxConfigParser::parseWiFiConfig(const JsonObject &json, WiFiConfig &config) {
   if (json == JsonObject::invalid()) {
     return;
@@ -117,6 +131,7 @@ void KBoxConfigParser::parseWiFiConfig(const JsonObject &json, WiFiConfig &confi
 
   READ_BOOL_VALUE(enabled);
   parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverter);
+  parseDataFormatConfig(json["dataFormatConfig"], config.dataFormatConfig);
 }
 
 void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEAConverterConfig &config) {
@@ -132,6 +147,7 @@ void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEACo
   READ_BOOL_VALUE(mwv);
 }
 
+<<<<<<< HEAD
 void KBoxConfigParser::parseNMEA2000ParserConfig(const JsonObject &json,
                                                  SKNMEA2000ParserConfig &config) {
   if (json == JsonObject::invalid()) {
@@ -141,6 +157,15 @@ void KBoxConfigParser::parseNMEA2000ParserConfig(const JsonObject &json,
   READ_BOOL_VALUE(heading_127250_enabled);
   READ_BOOL_VALUE(attitude_127257_enabled);
   READ_BOOL_VALUE(depth_128267_enabled);
+=======
+void KBoxConfigParser::parseSDCardConfig(const JsonObject &json, SDCardConfig &config) {
+  if (json == JsonObject::invalid()) {
+    return;
+  }
+  READ_BOOL_VALUE(enabled);
+  READ_BOOL_VALUE(writeTimestamp);
+  parseDataFormatConfig(json["dataFormatConfig"], config.dataFormatConfig);
+>>>>>>> rz_more-logging
 }
 
 enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {
@@ -178,4 +203,18 @@ enum IMUMounting KBoxConfigParser::convertIMUMounting(const String &s) {
   }
   // default
   return verticalPortHull;
+}
+
+enum DataFormatType KBoxConfigParser::convertDataFormatType(const String &s) {
+  if (s == "NMEA") {
+    return NMEA;
+  }
+  if (s == "NMEA_Seasmart") {
+    return NMEA_Seasmart;
+  }
+  if (s == "Seasmart") {
+    return Seasmart;
+  }
+  // default
+  return NMEA_Seasmart;
 }
