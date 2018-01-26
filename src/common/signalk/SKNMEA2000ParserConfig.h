@@ -8,6 +8,7 @@
   The MIT License
 
   Copyright (c) 2017 Thomas Sarlandie thomas@sarlandie.net
+  Copyright (c) 2018 Ronnie Zeiller ronnie@zeiller.eu
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -28,49 +29,13 @@
   THE SOFTWARE.
 */
 
-#include <iostream>
-#include <string>
-#include <WString.h>
-#include <ArduinoJson.h>
-#include <Seasmart.h>
-#include "common/signalk/SKNMEAParser.h"
-#include "common/signalk/SKNMEA2000Parser.h"
-#include "common/signalk/SKJSONVisitor.h"
+#pragma once
 
-SKNMEA2000ParserConfig config;
-
-SKNMEAParser nmeaParser = SKNMEAParser();
-SKNMEA2000Parser nmea2000Parser = SKNMEA2000Parser(config);
-
-const SKUpdate& parseInputLine(std::string line) {
-  static const SKUpdateStatic<0> noUpdate = SKUpdateStatic<0>();
-
-  if (line.find("$PCDIN") == 0) {
-    tN2kMsg msg;
-
-    uint32_t timestamp;
-    if (SeasmartToN2k(line.c_str(), timestamp, msg)) {
-      return nmea2000Parser.parse(SKSourceInputNMEA2000, msg, timestamp);
-    }
-    else {
-      std::cerr << "Unable to convert PCDIN message to N2kMsg: " << line << std::endl;
-      return noUpdate;
-    }
-  }
-  else {
-    return nmeaParser.parse(SKSourceInputNMEA0183_1, String(line.c_str()), SKTime(time(0)));
-  }
-}
-
-int main(int argc, char **argv) {
-  DynamicJsonBuffer jsonBuffer;
-  SKJSONVisitor v = SKJSONVisitor(jsonBuffer);
-
-  for (std::string line; std::getline(std::cin, line); ) {
-    const SKUpdate& u = parseInputLine(line);
-
-    std::cerr << "Update contains: " << u.getSize() << " values and uses " << u.getSizeBytes() << " bytes." << std::endl;
-    JsonObject &o = v.processUpdate(u);
-    std::cout << o << std::endl;
-  }
-}
+/**
+ * Configuration for an instance of SKNMEA2000Parser.
+ */
+struct SKNMEA2000ParserConfig {
+  bool heading_127250_enabled = true;
+  bool attitude_127257_enabled = true;
+  bool depth_128267_enabled = true;
+};

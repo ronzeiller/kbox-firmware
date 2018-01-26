@@ -30,7 +30,10 @@
 
 #pragma once
 
+#include <signalk/SKNMEA2000ParserConfig.h>
+
 struct  NMEA2000Config {
   bool rxEnabled;
   bool txEnabled;
+  SKNMEA2000ParserConfig nmea2000Parser;
 };
