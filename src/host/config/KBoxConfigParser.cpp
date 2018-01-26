@@ -147,7 +147,6 @@ void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEACo
   READ_BOOL_VALUE(mwv);
 }
 
-<<<<<<< HEAD
 void KBoxConfigParser::parseNMEA2000ParserConfig(const JsonObject &json,
                                                  SKNMEA2000ParserConfig &config) {
   if (json == JsonObject::invalid()) {
@@ -157,7 +156,8 @@ void KBoxConfigParser::parseNMEA2000ParserConfig(const JsonObject &json,
   READ_BOOL_VALUE(heading_127250_enabled);
   READ_BOOL_VALUE(attitude_127257_enabled);
   READ_BOOL_VALUE(depth_128267_enabled);
-=======
+}
+
 void KBoxConfigParser::parseSDCardConfig(const JsonObject &json, SDCardConfig &config) {
   if (json == JsonObject::invalid()) {
     return;
@@ -165,7 +165,6 @@ void KBoxConfigParser::parseSDCardConfig(const JsonObject &json, SDCardConfig &c
   READ_BOOL_VALUE(enabled);
   READ_BOOL_VALUE(writeTimestamp);
   parseDataFormatConfig(json["dataFormatConfig"], config.dataFormatConfig);
->>>>>>> rz_more-logging
 }
 
 enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {

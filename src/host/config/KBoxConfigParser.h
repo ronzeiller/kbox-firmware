@@ -65,10 +65,7 @@ class KBoxConfigParser {
     void parseNMEA2000Config(const JsonObject &object, NMEA2000Config &config);
     void parseWiFiConfig(const JsonObject &json, WiFiConfig &config);
     void parseNMEAConverterConfig(const JsonObject &json, SKNMEAConverterConfig &config);
-<<<<<<< HEAD
     void parseNMEA2000ParserConfig(const JsonObject &json, SKNMEA2000ParserConfig &config);
-=======
     void parseSDCardConfig(const JsonObject &json, SDCardConfig &config);
     void parseDataFormatConfig(const JsonObject &json, DataFormatConfig &config);
->>>>>>> rz_more-logging
 };
