@@ -84,9 +84,15 @@
     "polarDataFileName": "polarData.pol",
     "efficiencyFactor": 100,
   },
-    "nmea2000Parser": {
-      "heading_127250_enabled": true,
-      "attitude_127257_enabled": true,
-      "depth_128267_enabled": true
-    }
+  "nmea2000Parser": {
+    "heading_127250_enabled": true,
+    "attitude_127257_enabled": true,
+    "depth_128267_enabled": true
+  },
+  "sdcard": {
+    "enabled": true,
+    "logtype": "seasmart",
+    "timestamp": true,
+    "writeDebug": true
+  }
 }
