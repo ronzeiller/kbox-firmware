@@ -20,6 +20,7 @@
       "mwv": true,
       "rsa": true
     },
+<<<<<<< HEAD
     "accessPoint": {
       "enabled": true,
       "ssid": "KBox"
@@ -28,6 +29,10 @@
       "enabled": false,
       "ssid": "bistdudeppert",
       "password": "1140Anz7510"
+=======
+    "dataFormatType": {
+      "dataFormat" : "NMEA_Seasmart"
+>>>>>>> rz_more-logging
     }
   },
   "serial1": {
@@ -41,6 +46,9 @@
       "hdm": true,
       "mwv": true,
       "rsa": true
+    },
+    "dataFormatType": {
+      "dataFormat" : "NMEA"
     }
   },
   "serial2": {
@@ -58,11 +66,22 @@
   },
   "nmea2000": {
     "txEnabled": true,
+<<<<<<< HEAD
     "rxEnabled": true,
     "nmea2000Parser": {
       "heading_127250_enabled": true,
       "attitude_127257_enabled": true,
       "depth_128267_enabled": true
+=======
+    "rxEnabled": true
+  },
+  "sdcard": {
+    "enabled": true,
+    "timestamp": true,
+    "writeDebug": true,
+    "dataFormatType": {
+      "dataFormat" : "NMEA_Seasmart"
+>>>>>>> rz_more-logging
     }
   }
 }
