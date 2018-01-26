@@ -11,7 +11,7 @@
     "frequency": 1
   },
   "wifi": {
-    "enabled": false,
+    "enabled": true,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
@@ -20,25 +20,23 @@
       "mwv": true,
       "rsa": true
     },
-<<<<<<< HEAD
     "accessPoint": {
       "enabled": true,
       "ssid": "KBox"
     },
     "client": {
       "enabled": false,
-      "ssid": "bistdudeppert",
-      "password": "1140Anz7510"
-=======
+      "ssid": "netzwerkname",
+      "password": "secret"
+    },
     "dataFormatType": {
       "dataFormat" : "NMEA_Seasmart"
->>>>>>> rz_more-logging
     }
   },
   "serial1": {
     "inputMode": "nmea",
     "outputMode": "nmea",
-    "baudRate": 4800,
+    "baudRate": 38400,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
@@ -66,22 +64,26 @@
   },
   "nmea2000": {
     "txEnabled": true,
-<<<<<<< HEAD
-    "rxEnabled": true,
+    "rxEnabled": true
+  },
+  "performance": {
+    "enabled": true,
+    "boatSpeedCorrTableFileName": "boatspeedCorr.cal",
+    "leewayHullFactor": 100,
+    "leewayUpwashWindCorr": true,
+    "upwashFactor": 0,
+    "downwashFactor": 0,
+    "windSensorHeight": 1250,
+    "windCorr10m": true,
+    "calcTrueWind": true,
+    "sendTrueWindToN2k": true,
+    "TrueWindN2kID": 10,
+    "polarDataFileName": "polarData.pol",
+    "efficiencyFactor": 100,
+  },
     "nmea2000Parser": {
       "heading_127250_enabled": true,
       "attitude_127257_enabled": true,
       "depth_128267_enabled": true
-=======
-    "rxEnabled": true
-  },
-  "sdcard": {
-    "enabled": true,
-    "timestamp": true,
-    "writeDebug": true,
-    "dataFormatType": {
-      "dataFormat" : "NMEA_Seasmart"
->>>>>>> rz_more-logging
     }
-  }
 }
