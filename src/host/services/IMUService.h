@@ -1,18 +1,14 @@
 /*
   The MIT License
-
   Copyright (c) 2016 Thomas Sarlandie thomas@sarlandie.net
-
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
-
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -51,8 +47,6 @@ class IMUService : public Task {
     bool restoreCalibration();
     bool saveCalibration();
 
-    void displaySensorDetails(void);
-
   public:
     IMUService(IMUConfig &config, SKHub& skHub);
     void setup();
@@ -68,11 +62,11 @@ class IMUService : public Task {
     // and orientation values will be off  The heading will jump to an absolute value
     // once the BNO finds magnetic north (the system calibrationData status jumps to 1 or higher).
     bool isMagCalibrated() {
-      return _magCalib >= 2 && _sysCalib > 0;
+      return _magCalib == 3 && _sysCalib > 0;
     };
 
     bool isRollAndPitchCalibrated() {
-      return _accelCalib >= 1 && _gyroCalib >= 1;
+      return _accelCalib >= 2 && _gyroCalib >= 2;
     };
 
     void getLastValues(int &_sysCalibration, int &accelCalibration, double &pitch, double &roll, int &magCalibration, double &heading);

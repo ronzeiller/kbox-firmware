@@ -60,6 +60,9 @@
       "hdm": false,
       "mwv": false,
       "rsa": false
+    },
+    "dataFormatType": {
+      "dataFormat" : "NMEA"
     }
   },
   "nmea2000": {

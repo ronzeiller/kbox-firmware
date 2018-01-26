@@ -1,18 +1,14 @@
 /*
   The MIT License
-
   Copyright (c) 2016 Thomas Sarlandie thomas@sarlandie.net
-
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
-
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,6 +16,18 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
+*/
+/*
+           HEEL                    TRIM                   MAGNET COMPASS
+    -90° <- I -> +90°       +90° <- I -> -90°                 -> + 360°
+            I                       I                          #
+            I                       I                         ###
+            I                       I                        #####
+            I                       I                        ##o##
+         #######             ################# ->            #####
+          #####              ###############                 #####
+        back view           Starboard Side View             Top View
+(illustration, thanks to Peter Stefaner)
 */
 
 #include <KBoxLogging.h>
@@ -42,27 +50,28 @@ void IMUService::setup() {
   // Where each can be 00:X, 01: Y, 10:Z
   // Sign is the 3 lsb: 00000xyz
   switch (_config.mounting) {
-    case horizontalTopToBow:         // Bosch P0
-      _axisConfig = 0b00100001;
+    case horizontalTopToBow:
+    case horizontalBottomToBow:
+      _axisConfig = 0b00100001;   // 0x21
+      _signConfig = 0b00000100;   // 0x04
+    break;
+    case horizontalLeftSideToBow: // Bosch P1 (default)
+      _axisConfig = 0b00100100;
+      _signConfig = 0b00000000;
+    break;
+    case horizontalRightSideToBow:
+      _axisConfig = 0b00100100;
       _signConfig = 0b00000100;
     break;
-    case horizontalLeftSideToBow:    // Bosch P1 (default)
-      _axisConfig = 0b00100100;
-      _signConfig = 0b00000000;
-    break;
-    case horizontalBottomToBow:      // Bosch P2
-      _axisConfig = 0b00100100;
-      _signConfig = 0b00000110;
-    break;
-    case horizontalRightSideToBow:   // Bosch P3
-      _axisConfig = 0b00100001;
-      _signConfig = 0b00000010;
-    break;
-    case verticalTopToBow:
-    case verticalStbHull:
     case verticalPortHull:
+    case verticalStbHull:
+    case verticalRightSideToBow:
+    case verticalLeftSideToBow:
+    case verticalTopToBow:
+    case verticalBottomToBow:
       _axisConfig = 0b00001001;
       _signConfig = 0b00000000;
+    break;
   }
 
   DEBUG("Initing BNO055");
@@ -73,47 +82,47 @@ void IMUService::setup() {
     // read calibrationData and offset values for heel & pitch from flash
     restoreCalibration();
   }
-  // external crystal use is bad
-  // bno055.setExtCrystalUse(true);
-  displaySensorDetails();
 }
 
 void IMUService::loop() {
   bno055.getCalibration(&_sysCalib, &_gyroCalib, &_accelCalib, &_magCalib);
-  //DEBUG("Calib Sys: %i Accel: %i Gyro: %i Mag: %i", _sysCalib, _accelCalib, _gyroCalib, _magCalib);
-
   imu::Vector<3> eulerAngles = bno055.getVector(Adafruit_BNO055::VECTOR_EULER);
-  //DEBUG("Sensor Raw-datas: eulerAngles.z=%.3f eulerAngles.y=%.3f  eulerAngles.x=%.3f", eulerAngles.z(), eulerAngles.y(), eulerAngles.x());
 
   SKUpdateStatic<2> update;
 
   // In the SignalK Specification
-  //  roll:   Vessel roll, +ve is list to starboard
+  //  roll:   Vessel roll, +ve is list, heels to starboard
   //  pitch:  Pitch, +ve is bow up
   switch (_config.mounting) {
     case verticalPortHull:
+    case verticalRightSideToBow:
       _roll = SKDegToRad(eulerAngles.z());
-      _pitch = SKDegToRad(eulerAngles.y());
+      _pitch = SKDegToRad(eulerAngles.y())*(-1);
       _heading = SKDegToRad(fmod(eulerAngles.x() + 270, 360));
     break;
     case verticalStbHull:
+    case verticalLeftSideToBow:
       _roll = SKDegToRad(eulerAngles.z())*(-1);
-      _pitch = SKDegToRad(eulerAngles.y())*(-1);
-      _heading = SKDegToRad(eulerAngles.x());
+      _pitch = SKDegToRad(eulerAngles.y());
+      _heading = SKDegToRad(fmod(eulerAngles.x() + 90, 360));
     break;
-    case verticalTopToBow:
+    case verticalBottomToBow:
+    case horizontalBottomToBow:
       _roll = SKDegToRad(eulerAngles.y());
       _pitch = SKDegToRad(eulerAngles.z());
       _heading = SKDegToRad(fmod(eulerAngles.x() + 180, 360));
     break;
-    case horizontalTopToBow:         // Bosch P0
-    case horizontalLeftSideToBow:    // Bosch P1 (default)
-    case horizontalBottomToBow:      // Bosch P2
-    case horizontalRightSideToBow:   // Bosch P3
-      _roll = SKDegToRad(eulerAngles.y());
-      _pitch = SKDegToRad(eulerAngles.z()) * (-1);
+    case verticalTopToBow:
+    case horizontalTopToBow:
+    case horizontalLeftSideToBow:
+      _roll = SKDegToRad(eulerAngles.y())*(-1);
+      _pitch = SKDegToRad(eulerAngles.z())*(-1);
       _heading = SKDegToRad(eulerAngles.x());
     break;
+    case horizontalRightSideToBow:
+      _roll = SKDegToRad(eulerAngles.y())*(-1);
+      _pitch = SKDegToRad(eulerAngles.z());
+      _heading = SKDegToRad(eulerAngles.x());
   }
 
   if (isMagCalibrated()) {
@@ -130,12 +139,10 @@ void IMUService::loop() {
 
   // Save calibrationData values to EEPROM every 30 Minutes, if BNO055 is fully calibrated
   if (bno055.isFullyCalibrated() &&
-      _timeSinceLastCalSave > resaveCalibrationTimeMs &&
-      millis() > 30000) {
+      _timeSinceLastCalSave > resaveCalibrationTimeMs) {
     saveCalibration();
     _timeSinceLastCalSave = 0;
   }
-  //DEBUG("Heel = %.3f | Pitch = %.3f | Heading = %.3f", SKRadToDeg( _roll + _offsetRoll), SKRadToDeg( _pitch + _offsetPitch), SKRadToDeg(_heading));
 }
 
 // get the actual values of calibrationData, heel & pitch (including offset) and heading for display
@@ -219,29 +226,4 @@ bool IMUService::restoreCalibration() {
     ERROR("Error recalling IMU Calibration from flash");
     return false;
   }
-}
-
-void IMUService::displaySensorDetails(void) {
-    sensor_t sensor;
-    bno055.getSensor(&sensor);
-
-    // Get the system status values
-    uint8_t system_status, self_test_results, system_error;
-    system_status = self_test_results = system_error = 0;
-    bno055.getSystemStatus(&system_status, &self_test_results, &system_error);
-
-    Serial.println("------------------------------------");
-    Serial.print("Sensor:        "); Serial.println(sensor.name);
-    Serial.print("Driver Ver:    "); Serial.println(sensor.version);
-    Serial.print("Unique ID:     "); Serial.println(sensor.sensor_id);
-    Serial.print("Max Value:     "); Serial.print(sensor.max_value); Serial.println(" xxx");
-    Serial.print("Min Value:     "); Serial.print(sensor.min_value); Serial.println(" xxx");
-    Serial.print("Resolution:    "); Serial.print(sensor.resolution); Serial.println(" xxx");
-    Serial.print("System Status: 0x"); Serial.println(system_status, HEX);
-    Serial.print("Self Test:     0x"); Serial.println(self_test_results, HEX);
-    Serial.print("System Error:  0x"); Serial.println(system_error, HEX);
-    Serial.println("------------------------------------");
-    Serial.println("");
-
-    delay(500);
 }
