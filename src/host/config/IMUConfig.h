@@ -27,18 +27,31 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+/*          horizontal top (KBox or sensor)
+              __________________
+             / o               /|
+            /                 / /
+Left Side  /     BNO055      / /   Right Side
+          /  vertical top   / /
+         /_________________/ /
+         |________________ |/
+
+       Bottom (KBox or sensor)
+*/
 
 #pragma once
 
 enum IMUMounting {
-  verticalStbHull,
-  verticalPortHull,
-  verticalTopToBow,
-  //verticalTopToStern,
-  horizontalTopToBow,         // Bosch P0
-  horizontalLeftSideToBow,    // Bosch P1 (default)
-  horizontalBottomToBow,      // Bosch P2
-  horizontalRightSideToBow    // Bosch P3
+  verticalPortHull,           // KBox mounted on port hull
+  verticalStbHull,            // KBox mounted on stb. hull
+  verticalRightSideToBow,     // KBox mounted on port hull
+  verticalLeftSideToBow,      // KBox mounted on stb. hull
+  verticalTopToBow,           // KBox mounted on rear bulkhead
+  verticalBottomToBow,        // KBox mounted on front bulkhead,
+  horizontalTopToBow,
+  horizontalLeftSideToBow,
+  horizontalBottomToBow,
+  horizontalRightSideToBow,
 };
 
 struct IMUConfig {
