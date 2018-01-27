@@ -31,6 +31,10 @@
     },
     "dataFormatType": {
       "dataFormat" : "NMEA_Seasmart"
+    },
+    "nmeaConverter": {
+      "propTalkerIDEnabled": true,
+      "talkerID": "KB"
     }
   },
   "serial1": {

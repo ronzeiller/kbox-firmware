@@ -68,6 +68,8 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
 
   config.wifiConfig.enabled = true;
   config.wifiConfig.dataFormatConfig.dataFormat = NMEA;
+  config.wifiConfig.nmeaConverter.propTalkerIDEnabled = true;
+  config.wifiConfig.nmeaConverter.talkerID = "KB";
 
   config.sdcardConfig.enabled = true;
   config.sdcardConfig.writeTimestamp = true;
@@ -94,6 +96,7 @@ void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &confi
   parseNMEA2000Config(json["nmea2000"], config.nmea2000Config);
   parseSDCardConfig(json["sdcard"], config.sdcardConfig);
   parsePerformanceConfig(json["performance"], config.performanceConfig);
+  parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverter);
 }
 
 void KBoxConfigParser::parseIMUConfig(const JsonObject &json, IMUConfig &config) {
