@@ -78,6 +78,9 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.performanceConfig.leewayHullFactor = 100;
   config.performanceConfig.windSensorHeight = 1250;
   config.performanceConfig.polarDataFileName = "polarData.pol";
+
+  config.nmeaConverter.propTalkerIDEnabled = true;
+  config.nmeaConverter.talkerID = "KB";
 }
 
 void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &config) {
@@ -155,6 +158,9 @@ void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEACo
   READ_BOOL_VALUE(hdm);
   READ_BOOL_VALUE(rsa);
   READ_BOOL_VALUE(mwv);
+
+  READ_BOOL_VALUE(propTalkerIDEnabled);
+  READ_STRING_VALUE(talkerID);
 }
 
 void KBoxConfigParser::parseNMEA2000ParserConfig(const JsonObject &json,

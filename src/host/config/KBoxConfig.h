@@ -37,6 +37,7 @@
 #include "WiFiConfig.h"
 #include "SDCardConfig.h"
 #include "PerformanceConfig.h"
+#include "signalk/SKNMEAConverterConfig.h"
 
 /**
  * A KBox configuration in memory
@@ -50,4 +51,5 @@ struct KBoxConfig {
   WiFiConfig wifiConfig;
   SDCardConfig sdcardConfig;
   PerformanceConfig performanceConfig;
+  SKNMEAConverterConfig nmeaConverter;
 };

@@ -94,5 +94,9 @@
     "logtype": "seasmart",
     "timestamp": true,
     "writeDebug": true
+  },
+  "nmeaConverter": {
+    "propTalkerIDEnabled": true,
+    "talkerID": "KB"
   }
 }
