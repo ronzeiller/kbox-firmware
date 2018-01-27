@@ -45,7 +45,13 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   }
 
   if (_config.xdrPressure && update.hasEnvironmentOutsidePressure()) {
-    NMEASentenceBuilder sb("II", "XDR", 4);
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputSensor) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    NMEASentenceBuilder sb(talkerID, "XDR", 4);
     sb.setField(1, "P");
     sb.setField(2, SKPascalToBar(update.getEnvironmentOutsidePressure()), 5);
     sb.setField(3, "B");
@@ -55,8 +61,9 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
 
   if (_config.xdrAttitude && update.hasNavigationAttitude()) {
     // check if update is coming from internal sensor
-    DEBUG("%i",update.getSource().getInput());
-    if (update.getSource().getInput() == SKSourceInputSensor) {
+    // DEBUG("%i",update.getSource().getInput());
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputSensor) {
       talkerID =  _config.talkerID;
     } else {
       talkerID = "II";
@@ -82,7 +89,13 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   }
 
   if (_config.hdm && update.hasNavigationHeadingMagnetic()) {
-    NMEASentenceBuilder sb("II", "HDM", 2);
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputSensor) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    NMEASentenceBuilder sb(talkerID, "HDM", 2);
     sb.setField(1, SKRadToDeg(update.getNavigationHeadingMagnetic()), 1);
     sb.setField(2, "M");
     output.write(sb.toNMEA());
