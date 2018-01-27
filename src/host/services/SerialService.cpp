@@ -265,9 +265,11 @@ void SerialService::updateReceived(const SKUpdate &update) {
 //  aufgerufen und der NMEA0183 Satz wird auf die Schnittstelle geschrieben
 // ****************************************************************************
 bool SerialService::write(const SKNMEASentence &nmeaSentence) {
+  /*
   DEBUG("Writing NMEA to Serial[%i] output: %s",
         _skSourceInput == SKSourceInputNMEA0183_1 ? 1 : 2,
         nmeaSentence.c_str());
+  */
   if ((size_t)stream.availableForWrite() >= nmeaSentence.length() + 2) {
     stream.write(nmeaSentence.c_str());
     stream.write("\r\n");

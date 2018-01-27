@@ -50,7 +50,7 @@ void SDCardTask::processMessage(const KMessage &m) {
   String data = v.getNMEAContent();
   // if dataFormat "Seasmart" --> datas are coming in
   // if dataFormat "NMEA" --> nothing is coming
-  DEBUG("processMessage: %s", data.c_str());
+  // DEBUG("processMessage: %s", data.c_str());
   receivedMessages.add(Loggable("", v.getNMEAContent()));
 }
 
@@ -64,7 +64,8 @@ void SDCardTask::loop() {
       logFile->print(",");
     }
     // PCDIN only are written
-    DEBUG("%s", it->_message);
+    // TODO: kryptische Zeichen als Debug Ausgabe
+    // DEBUG("%s", it->_message);
     logFile->print(it->_message);
   }
   // Force data to SD and update the directory entry to avoid data loss.

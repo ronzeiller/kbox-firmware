@@ -39,13 +39,13 @@ void KMessageNMEAVisitor::visit(const NMEA2000Message &n2km) {
 
   const tN2kMsg& msg = n2km.getN2kMsg();
 
-  DEBUG("ConfigDataFormat: %i",_config.dataFormat);
+  // DEBUG("ConfigDataFormat: %i",_config.dataFormat);
   if ( _config.dataFormat == NMEA_Seasmart || _config.dataFormat == Seasmart) {
     if (msg.DataLen < 500) {
       char pcdin[30 + msg.DataLen * 2];
       N2kToSeasmart(msg, n2km.getReceivedTime(), pcdin, sizeof(pcdin));
       // $PCDIN,<PGN 6>,<Timestamp 8>,<src 2>,<data>*20
-      DEBUG(pcdin);
+      // DEBUG(pcdin);
       nmeaContent += String(pcdin) + "\r\n";
     }
   }
