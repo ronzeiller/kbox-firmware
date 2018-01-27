@@ -64,10 +64,10 @@ TEST_CASE("SKNMEA2000Parser: Basic tests") {
   SECTION("127245: Rudder Angle") {
     // rudderPosition,instance,rudderDirectionOrder,angleOrder
     SetN2kRudder(msg, SKDegToRad(-3.6), 0, N2kRDO_NoDirectionOrder, N2kDoubleNA);
-    //const SKUpdate &update = p.parse(SKSourceInputNMEA2000, msg, SKTime(0));
-    //CHECK( update.getSize() == 1);
+    const SKUpdate &update = p.parse(SKSourceInputNMEA2000, msg, SKTime(0));
+    CHECK( update.getSize() == 1);
     // Some precision is lost because NMEA2000 rounds this value to 0.0001 precision
-    //CHECK( update.getSteeringRudderAngle() == Approx(SKDegToRad(-3.6)).epsilon(0.0001) );
+    CHECK( update.getSteeringRudderAngle() == Approx(SKDegToRad(-3.6)).epsilon(0.0001) );
   }
 
   SECTION("127250: VESSEL True HEADING RAPID") {

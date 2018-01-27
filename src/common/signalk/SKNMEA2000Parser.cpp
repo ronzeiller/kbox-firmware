@@ -143,8 +143,8 @@ const SKUpdate& SKNMEA2000Parser::parse127245(const SKSourceInput& input, const 
       update->setSource(source);
       // -> Current rudder angle, +ve is rudder to Starboard
       update->setSteeringRudderAngle(rudderPosition);
-      // TODO: time not shown
-      DEBUG("%i: PGN: %i | Rudder: %.3f | time: %s", millis(), msg.PGN, SKRadToDeg(rudderPosition), timestamp);
+      // TODO: time not shown, DEBUG not working -> Error in Test!!!!
+      // DEBUG("%i: PGN: %i | Rudder: %.3f | time: %s", millis(), msg.PGN, SKRadToDeg(rudderPosition), timestamp);
       _sku = update;
       return *_sku;
     }
