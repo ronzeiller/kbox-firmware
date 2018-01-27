@@ -28,12 +28,15 @@
   THE SOFTWARE.
 */
 
+#include <KBoxLogging.h>
 #include "SKUnits.h"
 #include "common/nmea/NMEASentenceBuilder.h"
 
 #include "SKNMEAConverter.h"
 
 void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
+  String talkerID;
+
   // Trigger a call of visitSKElectricalBatteriesVoltage for every key with that path
   // (there can be more than one and we do not know how they are called)
   _currentOutput = &output;
@@ -51,7 +54,14 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   }
 
   if (_config.xdrAttitude && update.hasNavigationAttitude()) {
-    NMEASentenceBuilder sb( "II", "XDR", 8);
+    // check if update is coming from internal sensor
+    DEBUG("%i",update.getSource().getInput());
+    if (update.getSource().getInput() == SKSourceInputSensor) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    NMEASentenceBuilder sb(talkerID, "XDR", 8);
     sb.setField(1, "A");
     if (update.getNavigationAttitude().pitch == SKDoubleNAN) {
       sb.setField(2, "");

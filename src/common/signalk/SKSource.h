@@ -30,14 +30,16 @@ enum SKSourceInput {
   SKSourceInputUnknown,
   SKSourceInputNMEA0183_1,
   SKSourceInputNMEA0183_2,
-  SKSourceInputNMEA2000
+  SKSourceInputNMEA2000,
+  SKSourceInputSensor
 };
 
 const String skSourceInputLabels[] = {
   "InputUnknown",
   "InputNMEA1",
   "InputNMEA2",
-  "InputNMEA2000"
+  "InputNMEA2000",
+  "InputSensor"
 };
 
 class SKSource {
@@ -57,11 +59,13 @@ class SKSource {
 
   public:
     /**
-     * Returns an unknown source. 
+     * Returns an unknown source.
      * You should use the global SKSourceUnknown instead of calling this
      * function.
      */
     static SKSource unknownSource();
+
+    static SKSource internalSensor();
 
     /**
      * Returns a source instance for the given NMEA0183 source info.

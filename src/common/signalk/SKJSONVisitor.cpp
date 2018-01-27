@@ -50,6 +50,9 @@ void SKJSONVisitor::processSource(const SKSource &source, JsonObject &sourceObje
       sourceObject["talker"] = _jsonBuffer.strdup(source.getTalker());
       sourceObject["sentence"] = _jsonBuffer.strdup(source.getSentence());
       break;
+    case SKSourceInputSensor:
+      sourceObject["type"] = "internalSensor";
+      break;
   }
 }
 
