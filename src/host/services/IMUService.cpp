@@ -138,6 +138,9 @@ void IMUService::loop() {
                                                  _pitch + _offsetPitch,
                                                  SKDoubleNAN));
   }
+  SKSource source = SKSource::internalSensor();
+  update.setSource(source);
+
   _skHub.publish(update);
 
   // Save calibrationData values to EEPROM every 30 Minutes, if BNO055 is fully calibrated
