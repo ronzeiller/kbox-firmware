@@ -29,6 +29,7 @@
 */
 
 #pragma once
+#include <WString.h>
 
 /**
  * Configuration for an instance of SKNMEAConverter.
