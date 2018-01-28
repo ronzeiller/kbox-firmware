@@ -42,13 +42,14 @@
 #include "host/services/USBService.h"
 #include "host/services/WiFiService.h"
 
-static const char *configFilename = "Sailmax-config.json";
+static const char *configFilename = "kbox-config.json";
 
 ILI9341GC gc(KBox.getDisplay(), Size(320, 240));
 MFD mfd(gc, KBox.getEncoder(), KBox.getButton());
 TaskManager taskManager;
 SKHub skHub;
 KBoxConfig config;
+KBoxConfig kboxConfig;
 
 USBService usbService(gc);
 
@@ -93,22 +94,26 @@ void setup() {
     DEBUG("No configuration file found. Using defaults.");
   }
 
+  kboxConfig = config;
+  DEBUG("kBoxConfig leewayHullFactor: %i", kboxConfig.performanceConfig.leewayHullFactor);
 
   // Instantiate all our services
   WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
-
-  ADCService *adcService = new ADCService(skHub, KBox.getADC());
   BarometerService *baroService = new BarometerService(skHub);
+  ADCService *adcService = new ADCService(skHub, KBox.getADC());
   IMUService *imuService = new IMUService(config.imuConfig, skHub);
-
-  NMEA2000Service *n2kService = new NMEA2000Service(config.nmea2000Config,
-                                                    skHub);
-  n2kService->connectTo(*wifi);
+  NMEA2000Service *n2kService = new NMEA2000Service(config.nmea2000Config, skHub);
 
   SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
   SerialService *reader2 = new SerialService(config.serial2Config, skHub, NMEA2_SERIAL);
-  reader1->connectTo(*wifi);
-  reader2->connectTo(*wifi);
+
+  // connect and add tasks
+  if (config.wifiConfig.enabled) {
+    n2kService->connectTo(*wifi);
+    reader1->connectTo(*wifi);
+    reader2->connectTo(*wifi);
+    taskManager.addTask(wifi);
+  }
 
   SDCardTask *sdcardTask = new SDCardTask(config.sdcardConfig);
   if (config.sdcardConfig.enabled){
@@ -131,7 +136,7 @@ void setup() {
   taskManager.addTask(n2kService);
   taskManager.addTask(reader1);
   taskManager.addTask(reader2);
-  taskManager.addTask(wifi);
+
   taskManager.addTask(&usbService);
 
   if (config.imuConfig.enabled) {
