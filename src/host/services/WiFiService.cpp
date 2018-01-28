@@ -64,7 +64,7 @@ void WiFiService::loop() {
       KBoxMetrics.event(KBoxEventWiFiInvalidKommand);
       ERROR("Invalid command received from WiFi module (id=%i size=%i)", kr.getKommandIdentifier(), kr.dataSize());
       frame[len-1] = 0;
-      DEBUG("> %s", frame);
+      //DEBUG("> %s", frame);
     }
 
     _slip.readFrame(0, 0);
