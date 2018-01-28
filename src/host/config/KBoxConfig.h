@@ -53,3 +53,5 @@ struct KBoxConfig {
   PerformanceConfig performanceConfig;
   SKNMEAConverterConfig nmeaConverter;
 };
+
+extern KBoxConfig kboxConfig;
