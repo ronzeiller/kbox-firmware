@@ -33,6 +33,8 @@
 // Performance class calculates values and gives them back to keep the class
 // independent from the calling function
 
+#include <KBoxLogging.h>
+#include "host/config/KBoxConfig.h"
 #include "Performance.h"
 #include "common/signalk/SKUnits.h"
 
@@ -63,12 +65,11 @@ bool Performance::calcBoatSpeed(double &boatspeed, double &heel, double &leeway)
 
 bool Performance::calcLeeway(double &bs_kts, double &heel, double &leeway) {
   // Leeway is an angle of drift due to sidewards wind force
-  // it is depending of a hull-factor (given in config), actual heel and
-  // the boat speed
-  double leewayHullFactor = 10; // between 8....10
+  // it is depending of a hull-factor (given in config), actual heel and boat speed
+  DEBUG("kBoxConfig leewayHullFactor: %i", kboxConfig.performanceConfig.leewayHullFactor);
 
-  if (bs_kts != 0) {
-    leeway = (leewayHullFactor * heel) / (bs_kts * bs_kts);
+  if (bs_kts > 0) {
+    leeway = (kboxConfig.performanceConfig.leewayHullFactor * heel) / (bs_kts * bs_kts);
     return true;
   } else {
     return true;
