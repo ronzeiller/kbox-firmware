@@ -38,8 +38,11 @@
 #include "Performance.h"
 #include "common/signalk/SKUnits.h"
 
+// ****************************************************************************
+// Load correction table from SD-Card and correct boat speed
+// ****************************************************************************
 bool Performance::corrForNonLinearTransducer(double &bs_kts, double &heel) {
-  // Load correction table from SD-Card and correct boat speed
+
 
   // If heel is more than _maxForHeelCorrectionBoatSpeed then take
   // heeled correction values
@@ -47,7 +50,10 @@ bool Performance::corrForNonLinearTransducer(double &bs_kts, double &heel) {
   return true;
 }
 
-// param boatspeed in m/s
+// ****************************************************************************
+// param boatspeed in m/s which we have to convert, because Leeway formula
+// needs knots.
+// ****************************************************************************
 bool Performance::calcBoatSpeed(double &boatspeed, double &heel, double &leeway) {
 
   double bs_kts = SKMsToKnot(boatspeed);
@@ -63,13 +69,19 @@ bool Performance::calcBoatSpeed(double &boatspeed, double &heel, double &leeway)
   }
 }
 
+// ****************************************************************************
+// Leeway is an angle of drift due to sidewards wind force
+// it is depending of a hull-factor (given in config), actual heel and boat speed
+// Leeway angle here in this function is always positiv, as we do not know from
+// which direction the wind is coming
+// ****************************************************************************
 bool Performance::calcLeeway(double &bs_kts, double &heel, double &leeway) {
-  // Leeway is an angle of drift due to sidewards wind force
-  // it is depending of a hull-factor (given in config), actual heel and boat speed
-  DEBUG("kBoxConfig leewayHullFactor: %i", kboxConfig.performanceConfig.leewayHullFactor);
+
+  double leewayHullFactor = kboxConfig.performanceConfig.leewayHullFactor * heel / 10.0;
+  // DEBUG("kBoxConfig leewayHullFactor: %f", leewayHullFactor);
 
   if (bs_kts > 0) {
-    leeway = (kboxConfig.performanceConfig.leewayHullFactor * heel) / (bs_kts * bs_kts);
+    leeway = leewayHullFactor / (bs_kts * bs_kts);
     return true;
   } else {
     return true;
