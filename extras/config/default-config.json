@@ -1,19 +1,31 @@
 {
   "imu": {
-    "enabled": true,
+    "enabled": false,
     "frequency": 10,
     "enableHdg": true,
     "enableHeelPitch": true,
-    "mounting": "horizontalLeftSideToBow"
+    "mounting": "horizontalTopToBow"
   },
   "barometer": {
-    "enabled": false,
+    "enabled": true,
+    "frequency": 1
+  },
+  "adc": {
+    "enabled": true,
+    "enableAdc1": false,
+    "enableAdc2": false,
+    "enableAdc3": false,
+    "enableAdc4": true,
+    "labelAdc1": "Bat1",
+    "labelAdc2": "Bat2",
+    "labelAdc3": "Bat3",
+    "labelAdc4": "Supply",
     "frequency": 1
   },
   "wifi": {
     "enabled": true,
     "nmeaConverter": {
-      "xdrPressure": false,
+      "xdrPressure": true,
       "xdrAttitude": true,
       "xdrBattery": false,
       "hdm": true,
@@ -31,6 +43,10 @@
     },
     "dataFormatType": {
       "dataFormat" : "NMEA_Seasmart"
+    },
+    "nmeaConverter": {
+      "propTalkerIDEnabled": true,
+      "talkerID": "KB"
     }
   },
   "serial1": {
@@ -38,7 +54,7 @@
     "outputMode": "nmea",
     "baudRate": 38400,
     "nmeaConverter": {
-      "xdrPressure": false,
+      "xdrPressure": true,
       "xdrAttitude": true,
       "xdrBattery": false,
       "hdm": true,
@@ -58,8 +74,8 @@
       "xdrAttitude": true,
       "xdrBattery": false,
       "hdm": false,
-      "mwv": false,
-      "rsa": false
+      "mwv": true,
+      "rsa": true
     },
     "dataFormatType": {
       "dataFormat" : "NMEA"
@@ -82,7 +98,7 @@
     "sendTrueWindToN2k": true,
     "TrueWindN2kID": 10,
     "polarDataFileName": "polarData.pol",
-    "efficiencyFactor": 100,
+    "efficiencyFactor": 100
   },
   "nmea2000Parser": {
     "heading_127250_enabled": true,
