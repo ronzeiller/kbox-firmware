@@ -27,11 +27,18 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+/*
+  The Performance class is a service (Task) started in main.cpp
+  When there is an update for heel coming, the value will be stored.
+  When there is an update for boat speed through water coming we calculate
+  first leeway and second correct boat speed with cosine of leeway angle.
 
-// TODO: Performance class has to have access to PerformanceConfig
-
-// Performance class calculates values and gives them back to keep the class
-// independent from the calling function
+  TODO:
+  1. extend config to choose from where heel is taken (N2k Bus, internal sensor
+      or NMEA0183 sensor on serial input)
+  2. read correction file for boatspeed offsets for upright and heeled sailing
+  3. extend class for corrections on Apparent Wind and calculations of True Wind
+*/
 
 #include <KBoxLogging.h>
 #include "host/config/KBoxConfig.h"
@@ -48,8 +55,6 @@ Performance::Performance(PerformanceConfig &config, SKHub &skHub) :
   _heel_deg = SKDoubleNAN;
   _bsCorr_kts = SKDoubleNAN;
 }
-
-//void Performance::setup(){}
 
 void Performance::updateReceived(const SKUpdate& update) {
 
