@@ -27,15 +27,17 @@
 #include <ADC.h>
 #include "common/os/Task.h"
 #include "common/signalk/SKHub.h"
+#include "host/config/ADCConfig.h"
 
 class ADCService : public Task {
   private:
+    ADCConfig &_config;
     SKHub &_skHub;
     ADC& _adc;
     float _adc1, _adc2, _adc3, _supply;
 
   public:
-    ADCService(SKHub &skHub, ADC& adc) : Task("ADC"), _skHub(skHub), _adc(adc) {};
+    ADCService(ADCConfig &config, SKHub &skHub, ADC& adc) : Task("ADC"), _config(config), _skHub(skHub), _adc(adc) {};
 
     virtual void loop() override;
 };

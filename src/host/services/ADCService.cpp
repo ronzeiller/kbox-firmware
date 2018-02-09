@@ -30,23 +30,32 @@
 #include "ADCService.h"
 
 void ADCService::loop() {
-  int supply_adc = _adc.analogRead(supply_analog, ADC_0);
-  int adc1_adc = _adc.analogRead(adc1_analog, ADC_0);
-  int adc2_adc = _adc.analogRead(adc2_analog, ADC_0);
-  int adc3_adc = _adc.analogRead(adc3_analog, ADC_0);
 
-  _supply = supply_adc * analog_max_voltage / _adc.getMaxValue();
-  _adc1 = adc1_adc * analog_max_voltage / _adc.getMaxValue();
-  _adc2 = adc2_adc * analog_max_voltage / _adc.getMaxValue();
-  _adc3 = adc3_adc * analog_max_voltage / _adc.getMaxValue();
-
-  // FIXME: We should have configuration options to describe what each input is
-  // connected to instead of hard-coding names.
   SKUpdateStatic<4> sk;
-  sk.setElectricalBatteriesVoltage("engine", _adc1);
-  sk.setElectricalBatteriesVoltage("house", _adc2);
-  sk.setElectricalBatteriesVoltage("dc3", _adc3);
-  sk.setElectricalBatteriesVoltage("kbox-supply", _supply);
+
+  if (_config.enableAdc1) {
+    int adc1_adc = _adc.analogRead(adc1_analog, ADC_0);
+    _adc1 = adc1_adc * analog_max_voltage / _adc.getMaxValue();
+    sk.setElectricalBatteriesVoltage(_config.labelAdc1, _adc1);
+  }
+
+  if (_config.enableAdc2) {
+    int adc2_adc = _adc.analogRead(adc2_analog, ADC_0);
+    _adc2 = adc2_adc * analog_max_voltage / _adc.getMaxValue();
+    sk.setElectricalBatteriesVoltage(_config.labelAdc2, _adc2);
+  }
+
+  if (_config.enableAdc3) {
+    int adc3_adc = _adc.analogRead(adc3_analog, ADC_0);
+    _adc3 = adc3_adc * analog_max_voltage / _adc.getMaxValue();
+    sk.setElectricalBatteriesVoltage(_config.labelAdc3, _adc3);
+  }
+
+  if (_config.enableAdc4) {
+    int supply_adc = _adc.analogRead(supply_analog, ADC_0);
+    _supply = supply_adc * analog_max_voltage / _adc.getMaxValue();
+    sk.setElectricalBatteriesVoltage(_config.labelAdc4, _supply);
+  }
 
   _skHub.publish(sk);
 }
