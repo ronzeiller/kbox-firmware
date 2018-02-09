@@ -77,7 +77,7 @@ bool Performance::calcBoatSpeed(double &boatspeed, double &heel, double &leeway)
 // ****************************************************************************
 bool Performance::calcLeeway(double &bs_kts, double &heel, double &leeway) {
 
-  double leewayHullFactor = kboxConfig.performanceConfig.leewayHullFactor * heel / 10.0;
+  double leewayHullFactor = 10 * heel / 10.0; // kboxConfig.performanceConfig.leewayHullFactor * heel / 10.0;
   // DEBUG("kBoxConfig leewayHullFactor: %f", leewayHullFactor);
 
   if (bs_kts > 0) {

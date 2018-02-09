@@ -54,4 +54,5 @@ struct KBoxConfig {
   SKNMEAConverterConfig nmeaConverter;
 };
 
-extern KBoxConfig kboxConfig;
+// "extern" breaks the test!
+// extern KBoxConfig kboxConfig;

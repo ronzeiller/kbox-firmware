@@ -49,7 +49,8 @@ MFD mfd(gc, KBox.getEncoder(), KBox.getButton());
 TaskManager taskManager;
 SKHub skHub;
 KBoxConfig config;
-KBoxConfig kboxConfig;
+// extern class KBoxConfig breaks the test
+// KBoxConfig kboxConfig;
 
 USBService usbService(gc);
 
@@ -94,8 +95,8 @@ void setup() {
     DEBUG("No configuration file found. Using defaults.");
   }
 
-  kboxConfig = config;
-  DEBUG("kBoxConfig leewayHullFactor: %i", kboxConfig.performanceConfig.leewayHullFactor);
+  // kboxConfig = config;
+  // DEBUG("kBoxConfig leewayHullFactor: %i", kboxConfig.performanceConfig.leewayHullFactor);
 
   // Instantiate all our services
   WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
