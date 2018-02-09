@@ -42,7 +42,7 @@ void BarometerService::fetchValues() {
   temperature = bmp280.readTemperature();
   pressure = bmp280.readPressure();
 
-  DEBUG("Read temperature=%.2f C and pressure=%.1f Pa", temperature, pressure);
+  DEBUG("Read temperature=%.2f C and pressure=%.1f hPa", temperature, pressure/100);
 
   SKUpdateStatic<1> update;
   update.setEnvironmentOutsidePressure(pressure);
