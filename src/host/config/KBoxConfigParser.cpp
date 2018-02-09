@@ -56,17 +56,17 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.nmea2000Config.txEnabled = true;
   config.nmea2000Config.rxEnabled = true;
 
-  config.imuConfig.enabled = false;
+  config.imuConfig.enabled = true;
   config.imuConfig.frequency = 20;
   config.imuConfig.enabled = true;           // enable internal IMU sensor
   config.imuConfig.enableHdg = true;         // true if values taken from internal sensor
   config.imuConfig.enableHeelPitch = true;   // true if values taken from internal sensor
   config.imuConfig.mounting = verticalStbHull;
 
-  config.barometerConfig.enabled = false;
+  config.barometerConfig.enabled = true;
   config.barometerConfig.frequency = 1;
 
-  config.adcConfig.enabled = false;
+  config.adcConfig.enabled = true;
   config.adcConfig.frequency = 1;
   config.adcConfig.enableAdc1 = true;
   config.adcConfig.enableAdc2 = true;
