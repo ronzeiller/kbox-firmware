@@ -35,55 +35,121 @@
 
 #include <KBoxLogging.h>
 #include "host/config/KBoxConfig.h"
+#include "common/signalk/SKUpdate.h"
+#include "common/signalk/SKUpdateStatic.h"
 #include "Performance.h"
 #include "common/signalk/SKUnits.h"
+
+Performance::Performance(PerformanceConfig &config, SKHub &skHub) :
+    Task("Performance"), _config(config), _hub(skHub) {
+
+  _hub.subscribe(this);
+  _leeway_deg = SKDoubleNAN;
+  _heel_deg = SKDoubleNAN;
+  _bsCorr_kts = SKDoubleNAN;
+}
+
+//void Performance::setup(){}
+
+void Performance::updateReceived(const SKUpdate& update) {
+
+  if (_config.enabled &&
+      update.getSource().getInput() != SKSourceInputPerformance) {
+
+    // heel should come with around 10Hz, so we should have actual heel values
+    // for calculating true boatspeed through water
+    if (update.hasNavigationAttitude()){
+      _heel_deg = SKRadToDeg(update.getNavigationAttitude().roll);
+      //DEBUG("SKUpdate --> Heel: %f °", _heel_deg);
+    }
+
+    // On most systems boatspeed will come with 1Hz
+    if (update.hasNavigationSpeedThroughWater() &&
+        update.getNavigationSpeedThroughWater() > 0 ){
+
+      _bs_kts = SKMsToKnot(update.getNavigationSpeedThroughWater()); // SKUpdate in m/s --> knots
+      //DEBUG("SKUpdate --> Boatspeed Through Water: %f kts", _bs_kts);
+      calcBoatSpeed( _bs_kts );
+
+      // Write updates
+      if (_bsCorr_kts != SKDoubleNAN) {
+        SKUpdateStatic<2> updateWrite;
+        SKSource source = SKSource::performanceCalc();
+        updateWrite.setSource(source);
+        updateWrite.setTimestamp(millis());
+
+        updateWrite.setNavigationSpeedThroughWater(SKKnotToMs(_bsCorr_kts));
+
+        // Leeway with more than 20° is probably wrong!
+        if (_leeway_deg != SKDoubleNAN && _leeway_deg < 20){
+          updateWrite.setNavigationSpeedThroughWater(SKDegToRad(_leeway_deg));
+        }
+
+        _hub.publish(updateWrite);
+
+        // set back values, because we need them fresh
+        _leeway_deg = SKDoubleNAN;
+        _heel_deg = SKDoubleNAN;
+        _bsCorr_kts = SKDoubleNAN;
+      }
+    }
+  }
+}
+
+void Performance::loop() {}
 
 // ****************************************************************************
 // Load correction table from SD-Card and correct boat speed
 // ****************************************************************************
-bool Performance::corrForNonLinearTransducer(double &bs_kts, double &heel) {
+double Performance::corrForNonLinearTransducer(double &bs_kts, double &heel_deg) {
 
-
+  // TODO: read file with correction values for boat speed transducer.
   // If heel is more than _maxForHeelCorrectionBoatSpeed then take
   // heeled correction values
 
-  return true;
+  return bs_kts;
 }
 
 // ****************************************************************************
-// param boatspeed in m/s which we have to convert, because Leeway formula
-// needs knots.
+// param boatspeed in knots (converted) from SKUpdate
 // ****************************************************************************
-bool Performance::calcBoatSpeed(double &boatspeed, double &heel, double &leeway) {
+void Performance::calcBoatSpeed(double &bs_kts) {
 
-  double bs_kts = SKMsToKnot(boatspeed);
-  corrForNonLinearTransducer(bs_kts, heel);
+  _bsCorr_kts = corrForNonLinearTransducer(bs_kts, _heel_deg);
 
-  // Correct for Leeway
-  if (calcLeeway(bs_kts, heel, leeway) && (leeway < M_PI_2) && (leeway > (-1)* M_PI_2)) {
+  // Calculate Leeway
+  if (_bsCorr_kts > 0 &&
+      calcLeeway(_bsCorr_kts, _heel_deg, _leeway_deg)) {
 
-    boatspeed = abs(SKKnotToMs(bs_kts / cos(leeway)));
-    return true;
+    double leeway_rad = SKDegToRad(_leeway_deg);
+    // Correct measured speed for Leeway
+    _bsCorr_kts = abs(_bsCorr_kts / cos(leeway_rad));
+
+    DEBUG("Boatspeed from Transducer: %.3f kts--> Corrected Boatspeed: %.3f kts", bs_kts, _bsCorr_kts);
   } else {
-    return false;
+    _bsCorr_kts = SKDoubleNAN;
   }
 }
 
 // ****************************************************************************
 // Leeway is an angle of drift due to sidewards wind force
 // it is depending of a hull-factor (given in config), actual heel and boat speed
-// Leeway angle here in this function is always positiv, as we do not know from
-// which direction the wind is coming
+// Leeway angle positiv or negative, depending from where the wind is coming.
 // ****************************************************************************
 bool Performance::calcLeeway(double &bs_kts, double &heel, double &leeway) {
 
-  double leewayHullFactor = 10 * heel / 10.0; // kboxConfig.performanceConfig.leewayHullFactor * heel / 10.0;
+  double leewayHullFactor = _config.leewayHullFactor / 10.0;
+  double lw = 0;
   // DEBUG("kBoxConfig leewayHullFactor: %f", leewayHullFactor);
 
-  if (bs_kts > 0) {
-    leeway = leewayHullFactor / (bs_kts * bs_kts);
+  lw = leewayHullFactor * heel / (bs_kts * bs_kts);
+  DEBUG("Leeway : %f°", lw);
+
+  if (lw < 180 && lw > (-180)){
+    leeway = lw;
     return true;
   } else {
-    return true;
+    leeway = 0;
+    return false;
   }
 }
