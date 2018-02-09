@@ -34,18 +34,21 @@ BatteryMonitorPage::BatteryMonitorPage(ADCConfig &config, SKHub& hub) : _config(
   static const int row3 = 152;
   static const int row4 = 182;
 
-  addLayer(new TextLayer(Point(col1, row1), Size(20, 20), "House Battery", ColorWhite, ColorBlack, FontDefault));
-  addLayer(new TextLayer(Point(col2, row1), Size(20, 20), "House Current", ColorWhite, ColorBlack, FontDefault));
+  //addLayer(new TextLayer(Point(col1, row1), Size(20, 20), "House Battery", ColorWhite, ColorBlack, FontDefault));
+  //addLayer(new TextLayer(Point(col2, row1), Size(20, 20), "House Current", ColorWhite, ColorBlack, FontDefault));
+  addLayer(new TextLayer(Point(col1, row1), Size(20, 20), "Barometer", ColorWhite, ColorBlack, FontDefault));
   addLayer(new TextLayer(Point(col1, row3), Size(20, 20), "Engine Battery", ColorWhite, ColorBlack, FontDefault));
   addLayer(new TextLayer(Point(col2, row3), Size(20, 20), "Supply Voltage", ColorWhite, ColorBlack, FontDefault));
 
-  houseVoltage = new TextLayer(Point(col1, row2), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
-  houseCurrent = new TextLayer(Point(col2, row2), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
+  //houseVoltage = new TextLayer(Point(col1, row2), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
+  //houseCurrent = new TextLayer(Point(col2, row2), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
+  barometer = new TextLayer(Point(col1, row2), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
   engineVoltage  = new TextLayer(Point(col1, row4), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
   supplyVoltage = new TextLayer(Point(col2, row4), Size(20, 20), "--", ColorWhite, ColorBlack, FontLarge);
 
-  addLayer(houseVoltage);
-  addLayer(houseCurrent);
+  //addLayer(houseVoltage);
+  //addLayer(houseCurrent);
+  addLayer(barometer);
   addLayer(engineVoltage);
   addLayer(supplyVoltage);
 
@@ -75,10 +78,16 @@ String BatteryMonitorPage::formatMeasurement(float measure, const char *unit) {
 
 void BatteryMonitorPage::updateReceived(const SKUpdate& up) {
 
-  if (up.hasElectricalBatteriesVoltage(_config.labelAdc1)) {
-    const SKValue& vm = up.getElectricalBatteriesVoltage(_config.labelAdc1);
+  /*
+  if (up.hasElectricalBatteriesVoltage(_config.adcConfig.labelAdc1)) {
+    const SKValue& vm = up.getElectricalBatteriesVoltage(_config.adcConfig.labelAdc1);
     houseVoltage->setText(formatMeasurement(vm.getNumberValue(), "V"));
     houseVoltage->setColor(colorForVoltage(vm.getNumberValue()));
+  }
+  */
+  if (up.hasEnvironmentOutsidePressure()) {
+    const SKValue& vm = up.getEnvironmentOutsidePressure();
+    barometer->setText(formatMeasurement(vm.getNumberValue()/100, "hPa"));
   }
   if (up.hasElectricalBatteriesVoltage(_config.labelAdc2)) {
     const SKValue& vm = up.getElectricalBatteriesVoltage(_config.labelAdc2);

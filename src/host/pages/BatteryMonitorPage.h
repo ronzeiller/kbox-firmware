@@ -31,7 +31,7 @@
 class BatteryMonitorPage : public Page, public SKSubscriber {
   private:
     ADCConfig &_config;
-    TextLayer *houseVoltage, *houseCurrent, *engineVoltage, *supplyVoltage;
+    TextLayer *houseVoltage, *houseCurrent, *engineVoltage, *supplyVoltage, *barometer;
 
     Color colorForVoltage(float v);
     String formatMeasurement(float measure, const char *unit);
