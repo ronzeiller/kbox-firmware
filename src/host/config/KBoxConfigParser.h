@@ -61,6 +61,7 @@ class KBoxConfigParser {
 
     void parseIMUConfig(const JsonObject &object, IMUConfig &config);
     void parseBarometerConfig(const JsonObject &json, BarometerConfig &config);
+    void parseADCConfig(const JsonObject &json, ADCConfig &config);
     void parseSerialConfig(const JsonObject &object, SerialConfig &config);
     void parseNMEA2000Config(const JsonObject &object, NMEA2000Config &config);
     void parseWiFiConfig(const JsonObject &json, WiFiConfig &config);

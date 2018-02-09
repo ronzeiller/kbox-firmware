@@ -56,15 +56,26 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.nmea2000Config.txEnabled = true;
   config.nmea2000Config.rxEnabled = true;
 
-  config.imuConfig.enabled = true;
+  config.imuConfig.enabled = false;
   config.imuConfig.frequency = 20;
   config.imuConfig.enabled = true;           // enable internal IMU sensor
   config.imuConfig.enableHdg = true;         // true if values taken from internal sensor
   config.imuConfig.enableHeelPitch = true;   // true if values taken from internal sensor
   config.imuConfig.mounting = verticalStbHull;
 
-  config.barometerConfig.enabled = true;
+  config.barometerConfig.enabled = false;
   config.barometerConfig.frequency = 1;
+
+  config.adcConfig.enabled = false;
+  config.adcConfig.frequency = 1;
+  config.adcConfig.enableAdc1 = true;
+  config.adcConfig.enableAdc2 = true;
+  config.adcConfig.enableAdc3 = true;
+  config.adcConfig.enableAdc4 = true;
+  config.adcConfig.labelAdc1 = "engine";
+  config.adcConfig.labelAdc2 = "house";
+  config.adcConfig.labelAdc3 = "dc3";
+  config.adcConfig.labelAdc4 = "kbox-house";
 
   config.wifiConfig.enabled = true;
   config.wifiConfig.dataFormatConfig.dataFormat = NMEA;
@@ -92,6 +103,7 @@ void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &confi
   parseSerialConfig(json["serial2"], config.serial2Config);
   parseIMUConfig(json["imu"], config.imuConfig);
   parseBarometerConfig(json["barometer"], config.barometerConfig);
+  parseADCConfig(json["adc"], config.adcConfig);
   parseWiFiConfig(json["wifi"], config.wifiConfig);
   parseNMEA2000Config(json["nmea2000"], config.nmea2000Config);
   parseSDCardConfig(json["sdcard"], config.sdcardConfig);
@@ -110,6 +122,19 @@ void KBoxConfigParser::parseIMUConfig(const JsonObject &json, IMUConfig &config)
 void KBoxConfigParser::parseBarometerConfig(const JsonObject &json, BarometerConfig &config){
   READ_BOOL_VALUE(enabled);
   READ_INT_VALUE_WRANGE(frequency, 1, 10);
+}
+
+void KBoxConfigParser::parseADCConfig(const JsonObject &json, ADCConfig &config){
+  READ_BOOL_VALUE(enabled);
+  READ_INT_VALUE_WRANGE(frequency, 1, 10);
+  READ_BOOL_VALUE(enableAdc1);
+  READ_BOOL_VALUE(enableAdc2);
+  READ_BOOL_VALUE(enableAdc3);
+  READ_BOOL_VALUE(enableAdc4);
+  READ_STRING_VALUE(labelAdc1);
+  READ_STRING_VALUE(labelAdc2);
+  READ_STRING_VALUE(labelAdc3);
+  READ_STRING_VALUE(labelAdc4);
 }
 
 void KBoxConfigParser::parseSerialConfig(const JsonObject &json, SerialConfig &config) {

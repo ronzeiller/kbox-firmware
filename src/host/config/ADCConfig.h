@@ -30,28 +30,15 @@
 
 #pragma once
 
-#include "SerialConfig.h"
-#include "NMEA2000Config.h"
-#include "IMUConfig.h"
-#include "BarometerConfig.h"
-#include "ADCConfig.h"
-#include "WiFiConfig.h"
-#include "SDCardConfig.h"
-#include "PerformanceConfig.h"
-#include "signalk/SKNMEAConverterConfig.h"
-
-/**
- * A KBox configuration in memory
- */
-struct KBoxConfig {
-  SerialConfig serial1Config;
-  SerialConfig serial2Config;
-  NMEA2000Config nmea2000Config;
-  IMUConfig imuConfig;
-  BarometerConfig barometerConfig;
-  ADCConfig adcConfig;
-  WiFiConfig wifiConfig;
-  SDCardConfig sdcardConfig;
-  PerformanceConfig performanceConfig;
-  SKNMEAConverterConfig nmeaConverter;
+struct ADCConfig {
+  bool enabled;
+  int frequency;
+  bool enableAdc1;
+  bool enableAdc2;
+  bool enableAdc3;
+  bool enableAdc4;
+  String labelAdc1;
+  String labelAdc2;
+  String labelAdc3;
+  String labelAdc4;
 };
