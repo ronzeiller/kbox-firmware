@@ -90,7 +90,7 @@ const SKUpdate& SKNMEA2000Parser::parse(const SKSourceInput& input, const tN2kMs
     //case 130577L: // Direction Data
     //case 130578L: // Vessel Speed Components
     default:
-      DEBUG("No known conversion for PGN %i", msg.PGN);
+      //DEBUG("No known conversion for PGN %i", msg.PGN);
       return _invalidSku;
   } // end switch msg.PGN
 }
@@ -259,6 +259,7 @@ const SKUpdate& SKNMEA2000Parser::parse128259(const SKSourceInput& input, const 
     update->setSource(source);
 
     if (!N2kIsNA(waterSpeed)) {
+      //DEBUG("Water Speed: %f", waterSpeed);
       update->setNavigationSpeedThroughWater(waterSpeed);
       _sku = update;
       return *_sku;
