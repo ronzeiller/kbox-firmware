@@ -26,7 +26,7 @@
 #include "common/signalk/SKUpdate.h"
 #include "BatteryMonitorPage.h"
 
-BatteryMonitorPage::BatteryMonitorPage(SKHub& hub) {
+BatteryMonitorPage::BatteryMonitorPage(ADCConfig &config, SKHub& hub) : _config(config) {
   static const int col1 = 5;
   static const int col2 = 200;
   static const int row1 = 26;
@@ -74,18 +74,19 @@ String BatteryMonitorPage::formatMeasurement(float measure, const char *unit) {
 }
 
 void BatteryMonitorPage::updateReceived(const SKUpdate& up) {
-  if (up.hasElectricalBatteriesVoltage("house")) {
-    const SKValue& vm = up.getElectricalBatteriesVoltage("house");
+
+  if (up.hasElectricalBatteriesVoltage(_config.labelAdc1)) {
+    const SKValue& vm = up.getElectricalBatteriesVoltage(_config.labelAdc1);
     houseVoltage->setText(formatMeasurement(vm.getNumberValue(), "V"));
     houseVoltage->setColor(colorForVoltage(vm.getNumberValue()));
   }
-  if (up.hasElectricalBatteriesVoltage("engine")) {
-    const SKValue& vm = up.getElectricalBatteriesVoltage("engine");
+  if (up.hasElectricalBatteriesVoltage(_config.labelAdc2)) {
+    const SKValue& vm = up.getElectricalBatteriesVoltage(_config.labelAdc2);
     engineVoltage->setText(formatMeasurement(vm.getNumberValue(), "V"));
     engineVoltage->setColor(colorForVoltage(vm.getNumberValue()));
   }
-  if (up.hasElectricalBatteriesVoltage("kbox-supply")) {
-    const SKValue& vm = up.getElectricalBatteriesVoltage("kbox-supply");
+  if (up.hasElectricalBatteriesVoltage(_config.labelAdc4)) {
+    const SKValue& vm = up.getElectricalBatteriesVoltage(_config.labelAdc4);
     supplyVoltage->setText(formatMeasurement(vm.getNumberValue(), "V"));
     supplyVoltage->setColor(colorForVoltage(vm.getNumberValue()));
   }

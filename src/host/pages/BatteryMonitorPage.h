@@ -26,16 +26,18 @@
 #include "common/ui/TextLayer.h"
 #include "common/signalk/SKHub.h"
 #include "common/signalk/SKSubscriber.h"
+#include "host/config/ADCConfig.h"
 
 class BatteryMonitorPage : public Page, public SKSubscriber {
   private:
+    ADCConfig &_config;
     TextLayer *houseVoltage, *houseCurrent, *engineVoltage, *supplyVoltage;
 
     Color colorForVoltage(float v);
     String formatMeasurement(float measure, const char *unit);
 
   public:
-    BatteryMonitorPage(SKHub& hub);
+    BatteryMonitorPage(ADCConfig &config, SKHub& hub);
 
     virtual void updateReceived(const SKUpdate& up);
 };
