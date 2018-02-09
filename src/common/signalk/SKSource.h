@@ -31,7 +31,8 @@ enum SKSourceInput {
   SKSourceInputNMEA0183_1,
   SKSourceInputNMEA0183_2,
   SKSourceInputNMEA2000,
-  SKSourceInputSensor
+  SKSourceInputSensor,
+  SKSourceInputPerformance
 };
 
 const String skSourceInputLabels[] = {
@@ -39,7 +40,8 @@ const String skSourceInputLabels[] = {
   "InputNMEA1",
   "InputNMEA2",
   "InputNMEA2000",
-  "InputSensor"
+  "InputSensor",
+  "InputPerformanceCalc"
 };
 
 class SKSource {
@@ -66,7 +68,7 @@ class SKSource {
     static SKSource unknownSource();
 
     static SKSource internalSensor();
-
+    static SKSource performanceCalc();
     /**
      * Returns a source instance for the given NMEA0183 source info.
      */
