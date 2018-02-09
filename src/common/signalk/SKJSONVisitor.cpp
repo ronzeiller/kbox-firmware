@@ -53,6 +53,9 @@ void SKJSONVisitor::processSource(const SKSource &source, JsonObject &sourceObje
     case SKSourceInputSensor:
       sourceObject["type"] = "internalSensor";
       break;
+    case SKSourceInputPerformance:
+      sourceObject["type"] = "PerformanceCalc";
+      break;
   }
 }
 
