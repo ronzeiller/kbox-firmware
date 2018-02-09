@@ -39,7 +39,11 @@ static const pin_t display_mosi = 11;
 static const pin_t display_sck = 14;
 static const pin_t display_cs = 20;
 static const pin_t display_dc = 21;
-static const pin_t display_backlight= 32;
+#if defined(__MK66FX1M0__)  // Teensy 3.6
+  static const pin_t display_backlight= 49; // NC
+#else
+  static const pin_t display_backlight= 32;
+#endif
 #ifdef BOARD_v1_revA
 static const uint8_t display_rotation = 3;
 #else
@@ -68,7 +72,11 @@ static const pin_t wifi_cs = 31;
 #define WiFiSerial Serial1
 
 /* CAN Transceiver */
-static const pin_t can_standby = 32;
+#if defined(__MK66FX1M0__)  // Teensy 3.6
+  static const pin_t can_standby = 25;  // NC
+#else
+  static const pin_t can_standby = 33;
+#endif
 
 /* INA219 Battery Monitor */
 static const uint8_t ina219_address = 0x40;
@@ -81,6 +89,10 @@ static const pin_t nmea1_out_enable = 24;
 static const pin_t nmea2_out_enable = 16;
 #define NMEA1_SERIAL Serial2
 #define NMEA2_SERIAL Serial3
+/* Additional Serial on Teensy 3.6 */
+#if defined(__MK66FX1M0__)  // Teensy 3.6
+  #define NMEA3_SERIAL Serial5
+#endif
 
 /* Analog Inputs */
 #ifdef BOARD_v1_revA
@@ -88,13 +100,22 @@ static const pin_t adc1_analog = A10;
 static const pin_t adc2_analog = A11;
 static const pin_t adc3_analog = A12;
 static const float analog_max_voltage = 3.3 / (10000/(10000+56000.0));
+static const pin_t supply_analog = A13;
 #else
-static const pin_t adc1_analog = A12;
-static const pin_t adc2_analog = A11;
-static const pin_t adc3_analog = A10;
-static const float analog_max_voltage = 1.1155 * 3.31 / (10000/(10000+56000.0));
+  #if defined(__MK66FX1M0__)  // Teensy 3.6
+    static const pin_t adc1_analog = A23;
+    static const pin_t adc2_analog = A11;
+    static const pin_t adc3_analog = A13;
+    static const float analog_max_voltage = 1.1155 * 3.31 / (10000/(10000+56000.0));
+    static const pin_t supply_analog = A10;
+  #else
+    static const pin_t adc1_analog = A12;
+    static const pin_t adc2_analog = A11;
+    static const pin_t adc3_analog = A10;
+    static const float analog_max_voltage = 3.0 / (10000/(10000+56000.0));
+    static const pin_t supply_analog = A14;
+  #endif
 #endif
-static const pin_t supply_analog = A14;
 
 /* SDCard Interface */
 static const pin_t sdcard_cs = 15;
