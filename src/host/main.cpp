@@ -49,8 +49,6 @@ MFD mfd(gc, KBox.getEncoder(), KBox.getButton());
 TaskManager taskManager;
 SKHub skHub;
 KBoxConfig config;
-// extern class KBoxConfig breaks the test
-// KBoxConfig kboxConfig;
 
 USBService usbService(gc);
 
@@ -95,14 +93,13 @@ void setup() {
     DEBUG("No configuration file found. Using defaults.");
   }
 
-  // kboxConfig = config;
-  // DEBUG("kBoxConfig leewayHullFactor: %i", kboxConfig.performanceConfig.leewayHullFactor);
+  // Test
+  //Polar polar;
+  //polar.readPolarDataFile();
 
   // Instantiate all our services
   WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
-  BarometerService *baroService = new BarometerService(skHub);
-  ADCService *adcService = new ADCService(skHub, KBox.getADC());
-  IMUService *imuService = new IMUService(config.imuConfig, skHub);
+
   NMEA2000Service *n2kService = new NMEA2000Service(config.nmea2000Config, skHub);
 
   SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
@@ -127,27 +124,31 @@ void setup() {
   // Add all the tasks
   taskManager.addTask(&mfd);
   taskManager.addTask(new IntervalTask(new RunningLightService(), 250));
-  taskManager.addTask(new IntervalTask(adcService, 1000));
-  if (config.imuConfig.enabled) {
-    taskManager.addTask(new IntervalTask(imuService, 1000 / config.imuConfig.frequency));
-  }
+
   if (config.barometerConfig.enabled) {
+    BarometerService *baroService = new BarometerService(skHub);
     taskManager.addTask(new IntervalTask(baroService, 1000 / config.barometerConfig.frequency));
   }
+
   taskManager.addTask(n2kService);
   taskManager.addTask(reader1);
   taskManager.addTask(reader2);
-
   taskManager.addTask(&usbService);
 
   if (config.imuConfig.enabled) {
+    IMUService *imuService = new IMUService(config.imuConfig, skHub);
+    taskManager.addTask(new IntervalTask(imuService, 1000 / config.imuConfig.frequency));
     // At the moment the IMUMonitorPage is working with built-in sensor only
     IMUMonitorPage *imuPage = new IMUMonitorPage(config.imuConfig, skHub, *imuService);
     mfd.addPage(imuPage);
   }
 
-  BatteryMonitorPage *batPage = new BatteryMonitorPage(skHub);
-  mfd.addPage(batPage);
+  if (config.adcConfig.enabled) {
+    ADCService *adcService = new ADCService(config.adcConfig, skHub, KBox.getADC());
+    taskManager.addTask(new IntervalTask(adcService, 1000 / config.adcConfig.frequency));
+    BatteryMonitorPage *batPage = new BatteryMonitorPage(config.adcConfig, skHub);
+    mfd.addPage(batPage);
+  }
 
   StatsPage *statsPage = new StatsPage();
   if (config.sdcardConfig.enabled){
