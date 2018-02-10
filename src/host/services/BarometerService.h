@@ -34,13 +34,13 @@ class BarometerService : public Task, public KGenerator {
   private:
     const BarometerConfig &_config;
     SKHub& _skHub;
-    int status = -1;
+    int _status = -1;
 
     void fetchValues();
 
-    Adafruit_BMP280 bmp280;
-    float temperature;
-    float pressure;
+    Adafruit_BMP280 _bmp280;
+    float _temperature;
+    float _pressure;
 
   public:
     BarometerService(BarometerConfig &config, SKHub& skHub) : Task("Barometer"), _config(config), _skHub(skHub) {};

@@ -29,23 +29,25 @@
 #include "BarometerService.h"
 
 void BarometerService::setup() {
-  if (!bmp280.begin(bmp280_address)) {
+  if (!_bmp280.begin(bmp280_address)) {
     DEBUG("Error initializing BMP280");
-    status = 1;
+    _status = 1;
   }
   else {
-    status = 0;
+    _status = 0;
   }
 }
 
 void BarometerService::fetchValues() {
-  temperature = bmp280.readTemperature();
-  pressure = bmp280.readPressure() + _config.calOffset;
+  _temperature = _bmp280.readTemperature();
+  _pressure = _bmp280.readPressure() + _config.calOffset;
 
-  DEBUG("Read temperature=%.2f C and pressure=%.1f hPa", temperature, pressure/100);
+  DEBUG("Temperature=%.2f C | Pressure=%.1f hPa", _temperature, _pressure/100);
 
   SKUpdateStatic<1> update;
-  update.setEnvironmentOutsidePressure(pressure);
+  update.setEnvironmentOutsidePressure(_pressure);  // in Pa
+  SKSource source = SKSource::internalSensor();
+  update.setSource(source);
   _skHub.publish(update);
 }
 
