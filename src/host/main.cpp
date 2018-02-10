@@ -127,7 +127,7 @@ void setup() {
   taskManager.addTask(new IntervalTask(new RunningLightService(), 250));
 
   if (config.barometerConfig.enabled) {
-    BarometerService *baroService = new BarometerService(skHub);
+    BarometerService *baroService = new BarometerService(config.barometerConfig, skHub);
     taskManager.addTask(new IntervalTask(baroService, 1000 / config.barometerConfig.frequency));
   }
 

@@ -40,7 +40,7 @@ void BarometerService::setup() {
 
 void BarometerService::fetchValues() {
   temperature = bmp280.readTemperature();
-  pressure = bmp280.readPressure();
+  pressure = bmp280.readPressure() + _config.calOffset;
 
   DEBUG("Read temperature=%.2f C and pressure=%.1f hPa", temperature, pressure/100);
 

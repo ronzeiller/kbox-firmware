@@ -65,6 +65,7 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
 
   config.barometerConfig.enabled = true;
   config.barometerConfig.frequency = 1;
+  config.barometerConfig.calOffset = 0;
 
   config.adcConfig.enabled = true;
   config.adcConfig.frequency = 1;
@@ -122,6 +123,7 @@ void KBoxConfigParser::parseIMUConfig(const JsonObject &json, IMUConfig &config)
 void KBoxConfigParser::parseBarometerConfig(const JsonObject &json, BarometerConfig &config){
   READ_BOOL_VALUE(enabled);
   READ_INT_VALUE_WRANGE(frequency, 1, 10);
+  READ_INT_VALUE(calOffset);
 }
 
 void KBoxConfigParser::parseADCConfig(const JsonObject &json, ADCConfig &config){

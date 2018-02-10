@@ -28,9 +28,11 @@
 #include "common/os/Task.h"
 #include "common/signalk/KMessage.h"
 #include "common/signalk/SKHub.h"
+#include "config/BarometerConfig.h"
 
 class BarometerService : public Task, public KGenerator {
   private:
+    const BarometerConfig &_config;
     SKHub& _skHub;
     int status = -1;
 
@@ -41,9 +43,8 @@ class BarometerService : public Task, public KGenerator {
     float pressure;
 
   public:
-    BarometerService(SKHub& skHub) : Task("Barometer"), _skHub(skHub) {};
+    BarometerService(BarometerConfig &config, SKHub& skHub) : Task("Barometer"), _config(config), _skHub(skHub) {};
 
     void setup();
     void loop();
 };
-

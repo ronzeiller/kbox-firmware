@@ -33,4 +33,5 @@
 struct BarometerConfig {
   bool enabled;
   int frequency;
+  int calOffset;  // in Pascal
 };
