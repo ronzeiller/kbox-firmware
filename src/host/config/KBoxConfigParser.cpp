@@ -89,8 +89,8 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
 
   config.performanceConfig.enabled = true;
   config.performanceConfig.boatSpeedCorrTableFileName = "boatspeedCorr.cal";
-  config.performanceConfig.leewayHullFactor = 100;
-  config.performanceConfig.windSensorHeight = 1250;
+  config.performanceConfig.leewayHullFactor = 0;    // no entry
+  config.performanceConfig.windSensorHeight = 0;    // no entry
   config.performanceConfig.polarDataFileName = "polarData.pol";
 
   config.nmeaConverter.propTalkerIDEnabled = true;
