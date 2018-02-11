@@ -5,11 +5,14 @@
      \ \_\ \_\  \ \_____\  \ \_____\   /\_\/\_\
        \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
 
-  The MIT License
-  
-  Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
-  Copyright (c) 2018 Ronnie Zeiller ronnie@zeiller.eu
+  Project:  KBox
+            Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
+  Purpose:  Monitor Page for the BNO055 IMU sensor
+  Authors:  Ronnie Zeiller ronnie@zeiller.eu
+            Thomas Sarlandie thomas@sarlandie.net
+  *****************************************************************************
 
+  The MIT License
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights

@@ -5,9 +5,13 @@
      \ \_\ \_\  \ \_____\  \ \_____\   /\_\/\_\
        \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
 
+  Project:  KBox
+            Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
+  Purpose:  Config for Performance Calculations on KBox
+  Author:   Ronnie Zeiller ronnie@zeiller.eu
+  *****************************************************************************
+
   The MIT License
-  Copyright (c) 2018 Ronnie Zeiller ronnie@zeiller.eu
-  Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +38,7 @@
 struct PerformanceConfig {
   bool enabled;
   String boatSpeedCorrTableFileName;
-  int leewayHullFactor;         // usually between 8....10, here multiplied by 10
+  int leewayHullFactor;   // usually between 8....10, here multiplied by 10
   int windSensorHeight;   // in cm
   String polarDataFileName;
 };
