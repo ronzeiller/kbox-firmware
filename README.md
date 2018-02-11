@@ -15,19 +15,21 @@ Sailmax-CU Hardware includes:
  - Three NMEA0183 outputs,
  - One barometer BMP280,
  - An SDCard to record data,
- - One I2C interface to connect extern sensors
+ - One I2C interface to connect extern sensor
+ - Three analog inputs to measure voltages between 0 and 23V (batteries, solar
+   panels, generators, etc)
 
 ## Changelog Sailmax-CU
 
  * 2018 02 11 - v2.4
-  * Status of KBox from 2018 02 10
-  * + additional config settings for data formats on output and SD-Card, Barometer, Talker-ID NMEA0183....
-  * + Performance calculations started
-  * + Calculate corrected boat speed (leeway correction)
-  * + Calculate leeway
-  * + Calculate corrected Apparent Wind (heel- and 10m-correction)
-  * + one more serial port (hardware)
-  * - removed BNO055 IMU sensor as not reliable (connection of external sensor on serial NMEA or I2C possible)
+   + Status of KBox from 2018 02 10
+   + additional config settings for data formats on output and SD-Card, Barometer, Talker-ID NMEA0183....
+   + Performance calculations started
+   + Calculate corrected boat speed (leeway correction)
+   + Calculate leeway
+   + Calculate corrected Apparent Wind (heel- and 10m-correction)
+   + one more serial port (hardware)
+   - removed BNO055 IMU sensor as it is not reliable (connection of external sensor on serial NMEA or I2C possible)
 
 
 
