@@ -1,4 +1,41 @@
-# KBox Firmware
+# Sailmax-CU
+
+## Performance box based on the KBox
+
+![Sailmax picture](Sailmax-CU.jpg)
+
+
+Sailmax-CU Hardware includes:
+
+ - Teensy 3.6
+ - ESP8266 WROOM-2 WiFi interface that can connect to an existing network or create a new
+   network
+ - One NMEA2000 interface,
+ - Three NMEA0183 inputs,
+ - Three NMEA0183 outputs,
+ - One barometer BMP280,
+ - An SDCard to record data,
+ - One I2C interface to connect extern sensors
+
+## Changelog Sailmax-CU
+
+ * 2018 02 11 - v2.4
+  * Status of KBox from 2018 02 10
+  * + additional config settings for data formats on output and SD-Card, Barometer, Talker-ID NMEA0183....
+  * + Performance calculations started
+  * + Calculate corrected boat speed (leeway correction)
+  * + Calculate leeway
+  * + Calculate corrected Apparent Wind (heel- and 10m-correction)
+  * + one more serial port (hardware)
+  * - removed BNO055 IMU sensor as not reliable (connection of external sensor on serial NMEA or I2C possible)
+
+
+
+# Original KBox
+
+[Sarfata](https://github.com/sarfata/kbox-firmware)
+
+![KBox picture](kbox.jpg)
 
 [![Travis
 status](https://api.travis-ci.org/sarfata/kbox-firmware.svg?branch=master)](https://travis-ci.org/sarfata/kbox-firmware) - [Buy KBox on
@@ -190,42 +227,6 @@ To work on KBox and program the WiFi module, you will also use
 to the authors of these libraries! Without them, this project would not have
 been possible!**
 
-## Changelog
+## Changelog Kbox
 
- * 2018 02 10 - v1.2.0
-   * Configuration option for WiFi. KBox can act as an access point and can 
-   also connect to an existing network. Both are possible at the same time.
-   * KBox now shows WiFi info on the screen (status as a client and as an
-   access point), number of clients connected, IP address)
-   * KBox now announces its SignalK "self" properly and you can set your own 
-   MMSI via the config file.
-   * Updated ESP8266 framework version to 2.4.
-   * Fixed a bug where SDCard would not show free space properly
- * 2018 01 10
-   * Fixed bug #69 - We were sending pressure in Pascal instead of Bars in NMEA
-     XDR sentences for pressure.
- * 2018 01 07
-   * Data coming from NMEA2000 bus is now sent to SignalK websocket output
-   and will be converted to NMEA0183 (if a conversion is available).
-   * Added an IMU page to show heel/roll/pitch on the screen
-   * Added options to configure orientation of KBox inside the boat (still needs
-     some work before it supports all possible orientations)
-   * IMU calibration will be automatically saved when IMU reports its calibrated
-   * User can do a long-press in the IMU page to save current offset for pitch &
-     heel
- * 2018 01 04
-   * Add support for parsing PGN127257 Attitude (roll/pitch/yaw)
-   * Also improved the output in NMEA and SignalK format when some attitude
-   values are unknown
- * 2017 12 28
-   * KBox now supports a configuration file (`kbox-config.json`) on the sdcard.
-   * KBox supports sending data to NMEA outputs
-   * Generated NMEA sentences can be configured independently for each output
-     (nmea1/nmea2/wifi)
-   * Frequency of IMU and Barometer updates can be configured
-   * KBox can be configured to only listen on NMEA2000 bus and not send anything
-   * WiFi module can be completely disabled (will save power)
-   * `tools/kbox.py` can be used to read/write files to the SDCard over USB
- * 2017 12 07
-   * Merge develop branch into master - Start the changelog
-   * The old master branch is not in `kbox-v0`
+[Readme](https://github.com/sarfata/kbox-firmware/blob/master/README.md)
