@@ -46,7 +46,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
 
   if (_config.xdrPressure && update.hasEnvironmentOutsidePressure()) {
     if (_config.propTalkerIDEnabled &&
-        update.getSource().getInput() == SKSourceInputSensor) {
+        update.getSource().getInput() == SKSourceInputKBoxBarometer) {
       talkerID =  _config.talkerID;
     } else {
       talkerID = "II";
@@ -63,7 +63,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     // check if update is coming from internal sensor
     // DEBUG("%i",update.getSource().getInput());
     if (_config.propTalkerIDEnabled &&
-        update.getSource().getInput() == SKSourceInputSensor) {
+        update.getSource().getInput() == SKSourceInputKBoxIMU) {
       talkerID =  _config.talkerID;
     } else {
       talkerID = "II";
@@ -90,7 +90,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
 
   if (_config.hdm && update.hasNavigationHeadingMagnetic()) {
     if (_config.propTalkerIDEnabled &&
-        update.getSource().getInput() == SKSourceInputSensor) {
+        update.getSource().getInput() == SKSourceInputKBoxIMU) {
       talkerID =  _config.talkerID;
     } else {
       talkerID = "II";
