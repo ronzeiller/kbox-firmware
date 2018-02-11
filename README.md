@@ -35,8 +35,6 @@ Sailmax-CU Hardware includes:
 
 [Sarfata](https://github.com/sarfata/kbox-firmware)
 
-![KBox picture](kbox.jpg)
-
 [![Travis
 status](https://api.travis-ci.org/sarfata/kbox-firmware.svg?branch=master)](https://travis-ci.org/sarfata/kbox-firmware) - [Buy KBox on
 Tindie!](https://www.tindie.com/products/sarfata/kbox-open-source-boat-gateway/)
