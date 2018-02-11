@@ -32,7 +32,8 @@
 void ADCService::loop() {
 
   SKUpdateStatic<4> sk;
-
+  sk.setSource(SKSource::sourceForKBoxSensor(SKSourceInputKBoxADC));
+  
   if (_config.enableAdc1) {
     int adc1_adc = _adc.analogRead(adc1_analog, ADC_0);
     _adc1 = adc1_adc * analog_max_voltage / _adc.getMaxValue();

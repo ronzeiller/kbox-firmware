@@ -91,6 +91,7 @@ void IMUService::loop() {
   imu::Vector<3> eulerAngles = bno055.getVector(Adafruit_BNO055::VECTOR_EULER);
   //DEBUG("Sensor Raw-datas: eulerAngles.z=%.3f eulerAngles.y=%.3f  eulerAngles.x=%.3f", eulerAngles.z(), eulerAngles.y(), eulerAngles.x());
   SKUpdateStatic<2> update;
+  update.setSource(SKSource::sourceForKBoxSensor(SKSourceInputKBoxIMU));
 
   // In the SignalK Specification
   //  roll:   Vessel roll, +ve is list, heels to starboard
@@ -138,10 +139,9 @@ void IMUService::loop() {
                                                  _pitch + _offsetPitch,
                                                  SKDoubleNAN));
   }
-  SKSource source = SKSource::internalSensor();
-  update.setSource(source);
-
-  _skHub.publish(update);
+  if (update.getSize() > 0) {
+    _skHub.publish(update);
+  }
 
   // Save calibrationData values to EEPROM every 30 Minutes, if BNO055 is fully calibrated
   if (bno055.isFullyCalibrated() &&
