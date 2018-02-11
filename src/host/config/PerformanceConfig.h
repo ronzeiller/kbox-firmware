@@ -39,6 +39,7 @@ struct PerformanceConfig {
   bool enabled;
   String boatSpeedCorrTableFileName;
   int leewayHullFactor;   // usually between 8....10, here multiplied by 10
-  int windSensorHeight;   // in cm
+  int windSensorHeight;   // in mm
+  bool windCorr10m;       // correct wind speed from sensor height to 10m above water
   String polarDataFileName;
 };
