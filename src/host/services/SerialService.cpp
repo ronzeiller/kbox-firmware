@@ -222,9 +222,11 @@ void SerialService::loop() {
     return;
   }
   // Send all queue sentences
+  /*
   DEBUG("Serial[%i]: Found %i sentences waiting",
         _skSourceInput == SKSourceInputNMEA0183_1 ? 1 : 2,
         receiveQueue.size());
+  */
   for (LinkedList<NMEASentence>::iterator it = receiveQueue.begin(); it != receiveQueue.end(); it++) {
     if (it->isValid()) {
       KBoxMetrics.event(_rxValidEvent);
