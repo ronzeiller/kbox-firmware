@@ -69,7 +69,7 @@
   "serial2": {
     "inputMode": "nmea",
     "outputMode": "nmea",
-    "baudRate": 4800,
+    "baudRate": 38400,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
