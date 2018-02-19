@@ -53,6 +53,9 @@ const SKUpdate& SKNMEAParser::parse(const SKSourceInput& input, const String& se
   if (reader.getSentenceCode() == "MWV") {
     return parseMWV(input, reader, time);
   }
+  if (reader.getSentenceCode() == "XDR") {
+    return parseXDR(input, reader, time);
+  }
 
   DEBUG("%s: %s%s - Unable to parse sentence", skSourceInputLabels[input].c_str(), reader.getTalkerId().c_str(), reader.getSentenceCode().c_str());
   return _invalidSku;
@@ -157,4 +160,30 @@ const SKUpdate& SKNMEAParser::parseMWV(const SKSourceInput& input, NMEASentenceR
   // _sku is deleted every time a new sentence is parsed
   _sku = wmv;
   return *_sku;
+}
+
+const SKUpdate& SKNMEAParser::parseXDR(const SKSourceInput& input, NMEASentenceReader& reader, const SKTime& time) {
+
+  SKUpdateStatic<2>* xdr = new SKUpdateStatic<2>();
+  // First check PTCH ROLL sentences
+  // $IIXDR,A,aa.a,D,PTCH,A,-bb.b,D,ROLL*hh
+  if (reader.getFieldAsChar(1) == 'A' &&
+      reader.getFieldAsString(4) == "PTCH" &&
+      reader.getFieldAsString(8) == "ROLL") {
+
+
+    xdr->setTimestamp(time);
+    // SKSource source = SKSource::sourceForNMEA0183(input, reader.getTalkerId(), reader.getSentenceCode());
+    // xdr->setSource(source);
+    xdr->setSource(SKSource::sourceForKBoxSensor(SKSourceInputKBoxIMU));
+
+    double pitch = SKDegToRad(reader.getFieldAsDouble(2));
+    double roll = SKDegToRad(reader.getFieldAsDouble(6));
+
+    xdr->setNavigationAttitude(SKTypeAttitude( roll, pitch, SKDoubleNAN));
+
+    _sku = xdr;
+    return *_sku;
+  }
+  return _invalidSku;
 }
