@@ -112,9 +112,10 @@ TEST_CASE("NMEA2000Converter") {
 
     converter.convert(pressureUpdate, messages);
 
-    CHECK( messages.size() == 2 );
+    // CHECK( messages.size() == 2 );
+    CHECK( messages.size() == 1 );  // Changed, as I do not send PGN130310 at the moment
     const tN2kMsg *m = findMessage(messages, 130310, 0);
-    CHECK(m);
+    // CHECK(m);  // Changed, as I do not send PGN130310 at the moment
     if (m) {
       unsigned char sid;
       double waterTemperature;
@@ -122,7 +123,6 @@ TEST_CASE("NMEA2000Converter") {
       double atmosphericPressure;
 
       CHECK( ParseN2kPGN130310(*m, sid, waterTemperature, outsideAmbientAirTemperature, atmosphericPressure) );
-
 
       CHECK( N2kIsNA(waterTemperature) );
       CHECK( N2kIsNA(outsideAmbientAirTemperature) );
