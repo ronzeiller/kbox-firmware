@@ -21,13 +21,18 @@ Sailmax-CU Hardware includes:
 
 ## Changelog Sailmax-CU
 
+  * 2018 02 19 - v2.4.1
+    + Parsing of XDR roll/pitch NMEA0183 sentence added
+    + Merged Sarfatas more precise pressure N2k PGN, but disabled PGN PGN130310 in SKNMEA2000Converter
+    and SKNMEA2000ConverterTest
+
  * 2018 02 11 - v2.4
    + Status of KBox from 2018 02 10
    + additional config settings for data formats on output and SD-Card, Barometer, Talker-ID NMEA0183....
    + Performance calculations started
-   + Calculate corrected boat speed (leeway correction)
-   + Calculate leeway
-   + Calculate corrected Apparent Wind (heel- and 10m-correction)
+   +    Calculate corrected boat speed (leeway correction)
+   +    Calculate leeway
+   +    Calculate corrected Apparent Wind (heel- and 10m-correction)
    + one more serial port (hardware)
    - removed BNO055 IMU sensor as it is not reliable (connection of external sensor on serial NMEA or I2C possible)
 
