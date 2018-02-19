@@ -106,7 +106,10 @@ void setup() {
   // Test
   //Polar polar;
   //polar.readPolarDataFile();
-
+  static const char *polarDataFileName = "polarData.pol";
+  if (KBox.getSdFat().exists(polarDataFileName)) {
+    DEBUG("Read Polardata file");
+  }
   // Instantiate all our services
   WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
 

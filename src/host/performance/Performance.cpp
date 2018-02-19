@@ -52,6 +52,7 @@
 #include "Performance.h"
 #include "common/signalk/SKUnits.h"
 #include "host/config/PerformanceConfig.h"
+//#include <SdFat.h>
 //#include "Polar.h"
 
 Performance::Performance(PerformanceConfig &config, SKHub &skHub) :
