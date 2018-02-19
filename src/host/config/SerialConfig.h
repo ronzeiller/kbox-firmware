@@ -34,8 +34,8 @@
 #include "DataFormatConfig.h"
 
 enum SerialMode {
-  SerialModeDisabled,
-  SerialModeNMEA
+  SerialModeDisabled,   // "disabled"
+  SerialModeNMEA        // "nmea"
 };
 
 struct  SerialConfig {
