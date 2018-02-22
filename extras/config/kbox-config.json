@@ -24,7 +24,7 @@
     "frequency": 1
   },
   "wifi": {
-    "enabled": true,
+    "enabled": false,
     "nmeaConverter": {
       "xdrPressure": true,
       "xdrAttitude": true,
@@ -38,12 +38,12 @@
       "ssid": "KBox"
     },
     "client": {
-      "enabled": false,
+      "enabled": true,
       "ssid": "netzwerkname",
       "password": "secret"
     },
     "dataFormatType": {
-      "dataFormat" : "NMEA_Seasmart"
+      "dataFormat" : "NMEA"
     },
     "nmeaConverter": {
       "propTalkerIDEnabled": true,
@@ -51,9 +51,9 @@
     }
   },
   "serial1": {
-    "inputMode": "nmea",
+    "inputMode": "disabled",
     "outputMode": "nmea",
-    "baudRate": 38400,
+    "baudRate": 115200,
     "nmeaConverter": {
       "xdrPressure": true,
       "xdrAttitude": true,
@@ -68,7 +68,7 @@
   },
   "serial2": {
     "inputMode": "nmea",
-    "outputMode": "nmea",
+    "outputMode": "disabled",
     "baudRate": 38400,
     "nmeaConverter": {
       "xdrPressure": false,
