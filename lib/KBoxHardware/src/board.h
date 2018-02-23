@@ -92,6 +92,7 @@ static const pin_t nmea2_out_enable = 16;
 /* Additional Serial on Teensy 3.6 */
 #if defined(__MK66FX1M0__)  // Teensy 3.6
   #define NMEA3_SERIAL Serial5
+  #define NMEA4_SERIAL Serial6
 #endif
 
 /* Analog Inputs */
