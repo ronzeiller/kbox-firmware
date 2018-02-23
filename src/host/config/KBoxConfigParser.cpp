@@ -68,6 +68,14 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.serial2Config.nmeaConverter.xdrBattery = false;
   config.serial2Config.nmeaConverter.xdrPressure = false;
 
+  config.serial3Config.baudRate = 4800;
+  config.serial3Config.inputMode = SerialModeDisabled;
+  config.serial3Config.outputMode = SerialModeDisabled;
+
+  config.serial4Config.baudRate = 4800;
+  config.serial4Config.inputMode = SerialModeDisabled;
+  config.serial4Config.outputMode = SerialModeDisabled;
+
   config.nmea2000Config.txEnabled = true;
   config.nmea2000Config.rxEnabled = true;
 
@@ -125,6 +133,8 @@ void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &confi
 
   parseSerialConfig(json["serial1"], config.serial1Config);
   parseSerialConfig(json["serial2"], config.serial2Config);
+  parseSerialConfig(json["serial3"], config.serial3Config);
+  parseSerialConfig(json["serial4"], config.serial4Config);
   parseIMUConfig(json["imu"], config.imuConfig);
   parseBarometerConfig(json["barometer"], config.barometerConfig);
   parseADCConfig(json["adc"], config.adcConfig);

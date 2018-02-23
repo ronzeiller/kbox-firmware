@@ -46,6 +46,8 @@
 struct KBoxConfig {
   SerialConfig serial1Config;
   SerialConfig serial2Config;
+  SerialConfig serial3Config;
+  SerialConfig serial4Config;
   NMEA2000Config nmea2000Config;
   IMUConfig imuConfig;
   BarometerConfig barometerConfig;

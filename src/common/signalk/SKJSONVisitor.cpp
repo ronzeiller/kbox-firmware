@@ -57,6 +57,18 @@ void SKJSONVisitor::processSource(const SKSource &source, JsonObject &sourceObje
       sourceObject["talker"] = _jsonBuffer.strdup(source.getTalker());
       sourceObject["sentence"] = _jsonBuffer.strdup(source.getSentence());
       break;
+    case SKSourceInputNMEA0183_3:
+      sourceObject["label"] = "NMEA0183.3";
+      sourceObject["type"] = "NMEA0183";
+      sourceObject["talker"] = _jsonBuffer.strdup(source.getTalker());
+      sourceObject["sentence"] = _jsonBuffer.strdup(source.getSentence());
+      break;
+    case SKSourceInputNMEA0183_4:
+      sourceObject["label"] = "NMEA0183.4";
+      sourceObject["type"] = "NMEA0183";
+      sourceObject["talker"] = _jsonBuffer.strdup(source.getTalker());
+      sourceObject["sentence"] = _jsonBuffer.strdup(source.getSentence());
+      break;
     case SKSourceInputPerformance:
       sourceObject["type"] = "PerformanceCalc";
       break;

@@ -33,6 +33,8 @@ static const String typeUnknown = "unknown";
 
 static const String labelNMEA1 = "kbox.nmea0183.1";
 static const String labelNMEA2 = "kbox.nmea0183.2";
+static const String labelNMEA3 = "kbox.nmea0183.3";
+static const String labelNMEA4 = "kbox.nmea0183.4";
 static const String labelNMEA2k = "kbox.nmea2000";
 static const String labelSensor = "kbox.sensor";
 static const String labelPerformance = "kbox.performance";
@@ -124,6 +126,8 @@ const String& SKSource::getType() const {
   switch (_input) {
     case SKSourceInputNMEA0183_1:
     case SKSourceInputNMEA0183_2:
+    case SKSourceInputNMEA0183_3:
+    case SKSourceInputNMEA0183_4:
       return typeNMEA0183;
     case SKSourceInputNMEA2000:
       return typeNMEA2000;
@@ -140,6 +144,10 @@ const String& SKSource::getLabel() const {
       return labelNMEA1;
     case SKSourceInputNMEA0183_2:
       return labelNMEA2;
+    case SKSourceInputNMEA0183_3:
+      return labelNMEA3;
+    case SKSourceInputNMEA0183_4:
+      return labelNMEA4;
     case SKSourceInputNMEA2000:
       return labelNMEA2k;
     case SKSourceInputPerformance:
@@ -150,7 +158,10 @@ const String& SKSource::getLabel() const {
 }
 
 const char* SKSource::getTalker() const {
-  if (_input == SKSourceInputNMEA0183_1 || _input == SKSourceInputNMEA0183_2) {
+  if (_input == SKSourceInputNMEA0183_1 ||
+      _input == SKSourceInputNMEA0183_2 ||
+      _input == SKSourceInputNMEA0183_3 ||
+      _input == SKSourceInputNMEA0183_4) {
     return _info.nmea.talker;
   }
   else {
@@ -159,7 +170,10 @@ const char* SKSource::getTalker() const {
 }
 
 const char* SKSource::getSentence() const {
-  if (_input == SKSourceInputNMEA0183_1 || _input == SKSourceInputNMEA0183_2) {
+  if (_input == SKSourceInputNMEA0183_1 ||
+      _input == SKSourceInputNMEA0183_2 ||
+      _input == SKSourceInputNMEA0183_3 ||
+      _input == SKSourceInputNMEA0183_4) {
     return _info.nmea.sentence;
   }
   else {

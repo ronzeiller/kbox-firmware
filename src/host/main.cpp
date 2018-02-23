@@ -118,6 +118,22 @@ void setup() {
   SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
   SerialService *reader2 = new SerialService(config.serial2Config, skHub, NMEA2_SERIAL);
 
+  #ifdef NMEA3_SERIAL
+    //if (config.serial3Enabled) {
+    SerialService *reader3 = new SerialService(config.serial3Config, skHub, NMEA3_SERIAL);
+    //}
+  #else
+    SerialService *reader3 = NULL;
+  #endif
+
+  #ifdef NMEA4_SERIAL
+    //if (config.serial4Enabled) {
+    SerialService  *reader4 = new SerialService(config.serial4Config, skHub, NMEA4_SERIAL);
+    //}
+  #else
+    SerialService *reader4 = NULL;
+  #endif
+
   // connect and add tasks
   if (config.wifiConfig.enabled) {
     n2kService->connectTo(*wifi);
@@ -146,6 +162,8 @@ void setup() {
   taskManager.addTask(n2kService);
   taskManager.addTask(reader1);
   taskManager.addTask(reader2);
+  if (reader3) taskManager.addTask(reader3);
+  if (reader4) taskManager.addTask(reader4);
   taskManager.addTask(&usbService);
 
   if (config.imuConfig.enabled) {

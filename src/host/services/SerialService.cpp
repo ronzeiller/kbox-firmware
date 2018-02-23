@@ -60,6 +60,8 @@
 // Linked list used to buffer messages
 static LinkedList<NMEASentence> *received2 = 0;
 static LinkedList<NMEASentence> *received3 = 0;
+static LinkedList<NMEASentence> *received4 = 0;
+static LinkedList<NMEASentence> *received5 = 0;
 
 // This is called by yield() whenever data is available.
 // We move received data into a linked list of NMEA sentences.
@@ -149,6 +151,93 @@ void serialEvent3() {
   }
 }
 
+void serialEvent4() {
+  static uint8_t buffer[MAX_NMEA_SENTENCE_LENGTH];
+  static int index = 0;
+
+  if (received4 == 0) {
+    return;
+  }
+
+  // 64 is the RX_BUFFER_SIZE defined in serial2.c (teensy3 framework)
+  if (Serial4.available() == 64) {
+    //TODO: extend KBoxMetrics for Serial4 and Serial5
+    //KBoxMetrics.event(KBoxEventNMEA1RXBufferOverflow);
+    DEBUG("serialEvent4 found a full rx buffer - we probably lost some data");
+  }
+
+  while (Serial4.available()) {
+    buffer[index++]= (uint8_t) Serial4.read();
+
+    // Check if we are at the end of the buffer
+    // The -1 is because we need space to add a terminating NULL character.
+    if (index >= MAX_NMEA_SENTENCE_LENGTH - 1) {
+      buffer[MAX_NMEA_SENTENCE_LENGTH - 1] = 0;
+      DEBUG("Discarding incomplete sequence: %s", buffer);
+      index = 0;
+      //KBoxMetrics.event(KBoxEventNMEA1RXError);
+    }
+    else {
+      // Check if we have reached end of sentence
+      if (buffer[index-1] == '\r' || buffer[index-1] == '\n') {
+        if (index > 1) {
+          // Only send message if it's greater than 0 bytes.
+          // And we know that index is < MAX_NMEA_SENTENCE_LENGTH
+          // because we tested buffer.
+          buffer[index-1] = 0;
+          NMEASentence s((char*)buffer);
+          received4->add(s);
+        }
+        // Start again from scratch
+        index = 0;
+      }
+    }
+  }
+}
+
+void serialEvent5() {
+  static uint8_t buffer[MAX_NMEA_SENTENCE_LENGTH];
+  static int index = 0;
+
+  if (received5 == 0) {
+    return;
+  }
+
+  // 64 is the RX_BUFFER_SIZE defined in serial2.c (teensy3 framework)
+  if (Serial5.available() == 64) {
+    //KBoxMetrics.event(KBoxEventNMEA1RXBufferOverflow);
+    DEBUG("serialEvent5 found a full rx buffer - we probably lost some data");
+  }
+
+  while (Serial5.available()) {
+    buffer[index++]= (uint8_t) Serial5.read();
+
+    // Check if we are at the end of the buffer
+    // The -1 is because we need space to add a terminating NULL character.
+    if (index >= MAX_NMEA_SENTENCE_LENGTH - 1) {
+      buffer[MAX_NMEA_SENTENCE_LENGTH - 1] = 0;
+      DEBUG("Discarding incomplete sequence: %s", buffer);
+      index = 0;
+      //KBoxMetrics.event(KBoxEventNMEA1RXError);
+    }
+    else {
+      // Check if we have reached end of sentence
+      if (buffer[index-1] == '\r' || buffer[index-1] == '\n') {
+        if (index > 1) {
+          // Only send message if it's greater than 0 bytes.
+          // And we know that index is < MAX_NMEA_SENTENCE_LENGTH
+          // because we tested buffer.
+          buffer[index-1] = 0;
+          NMEASentence s((char*)buffer);
+          received5->add(s);
+        }
+        // Start again from scratch
+        index = 0;
+      }
+    }
+  }
+}
+
 // ****************************************************************************
 // In board.h wurde definiert:
 // static const pin_t nmea1_out_enable = 24;
@@ -181,6 +270,32 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
     _txOverflowEvent = KBoxEventNMEA2TXOverflow;
     _skSourceInput = SKSourceInputNMEA0183_2;
   }
+  if (&s == &Serial4) {
+    if (_config.inputMode == SerialModeNMEA) {
+      received4 = &receiveQueue;
+    }
+    _taskName = "Serial Service 3";
+    /*
+    _rxValidEvent = KBoxEventNMEA1RX;
+    _rxErrorEvent = KBoxEventNMEA1RXError;
+    _txValidEvent = KBoxEventNMEA1TX;
+    _txOverflowEvent = KBoxEventNMEA1TXOverflow;
+    */
+    _skSourceInput = SKSourceInputNMEA0183_3;
+  }
+  if (&s == &Serial5) {
+    if (_config.inputMode == SerialModeNMEA) {
+      received5 = &receiveQueue;
+    }
+    _taskName = "Serial Service 4";
+    /*
+    _rxValidEvent = KBoxEventNMEA1RX;
+    _rxErrorEvent = KBoxEventNMEA1RXError;
+    _txValidEvent = KBoxEventNMEA1TX;
+    _txOverflowEvent = KBoxEventNMEA1TXOverflow;
+    */
+    _skSourceInput = SKSourceInputNMEA0183_4;
+  }
 }
 
 // ****************************************************************************
@@ -200,6 +315,24 @@ void SerialService::setup() {
     NMEA2_SERIAL.begin(_config.baudRate);
     digitalWrite(nmea2_out_enable, _config.outputMode != SerialModeDisabled);
     INFO("SerialService[2] Baudrate: %i Input: %s Output: %s",
+          _config.baudRate,
+          _config.inputMode == SerialModeNMEA ? "true" : "false",
+          _config.outputMode == SerialModeNMEA ? "true" : "false");
+  }
+  if (_skSourceInput == SKSourceInputNMEA0183_3) {
+    NMEA3_SERIAL.begin(_config.baudRate);
+    // not implemented in hardware
+    // digitalWrite(nmea3_out_enable, _config.outputMode != SerialModeDisabled);
+    INFO("SerialService[3] Baudrate: %i Input: %s Output: %s",
+          _config.baudRate,
+          _config.inputMode == SerialModeNMEA ? "true" : "false",
+          _config.outputMode == SerialModeNMEA ? "true" : "false");
+  }
+  if (_skSourceInput == SKSourceInputNMEA0183_4) {
+    NMEA4_SERIAL.begin(_config.baudRate);
+    // not implemented in hardware
+    // digitalWrite(nmea4_out_enable, _config.outputMode != SerialModeDisabled);
+    INFO("SerialService[4] Baudrate: %i Input: %s Output: %s",
           _config.baudRate,
           _config.inputMode == SerialModeNMEA ? "true" : "false",
           _config.outputMode == SerialModeNMEA ? "true" : "false");

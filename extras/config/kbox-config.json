@@ -82,6 +82,19 @@
       "dataFormat" : "NMEA"
     }
   },
+  "serial3": {
+    "inputMode": "enabled",
+    "outputMode": "disabled",
+    "baudRate": 38400,
+    "dataFormatType": {
+      "dataFormat" : "NMEA"
+    }
+  },
+  "serial4": {
+    "inputMode": "disabled",
+    "outputMode": "disabled",
+    "baudRate": 4800
+  },
   "nmea2000": {
     "txEnabled": true,
     "rxEnabled": true
