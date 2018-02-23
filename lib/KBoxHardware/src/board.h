@@ -87,12 +87,12 @@ static const uint8_t bmp280_address = 0x76;
 /* Serial Transceiver */
 static const pin_t nmea1_out_enable = 24;
 static const pin_t nmea2_out_enable = 16;
-#define NMEA1_SERIAL Serial2
-#define NMEA2_SERIAL Serial3
+#define NMEA1_SERIAL Serial2  // Pins Rx 9, Tx 10
+#define NMEA2_SERIAL Serial3  // Pins Rx 7, Tx 8
 /* Additional Serial on Teensy 3.6 */
 #if defined(__MK66FX1M0__)  // Teensy 3.6
-  #define NMEA3_SERIAL Serial5
-  #define NMEA4_SERIAL Serial6
+  #define NMEA3_SERIAL Serial5  // Pins Rx 34, Tx 33
+  #define NMEA4_SERIAL Serial6  // Pins Rx 47, Tx 48 unten am Teensy
 #endif
 
 /* Analog Inputs */
