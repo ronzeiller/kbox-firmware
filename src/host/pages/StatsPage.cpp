@@ -98,23 +98,28 @@ void StatsPage::loadView() {
   addLayer(canRx); addLayer(canTx); addLayer(canTxErrors);
 
   // WiFi AP
-  addLayer(new TextLayer(Point(col3, row5), Size(colWidth, rowHeight),
-                         "WiFi-AP:"));
-  addLayer(new TextLayer(Point(col3, row6), Size(colWidth, rowHeight), "IP:"));
-  wifiAPStatus = new TextLayer(Point(col4 - 20, row5), Size(colWidth,
-                                                            rowHeight), "");
-  wifiAPIP = new TextLayer(Point(col4 - 40, row6), Size(colWidth, rowHeight), "");
-  addLayer(wifiAPStatus); addLayer(wifiAPIP);
+  if (wifiService) {
+    addLayer(new TextLayer(Point(col3, row5), Size(colWidth, rowHeight),
+                           "WiFi-AP:"));
+    addLayer(new TextLayer(Point(col3, row6), Size(colWidth, rowHeight), "IP:"));
+    wifiAPStatus = new TextLayer(Point(col4 - 20, row5), Size(colWidth,
+                                                              rowHeight), "");
+    wifiAPIP = new TextLayer(Point(col4 - 40, row6), Size(colWidth, rowHeight), "");
+    addLayer(wifiAPStatus); addLayer(wifiAPIP);
 
-  // WiFi Client
-  addLayer(new TextLayer(Point(col3, row7), Size(colWidth, rowHeight),
-                         "WiFi-C:"));
-  addLayer(new TextLayer(Point(col3, row8), Size(colWidth, rowHeight), "IP:"));
-  wifiClientStatus = new TextLayer(Point(col4 - 20, row7), Size(colWidth,
-                                                            rowHeight), "");
-  wifiClientIP = new TextLayer(Point(col4 - 40, row8), Size(colWidth,
-                                                           rowHeight), "");
-  addLayer(wifiClientStatus); addLayer(wifiClientIP);
+    // WiFi Client
+    addLayer(new TextLayer(Point(col3, row7), Size(colWidth, rowHeight),
+                           "WiFi-C:"));
+    addLayer(new TextLayer(Point(col3, row8), Size(colWidth, rowHeight), "IP:"));
+    wifiClientStatus = new TextLayer(Point(col4 - 20, row7), Size(colWidth,
+                                                              rowHeight), "");
+    wifiClientIP = new TextLayer(Point(col4 - 40, row8), Size(colWidth,
+                                                             rowHeight), "");
+    addLayer(wifiClientStatus); addLayer(wifiClientIP);
+  } else {
+    addLayer(new TextLayer(Point(col3, row5), Size(colWidth, rowHeight),
+                           "WiFi: not enabled"));
+  }
 
   addLayer(new TextLayer(Point(col1, row9), Size(colWidth, rowHeight), "Avg Loop:"));
   addLayer(new TextLayer(Point(col1, row10), Size(colWidth, rowHeight), "Used RAM:"));
@@ -213,4 +218,3 @@ String StatsPage::formatDiskSize(uint64_t intSize) {
 
   return String(size) + suffixes[suffix];
 }
-
