@@ -89,7 +89,7 @@
     "baudRate": 4800,
     "nmeaConverter": {
       "xdrPressure": false,
-      "xdrAttitude": true,
+      "xdrAttitude": false,
       "xdrBattery": false,
       "hdm": false,
       "mwv": true,

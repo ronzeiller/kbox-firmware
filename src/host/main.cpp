@@ -111,76 +111,81 @@ void setup() {
     DEBUG("Read Polardata file");
   }
 
+  taskManager.addTask(&usbService);
+  taskManager.addTask(&mfd);
+  taskManager.addTask(new IntervalTask(new RunningLightService(), 250));
+
+  delay(1000);  // for full DEBUG display befor N2k starts
   NMEA2000Service *n2kService = new NMEA2000Service(config.nmea2000Config, skHub);
   n2kService->addSentenceRepeater(usbService);
-
-  // SERIAL SERVICES
-  SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
-  SerialService *reader2 = new SerialService(config.serial2Config, skHub, NMEA2_SERIAL);
-
-  #ifdef NMEA3_SERIAL
-    //if (config.serial3Enabled) {
-    SerialService *reader3 = new SerialService(config.serial3Config, skHub, NMEA3_SERIAL);
-    //}
-  #else
-    SerialService *reader3 = NULL;
-  #endif
-
-  #ifdef NMEA4_SERIAL
-    //if (config.serial4Enabled) {
-    SerialService  *reader4 = new SerialService(config.serial4Config, skHub, NMEA4_SERIAL);
-    //}
-  #else
-    SerialService *reader4 = NULL;
-  #endif
-  reader1->addRepeater(usbService);
-  reader2->addRepeater(usbService);
-  if (reader3) reader3->addRepeater(usbService);
-  if (reader4) reader4->addRepeater(usbService);
+  taskManager.addTask(n2kService);
 
   // WIFI SERVICE
   WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
   if (config.wifiConfig.enabled) {
-    //n2kService->connectTo(*wifi);
     n2kService->addSentenceRepeater(*wifi);
-    //reader1->connectTo(*wifi);
-    //reader2->connectTo(*wifi);
-    reader1->addRepeater(*wifi);
-    reader2->addRepeater(*wifi);
-    if (reader3) reader3->addRepeater(*wifi);
-    if (reader4) reader4->addRepeater(*wifi);
     taskManager.addTask(wifi);
   }
 
   // SD-CARD SERVICE
   SDCardTask *sdcardTask = new SDCardTask(config.sdcardConfig);
   if (config.sdcardConfig.enabled){
-    //reader1->connectTo(*sdcardTask);
-    //reader2->connectTo(*sdcardTask);
-    //n2kService->connectTo(*sdcardTask);
-    reader1->addRepeater(*sdcardTask);
-    reader2->addRepeater(*sdcardTask);
-    if (reader3) reader3->addRepeater(*sdcardTask);
-    if (reader4) reader4->addRepeater(*sdcardTask);
-    n2kService->addSentenceRepeater(*sdcardTask);
     taskManager.addTask(sdcardTask);
   }
 
-  // Add all the tasks
-  taskManager.addTask(&mfd);
-  taskManager.addTask(new IntervalTask(new RunningLightService(), 250));
+  // SERIAL SERVICES
+  SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
+  reader1->addRepeater(usbService);
+  if (config.wifiConfig.enabled) {
+    reader1->addRepeater(*wifi);
+  }
+  if (config.sdcardConfig.enabled){
+    reader1->addRepeater(*sdcardTask);
+  }
+  taskManager.addTask(reader1);
+
+  SerialService *reader2 = new SerialService(config.serial2Config, skHub, NMEA2_SERIAL);
+  reader2->addRepeater(usbService);
+  if (config.wifiConfig.enabled) {
+    reader2->addRepeater(*wifi);
+  }
+  if (config.sdcardConfig.enabled){
+    reader2->addRepeater(*sdcardTask);
+  }
+  taskManager.addTask(reader2);
+
+  #ifdef NMEA3_SERIAL
+    if (config.serial3Config.inputMode != SerialModeDisabled) {
+      SerialService *reader3 = new SerialService(config.serial3Config, skHub, NMEA3_SERIAL);
+      reader3->addRepeater(usbService);
+      if (config.wifiConfig.enabled) {
+        reader3->addRepeater(*wifi);
+      }
+      if (config.sdcardConfig.enabled){
+        reader3->addRepeater(*sdcardTask);
+      }
+      taskManager.addTask(reader3);
+    }
+  #endif
+
+  #ifdef NMEA4_SERIAL
+    if (config.serial4Config.inputMode != SerialModeDisabled) {
+      SerialService  *reader4 = new SerialService(config.serial4Config, skHub, NMEA4_SERIAL);
+      reader4->addRepeater(usbService);
+      if (config.wifiConfig.enabled) {
+        reader4->addRepeater(*wifi);
+      }
+      if (config.sdcardConfig.enabled){
+        reader4->addRepeater(*sdcardTask);
+      }
+      taskManager.addTask(reader4);
+    }
+  #endif
 
   if (config.barometerConfig.enabled) {
     BarometerService *baroService = new BarometerService(config.barometerConfig, skHub);
     taskManager.addTask(new IntervalTask(baroService, 1000 / config.barometerConfig.frequency));
   }
-
-  taskManager.addTask(n2kService);
-  taskManager.addTask(reader1);
-  taskManager.addTask(reader2);
-  if (reader3) taskManager.addTask(reader3);
-  if (reader4) taskManager.addTask(reader4);
-  taskManager.addTask(&usbService);
 
   if (config.imuConfig.enabled) {
     IMUService *imuService = new IMUService(config.imuConfig, skHub);

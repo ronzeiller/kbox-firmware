@@ -54,8 +54,8 @@
 // Linked list used to buffer messages
 static LinkedList<SKNMEASentence> *received2 = 0;
 static LinkedList<SKNMEASentence> *received3 = 0;
-static LinkedList<SKNMEASentence> *received4 = 0;
 static LinkedList<SKNMEASentence> *received5 = 0;
+static LinkedList<SKNMEASentence> *received6 = 0;
 
 // This is called by yield() whenever data is available.
 // We move received data into a linked list of NMEA sentences.
@@ -145,23 +145,24 @@ void serialEvent3() {
   }
 }
 
-void serialEvent4() {
+//TODO: extend KBoxMetrics.event for Serial5 and 6
+// NMEA3_SERIAL
+void serialEvent5() {
   static uint8_t buffer[MAX_NMEA_SENTENCE_LENGTH];
   static int index = 0;
 
-  if (received4 == 0) {
+  if (received5 == 0) {
     return;
   }
 
   // 64 is the RX_BUFFER_SIZE defined in serial2.c (teensy3 framework)
-  if (Serial4.available() == 64) {
-    //TODO: extend KBoxMetrics for Serial4 and Serial5
+  if (Serial5.available() == 64) {
     //KBoxMetrics.event(KBoxEventNMEA1RXBufferOverflow);
     DEBUG("serialEvent4 found a full rx buffer - we probably lost some data");
   }
 
-  while (Serial4.available()) {
-    buffer[index++]= (uint8_t) Serial4.read();
+  while (Serial5.available()) {
+    buffer[index++]= (uint8_t) Serial5.read();
 
     // Check if we are at the end of the buffer
     // The -1 is because we need space to add a terminating NULL character.
@@ -180,7 +181,7 @@ void serialEvent4() {
           // because we tested buffer.
           buffer[index-1] = 0;
           SKNMEASentence s((char*)buffer);
-          received4->add(s);
+          received5->add(s);
         }
         // Start again from scratch
         index = 0;
@@ -189,22 +190,23 @@ void serialEvent4() {
   }
 }
 
-void serialEvent5() {
+// NMEA4_SERIAL
+void serialEvent6() {
   static uint8_t buffer[MAX_NMEA_SENTENCE_LENGTH];
   static int index = 0;
 
-  if (received5 == 0) {
+  if (received6 == 0) {
     return;
   }
 
   // 64 is the RX_BUFFER_SIZE defined in serial2.c (teensy3 framework)
-  if (Serial5.available() == 64) {
+  if (Serial6.available() == 64) {
     //KBoxMetrics.event(KBoxEventNMEA1RXBufferOverflow);
-    DEBUG("serialEvent5 found a full rx buffer - we probably lost some data");
+    DEBUG("serialEvent6 found a full rx buffer - we probably lost some data");
   }
 
-  while (Serial5.available()) {
-    buffer[index++]= (uint8_t) Serial5.read();
+  while (Serial6.available()) {
+    buffer[index++]= (uint8_t) Serial6.read();
 
     // Check if we are at the end of the buffer
     // The -1 is because we need space to add a terminating NULL character.
@@ -246,7 +248,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
     if (_config.inputMode == SerialModeNMEA) {
       received2 = &receiveQueue;
     }
-    _taskName = "Serial Service 1";
+    _taskName = "Serial COM1";
     _rxValidEvent = KBoxEventNMEA1RX;
     _rxErrorEvent = KBoxEventNMEA1RXError;
     _txValidEvent = KBoxEventNMEA1TX;
@@ -257,18 +259,18 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
     if (_config.inputMode == SerialModeNMEA) {
       received3 = &receiveQueue;
     }
-    _taskName = "Serial Service 2";
+    _taskName = "Serial COM2";
     _rxValidEvent = KBoxEventNMEA2RX;
     _rxErrorEvent = KBoxEventNMEA2RXError;
     _txValidEvent = KBoxEventNMEA2TX;
     _txOverflowEvent = KBoxEventNMEA2TXOverflow;
     _skSourceInput = SKSourceInputNMEA0183_2;
   }
-  if (&s == &Serial4) {
+  if (&s == &Serial5) {
     if (_config.inputMode == SerialModeNMEA) {
-      received4 = &receiveQueue;
+      received5 = &receiveQueue;
     }
-    _taskName = "Serial Service 3";
+    _taskName = "Serial COM3";
     /*
     _rxValidEvent = KBoxEventNMEA1RX;
     _rxErrorEvent = KBoxEventNMEA1RXError;
@@ -277,11 +279,11 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
     */
     _skSourceInput = SKSourceInputNMEA0183_3;
   }
-  if (&s == &Serial5) {
+  if (&s == &Serial6) {
     if (_config.inputMode == SerialModeNMEA) {
       received5 = &receiveQueue;
     }
-    _taskName = "Serial Service 4";
+    _taskName = "Serial COM4";
     /*
     _rxValidEvent = KBoxEventNMEA1RX;
     _rxErrorEvent = KBoxEventNMEA1RXError;
@@ -301,7 +303,7 @@ void SerialService::setup() {
     NMEA1_SERIAL.begin(_config.baudRate);
     NMEA1_SERIAL.setTimeout(0);
     digitalWrite(nmea1_out_enable, _config.outputMode != SerialModeDisabled);
-    DEBUG("SerialService[1] Baudrate: %i Input: %s Output: %s",
+    DEBUG("Serial COM1 Baudrate: %i Input: %s Output: %s",
           _config.baudRate,
           _config.inputMode == SerialModeNMEA ? "true" : "false",
           _config.outputMode == SerialModeNMEA ? "true" : "false");
@@ -310,29 +312,33 @@ void SerialService::setup() {
     NMEA2_SERIAL.begin(_config.baudRate);
     NMEA2_SERIAL.setTimeout(0);
     digitalWrite(nmea2_out_enable, _config.outputMode != SerialModeDisabled);
-    INFO("SerialService[2] Baudrate: %i Input: %s Output: %s",
+    INFO("Serial COM2 Baudrate: %i Input: %s Output: %s",
           _config.baudRate,
           _config.inputMode == SerialModeNMEA ? "true" : "false",
           _config.outputMode == SerialModeNMEA ? "true" : "false");
   }
-  if (_skSourceInput == SKSourceInputNMEA0183_3) {
-    NMEA3_SERIAL.begin(_config.baudRate);
-    // not implemented in hardware
-    // digitalWrite(nmea3_out_enable, _config.outputMode != SerialModeDisabled);
-    INFO("SerialService[3] Baudrate: %i Input: %s Output: %s",
-          _config.baudRate,
-          _config.inputMode == SerialModeNMEA ? "true" : "false",
-          _config.outputMode == SerialModeNMEA ? "true" : "false");
-  }
-  if (_skSourceInput == SKSourceInputNMEA0183_4) {
-    NMEA4_SERIAL.begin(_config.baudRate);
-    // not implemented in hardware
-    // digitalWrite(nmea4_out_enable, _config.outputMode != SerialModeDisabled);
-    INFO("SerialService[4] Baudrate: %i Input: %s Output: %s",
-          _config.baudRate,
-          _config.inputMode == SerialModeNMEA ? "true" : "false",
-          _config.outputMode == SerialModeNMEA ? "true" : "false");
-  }
+  #ifdef NMEA3_SERIAL
+    if (_skSourceInput == SKSourceInputNMEA0183_3) {
+        NMEA3_SERIAL.begin(_config.baudRate);
+        // not implemented in hardware
+        // digitalWrite(nmea3_out_enable, _config.outputMode != SerialModeDisabled);
+        INFO("Serial COM3 Baudrate: %i Input: %s Output: %s",
+              _config.baudRate,
+              _config.inputMode == SerialModeNMEA ? "true" : "false",
+              _config.outputMode == SerialModeNMEA ? "true" : "false");
+    }
+  #endif
+  #ifdef NMEA4_SERIAL
+    if (_skSourceInput == SKSourceInputNMEA0183_4) {
+      NMEA4_SERIAL.begin(_config.baudRate);
+      // not implemented in hardware
+      // digitalWrite(nmea4_out_enable, _config.outputMode != SerialModeDisabled);
+      INFO("Serial COM4 Baudrate: %i Input: %s Output: %s",
+            _config.baudRate,
+            _config.inputMode == SerialModeNMEA ? "true" : "false",
+            _config.outputMode == SerialModeNMEA ? "true" : "false");
+    }
+  #endif
 
   _hub.subscribe(this);
 }

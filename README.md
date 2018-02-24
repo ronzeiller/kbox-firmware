@@ -244,4 +244,4 @@ been possible!**
 
 ## Changelog Kbox
 
-[Readme](https://github.com/sarfata/kbox-firmware/blob/master/README.md)
+ See [Readme](https://github.com/sarfata/kbox-firmware/blob/master/README.md) on Sarfata´s KBox Page
