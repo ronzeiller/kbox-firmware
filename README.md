@@ -31,7 +31,7 @@ Sailmax-CU Hardware includes:
   - Save all NMEA and NMEA2000 messages to SDCard again
 
 
-  * 2018 02 19 - v2.4.1
+* 2018 02 19 - v2.4.1
     + Parsing of XDR roll/pitch NMEA0183 sentence added
     + Merged Sarfatas more precise pressure N2k PGN, but disabled PGN PGN130310 in SKNMEA2000Converter
     and SKNMEA2000ConverterTest
