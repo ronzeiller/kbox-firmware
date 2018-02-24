@@ -23,9 +23,7 @@
 */
 
 /*
-  Das Service liest von der und schreibt an die serielle Schnittstelle
-  Im Moment nur zwei Schnittstellen konfiguriert und nur für NMEA0183
-  Theoretisch sind auch andere SKSourceInput Formate möglich
+  Das Service liest von der und schreibt an die seriellen Schnittstellen
 
   Daten Eingang -> Loop:
 
@@ -358,7 +356,7 @@ void SerialService::loop() {
   }
   // Send all queue sentences
   /*
-  DEBUG("Serial[%i]: Found %i sentences waiting",
+  DEBUG("Serial COM[%i]: Found %i sentences waiting",
         _skSourceInput == SKSourceInputNMEA0183_1 ? 1 : 2,
         receiveQueue.size());
   */
@@ -396,7 +394,7 @@ void SerialService::loop() {
 // ****************************************************************************
 void SerialService::updateReceived(const SKUpdate &update) {
   if (_config.outputMode == SerialModeNMEA) {
-    SKNMEAConverter nmeaConverter(_config.nmeaConverter);
+    SKNMEAConverter nmeaConverter(_config.nmeaConverterConfig);
     nmeaConverter.convert(update, *this);
   }
 }

@@ -42,6 +42,7 @@ struct  SerialConfig {
   int baudRate = 0;
   enum SerialMode inputMode = SerialModeDisabled;
   enum SerialMode outputMode = SerialModeDisabled;
-  SKNMEAConverterConfig nmeaConverter;
+  bool repeatSentence = true;
+  SKNMEAConverterConfig nmeaConverterConfig;
   DataFormatConfig dataFormatConfig;
 };

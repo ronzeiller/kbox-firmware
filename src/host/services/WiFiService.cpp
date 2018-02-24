@@ -91,7 +91,7 @@ void WiFiService::updateReceived(const SKUpdate& u) {
     return;
   }
 
-  SKNMEAConverter nmeaConverter(_config.nmeaConverter);
+  SKNMEAConverter nmeaConverter(_config.nmeaConverterConfig);
   // The converter will call this->write(NMEASentence) for every generated sentence
   // convert(const SKUpdate& update, SKNMEAOutput& output)
   nmeaConverter.convert(u, *this);

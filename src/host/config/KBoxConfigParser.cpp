@@ -64,9 +64,9 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.serial2Config.baudRate = 4800;
   config.serial2Config.inputMode = SerialModeNMEA;
   config.serial2Config.outputMode = SerialModeNMEA;
-  config.serial2Config.nmeaConverter.xdrAttitude = false;
-  config.serial2Config.nmeaConverter.xdrBattery = false;
-  config.serial2Config.nmeaConverter.xdrPressure = false;
+  config.serial2Config.nmeaConverterConfig.xdrAttitude = false;
+  config.serial2Config.nmeaConverterConfig.xdrBattery = false;
+  config.serial2Config.nmeaConverterConfig.xdrPressure = false;
 
   config.serial3Config.baudRate = 4800;
   config.serial3Config.inputMode = SerialModeDisabled;
@@ -110,8 +110,8 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.wifiConfig.client.ssid = "";
   config.wifiConfig.client.password = "";
   config.wifiConfig.dataFormatConfig.dataFormat = NMEA;
-  config.wifiConfig.nmeaConverter.propTalkerIDEnabled = true;
-  config.wifiConfig.nmeaConverter.talkerID = "KB";
+  config.wifiConfig.nmeaConverterConfig.propTalkerIDEnabled = true;
+  config.wifiConfig.nmeaConverterConfig.talkerID = "KB";
 
   config.sdcardConfig.enabled = true;
   config.sdcardConfig.writeTimestamp = true;
@@ -181,8 +181,8 @@ void KBoxConfigParser::parseSerialConfig(const JsonObject &json, SerialConfig &c
   READ_ENUM_VALUE(inputMode, convertSerialMode);
   READ_ENUM_VALUE(outputMode, convertSerialMode);
   READ_BOOL_VALUE(repeatSentence);
-  
-  parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverter);
+
+  parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverterConfig);
 }
 
 void KBoxConfigParser::parseNMEA2000Config(const JsonObject &json,
@@ -213,8 +213,8 @@ void KBoxConfigParser::parseWiFiConfig(const JsonObject &json, WiFiConfig &confi
   }
   parseWiFiNetworkConfig(json["client"], config.client);
   parseWiFiNetworkConfig(json["accessPoint"], config.accessPoint);
-  parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverter);
-  parseDataFormatConfig(json["dataFormatConfig"], config.dataFormatConfig);
+  parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverterConfig);
+  parseDataFormatConfig(json["dataFormat"], config.dataFormatConfig);
 }
 
 void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEAConverterConfig &config) {

@@ -44,4 +44,4 @@ CMakeListsPrivate.txt
 cmake-build-debug
 
 # individual user's config file
-extras/config/kbox-config.json
+# extras/config/kbox-config.json

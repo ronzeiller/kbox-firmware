@@ -48,6 +48,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     if (_config.propTalkerIDEnabled &&
         update.getSource().getInput() == SKSourceInputKBoxBarometer) {
       talkerID =  _config.talkerID;
+      DEBUG("Talker-ID: %s",talkerID);
     } else {
       talkerID = "II";
     }
