@@ -124,8 +124,8 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.performanceConfig.windSensorHeight = 0;    // no entry
   config.performanceConfig.polarDataFileName = "polarData.pol";
 
-  config.nmeaConverter.propTalkerIDEnabled = true;
-  config.nmeaConverter.talkerID = "KB";
+  config.nmeaConverterConfig.propTalkerIDEnabled = true;
+  config.nmeaConverterConfig.talkerID = "KB";
 }
 
 void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &config) {
@@ -142,7 +142,7 @@ void KBoxConfigParser::parseKBoxConfig(const JsonObject &json, KBoxConfig &confi
   parseNMEA2000Config(json["nmea2000"], config.nmea2000Config);
   parseSDCardConfig(json["sdcard"], config.sdcardConfig);
   parsePerformanceConfig(json["performance"], config.performanceConfig);
-  parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverter);
+  parseNMEAConverterConfig(json["nmeaConverterConfig"], config.nmeaConverterConfig);
 }
 
 void KBoxConfigParser::parseIMUConfig(const JsonObject &json, IMUConfig &config) {
@@ -180,7 +180,8 @@ void KBoxConfigParser::parseSerialConfig(const JsonObject &json, SerialConfig &c
   READ_INT_VALUE(baudRate);
   READ_ENUM_VALUE(inputMode, convertSerialMode);
   READ_ENUM_VALUE(outputMode, convertSerialMode);
-
+  READ_BOOL_VALUE(repeatSentence);
+  
   parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverter);
 }
 
