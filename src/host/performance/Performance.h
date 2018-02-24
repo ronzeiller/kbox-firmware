@@ -39,7 +39,6 @@
 #pragma once
 
 #include "common/os/Task.h"
-#include "common/signalk/KMessage.h"
 #include "common/signalk/SKHub.h"
 #include "common/signalk/SKSubscriber.h"
 #include "common/signalk/SKSource.h"

@@ -45,11 +45,16 @@
   Thanks to D. Pedrick and Richard McCurdy for their Yacht Performance analysis with computers 1981
 */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "Performance.h"
+
 #include <KBoxLogging.h>
 #include "host/config/KBoxConfig.h"
 #include "common/signalk/SKUpdate.h"
 #include "common/signalk/SKUpdateStatic.h"
-#include "Performance.h"
 #include "common/signalk/SKUnits.h"
 #include "host/config/PerformanceConfig.h"
 //#include <SdFat.h>
@@ -128,7 +133,7 @@ void Performance::calcBoatSpeed(double &bs_kts) {
   SKUpdateStatic<2> updateWrite;
   SKSource source = SKSource::performanceCalc();
   updateWrite.setSource(source);
-  updateWrite.setTimestamp(millis());
+  updateWrite.setTimestamp(now());
   updateWrite.setNavigationSpeedThroughWater(SKKnotToMs(_bs_kts_corr));
   updateWrite.setPerformanceLeeway(_leeway);
   _hub.publish(updateWrite);
@@ -178,7 +183,7 @@ void Performance::calcApparentWind(double &aws_m, double &awa_m, double &heel){
   SKUpdateStatic<2> updateWrite;
   SKSource source = SKSource::performanceCalc();
   updateWrite.setSource(source);
-  updateWrite.setTimestamp(millis());
+  updateWrite.setTimestamp(now());
   updateWrite.setEnvironmentWindSpeedApparent(aws_corr);
   DEBUG("AWS sensor: %.3f --> AWS corrected: %.3f kts", aws_m, aws_corr);
   updateWrite.setEnvironmentWindAngleApparent(awa_corr);
