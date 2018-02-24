@@ -135,34 +135,40 @@ void setup() {
 
   // SERIAL SERVICES
   SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
-  reader1->addRepeater(usbService);
-  if (config.wifiConfig.enabled) {
-    reader1->addRepeater(*wifi);
-  }
-  if (config.sdcardConfig.enabled){
-    reader1->addRepeater(*sdcardTask);
+  if (config.serial1Config.repeatSentence) {
+    reader1->addRepeater(usbService);
+    if (config.wifiConfig.enabled) {
+      reader1->addRepeater(*wifi);
+    }
+    if (config.sdcardConfig.enabled){
+      reader1->addRepeater(*sdcardTask);
+    }
   }
   taskManager.addTask(reader1);
 
   SerialService *reader2 = new SerialService(config.serial2Config, skHub, NMEA2_SERIAL);
-  reader2->addRepeater(usbService);
-  if (config.wifiConfig.enabled) {
-    reader2->addRepeater(*wifi);
-  }
-  if (config.sdcardConfig.enabled){
-    reader2->addRepeater(*sdcardTask);
+  if (config.serial2Config.repeatSentence) {
+    reader2->addRepeater(usbService);
+    if (config.wifiConfig.enabled) {
+      reader2->addRepeater(*wifi);
+    }
+    if (config.sdcardConfig.enabled){
+      reader2->addRepeater(*sdcardTask);
+    }
   }
   taskManager.addTask(reader2);
 
   #ifdef NMEA3_SERIAL
     if (config.serial3Config.inputMode != SerialModeDisabled) {
       SerialService *reader3 = new SerialService(config.serial3Config, skHub, NMEA3_SERIAL);
-      reader3->addRepeater(usbService);
-      if (config.wifiConfig.enabled) {
-        reader3->addRepeater(*wifi);
-      }
-      if (config.sdcardConfig.enabled){
-        reader3->addRepeater(*sdcardTask);
+      if (config.serial3Config.repeatSentence) {
+        reader3->addRepeater(usbService);
+        if (config.wifiConfig.enabled) {
+          reader3->addRepeater(*wifi);
+        }
+        if (config.sdcardConfig.enabled){
+          reader3->addRepeater(*sdcardTask);
+        }
       }
       taskManager.addTask(reader3);
     }
@@ -171,12 +177,14 @@ void setup() {
   #ifdef NMEA4_SERIAL
     if (config.serial4Config.inputMode != SerialModeDisabled) {
       SerialService  *reader4 = new SerialService(config.serial4Config, skHub, NMEA4_SERIAL);
-      reader4->addRepeater(usbService);
-      if (config.wifiConfig.enabled) {
-        reader4->addRepeater(*wifi);
-      }
-      if (config.sdcardConfig.enabled){
-        reader4->addRepeater(*sdcardTask);
+      if (config.serial4Config.repeatSentence) {
+        reader4->addRepeater(usbService);
+        if (config.wifiConfig.enabled) {
+          reader4->addRepeater(*wifi);
+        }
+        if (config.sdcardConfig.enabled){
+          reader4->addRepeater(*sdcardTask);
+        }
       }
       taskManager.addTask(reader4);
     }
