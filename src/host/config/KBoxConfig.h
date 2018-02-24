@@ -55,5 +55,5 @@ struct KBoxConfig {
   WiFiConfig wifiConfig;
   SDCardConfig sdcardConfig;
   PerformanceConfig performanceConfig;
-  SKNMEAConverterConfig nmeaConverter;
+  SKNMEAConverterConfig nmeaConverterConfig;
 };
