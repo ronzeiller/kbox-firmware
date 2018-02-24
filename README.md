@@ -20,6 +20,16 @@ Sailmax-CU Hardware includes:
    panels, generators, etc)
 
 ## Changelog Sailmax-CU
+* 2018 02 24 - v2.5 merged Sarfatas PR#128
+  - New USB mode active when the connection speed is set to 38400 bauds
+    In this mode all NMEA and NMEA2000 messages are repeated to USB (closes #66)
+  - Removed KMessage/KMessageNMEAVisitor - they are not needed anymore
+  - Make sure we read data from serial port in that mode to avoid the
+    serial port locking up on Raspberry Pi (closes #68)
+  - Also convert SignalK data to NMEA and output it (this provides an
+    output for internal sensors but may result in duplicated data)
+  - Save all NMEA and NMEA2000 messages to SDCard again
+
 
   * 2018 02 19 - v2.4.1
     + Parsing of XDR roll/pitch NMEA0183 sentence added

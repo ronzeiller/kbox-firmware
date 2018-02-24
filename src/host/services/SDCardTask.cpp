@@ -22,11 +22,11 @@
   THE SOFTWARE.
 */
 
+#include "SDCardTask.h"
+
 #include <KBoxLogging.h>
 #include <KBoxHardware.h>
-#include "signalk/KMessageNMEAVisitor.h"
-
-#include "SDCardTask.h"
+#include <Seasmart.h>
 
 SDCardTask::SDCardTask(SDCardConfig &config) : Task("SDCard"),  _config(config) {
 }
@@ -42,21 +42,6 @@ void SDCardTask::setup() {
     _freeSpaceAtBoot *= logFile->volume()->blocksPerCluster();
     _freeSpaceAtBoot *= 512;
   }
-}
-
-void SDCardTask::processMessage(const KMessage &m) {
-  if (!isLogging()) {
-    return;
-  }
-
-  // FIXME: Should probably implement a custom visitor for logging.
-  KMessageNMEAVisitor v(_config.dataFormatConfig);
-  m.accept(v);
-  String data = v.getNMEAContent();
-  // if dataFormat "Seasmart" --> datas are coming in
-  // if dataFormat "NMEA" --> nothing is coming
-  // DEBUG("processMessage: %s", data.c_str());
-  receivedMessages.add(Loggable("", v.getNMEAContent()));
 }
 
 void SDCardTask::loop() {
@@ -134,4 +119,31 @@ String SDCardTask::getLogFileName() const {
   char name[13];
   logFile->getName(name, sizeof(name));
   return String(name);
+}
+
+bool SDCardTask::write(const SKNMEASentence &nmeaSentence) {
+  if (!isLogging()) {
+    return true;
+  }
+
+  receivedMessages.add(Loggable("", nmeaSentence));
+  return true;
+}
+
+bool SDCardTask::write(const tN2kMsg &msg) {
+  if (!isLogging()) {
+    return true;
+  }
+
+  if (msg.DataLen > 500) {
+    return false;
+  }
+
+  char pcdin[30 + msg.DataLen * 2];
+  if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
+    receivedMessages.add(Loggable("", pcdin));
+    return true;
+  } else {
+    return false;
+  }
 }

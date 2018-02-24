@@ -26,11 +26,10 @@
 
 #include <Adafruit_BMP280.h>
 #include "common/os/Task.h"
-#include "common/signalk/KMessage.h"
 #include "common/signalk/SKHub.h"
 #include "config/BarometerConfig.h"
 
-class BarometerService : public Task, public KGenerator {
+class BarometerService : public Task {
   private:
     const BarometerConfig &_config;
     SKHub& _skHub;

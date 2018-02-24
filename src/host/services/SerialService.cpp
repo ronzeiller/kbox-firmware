@@ -28,10 +28,8 @@
   Theoretisch sind auch andere SKSourceInput Formate möglich
 
   Daten Eingang -> Loop:
-  1.) Daten werden über sendMessage() an den NMEAVisitor gesendet
-  (Alle connected Receivers, also WiFi und SD-Card verarbeiten die NMEA Sätze
-  über processMessage)
-  2.) Sätze werden geparst (SKNMEAParser) und als SKUpdate an den Hub gesendet
+
+  1.) Sätze werden geparst (SKNMEAParser) und als SKUpdate an den Hub gesendet
   (Hub.publish(SKUpdate))
 
   Schreiben: Über updateReceived werden SKUpdates vom Hub über den
@@ -49,19 +47,15 @@
 #include <KBoxLogging.h>
 #include <Arduino.h>
 #include <KBoxHardware.h>
-#include <signalk/SKNMEAConverter.h>
-#include "common/algo/List.h"
-#include "common/stats/KBoxMetrics.h"
+#include "common/signalk/SKNMEAConverter.h"
 #include "common/signalk/SKNMEAParser.h"
-#include "common/signalk/SKSource.h"
-#include "host/config/SerialConfig.h"
 
 
 // Linked list used to buffer messages
-static LinkedList<NMEASentence> *received2 = 0;
-static LinkedList<NMEASentence> *received3 = 0;
-static LinkedList<NMEASentence> *received4 = 0;
-static LinkedList<NMEASentence> *received5 = 0;
+static LinkedList<SKNMEASentence> *received2 = 0;
+static LinkedList<SKNMEASentence> *received3 = 0;
+static LinkedList<SKNMEASentence> *received4 = 0;
+static LinkedList<SKNMEASentence> *received5 = 0;
 
 // This is called by yield() whenever data is available.
 // We move received data into a linked list of NMEA sentences.
@@ -98,7 +92,7 @@ void serialEvent2() {
           // And we know that index is < MAX_NMEA_SENTENCE_LENGTH
           // because we tested buffer.
           buffer[index-1] = 0;
-          NMEASentence s((char*)buffer);
+          SKNMEASentence s((char*)buffer);
           received2->add(s);
         }
         // Start again from scratch
@@ -141,7 +135,7 @@ void serialEvent3() {
           // And we know that index is < MAX_NMEA_SENTENCE_LENGTH
           // because we tested buffer.
           buffer[index-1] = 0;
-          NMEASentence s((char*)buffer);
+          SKNMEASentence s((char*)buffer);
           received3->add(s);
         }
         // Start again from scratch
@@ -305,6 +299,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
 void SerialService::setup() {
   if (_skSourceInput == SKSourceInputNMEA0183_1) {
     NMEA1_SERIAL.begin(_config.baudRate);
+    NMEA1_SERIAL.setTimeout(0);
     digitalWrite(nmea1_out_enable, _config.outputMode != SerialModeDisabled);
     DEBUG("SerialService[1] Baudrate: %i Input: %s Output: %s",
           _config.baudRate,
@@ -313,6 +308,7 @@ void SerialService::setup() {
   }
   if (_skSourceInput == SKSourceInputNMEA0183_2) {
     NMEA2_SERIAL.begin(_config.baudRate);
+    NMEA2_SERIAL.setTimeout(0);
     digitalWrite(nmea2_out_enable, _config.outputMode != SerialModeDisabled);
     INFO("SerialService[2] Baudrate: %i Input: %s Output: %s",
           _config.baudRate,
@@ -360,14 +356,18 @@ void SerialService::loop() {
         _skSourceInput == SKSourceInputNMEA0183_1 ? 1 : 2,
         receiveQueue.size());
   */
-  for (LinkedList<NMEASentence>::iterator it = receiveQueue.begin(); it != receiveQueue.end(); it++) {
+  for (auto it = receiveQueue.begin(); it != receiveQueue.end(); it++) {
     if (it->isValid()) {
       KBoxMetrics.event(_rxValidEvent);
-      this->sendMessage(*it);
+
+      // Repeat the sentence to all registered repeaters.
+      for (auto repeater = _repeaters.begin(); repeater != _repeaters.end(); repeater++) {
+        (*repeater)->write(*it);
+      }
 
       SKNMEAParser p;
       //FIXME: Get the time properly here!
-      const SKUpdate &update = p.parse(_skSourceInput, (*it).getSentence(), SKTime(0));
+      const SKUpdate &update = p.parse(_skSourceInput, *it, SKTime(0));
       if (update.getSize() > 0) {
         _hub.publish(update);
       }
@@ -415,4 +415,8 @@ bool SerialService::write(const SKNMEASentence &nmeaSentence) {
     KBoxMetrics.event(_txOverflowEvent);
     return false;
   }
+}
+
+void SerialService::addRepeater(SKNMEAOutput &repeater) {
+  _repeaters.add(&repeater);
 }

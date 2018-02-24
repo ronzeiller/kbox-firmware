@@ -51,7 +51,7 @@ TaskManager taskManager;
 SKHub skHub;
 KBoxConfig config;
 
-USBService usbService(gc);
+USBService usbService(gc, skHub);
 
 void setup() {
   // Enable float in printf:
@@ -110,11 +110,11 @@ void setup() {
   if (KBox.getSdFat().exists(polarDataFileName)) {
     DEBUG("Read Polardata file");
   }
-  // Instantiate all our services
-  WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
 
   NMEA2000Service *n2kService = new NMEA2000Service(config.nmea2000Config, skHub);
+  n2kService->addSentenceRepeater(usbService);
 
+  // SERIAL SERVICES
   SerialService *reader1 = new SerialService(config.serial1Config, skHub, NMEA1_SERIAL);
   SerialService *reader2 = new SerialService(config.serial2Config, skHub, NMEA2_SERIAL);
 
@@ -133,20 +133,36 @@ void setup() {
   #else
     SerialService *reader4 = NULL;
   #endif
+  reader1->addRepeater(usbService);
+  reader2->addRepeater(usbService);
+  if (reader3) reader3->addRepeater(usbService);
+  if (reader4) reader4->addRepeater(usbService);
 
-  // connect and add tasks
+  // WIFI SERVICE
+  WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
   if (config.wifiConfig.enabled) {
-    n2kService->connectTo(*wifi);
-    reader1->connectTo(*wifi);
-    reader2->connectTo(*wifi);
+    //n2kService->connectTo(*wifi);
+    n2kService->addSentenceRepeater(*wifi);
+    //reader1->connectTo(*wifi);
+    //reader2->connectTo(*wifi);
+    reader1->addRepeater(*wifi);
+    reader2->addRepeater(*wifi);
+    if (reader3) reader3->addRepeater(*wifi);
+    if (reader4) reader4->addRepeater(*wifi);
     taskManager.addTask(wifi);
   }
 
+  // SD-CARD SERVICE
   SDCardTask *sdcardTask = new SDCardTask(config.sdcardConfig);
   if (config.sdcardConfig.enabled){
-    reader1->connectTo(*sdcardTask);
-    reader2->connectTo(*sdcardTask);
-    n2kService->connectTo(*sdcardTask);
+    //reader1->connectTo(*sdcardTask);
+    //reader2->connectTo(*sdcardTask);
+    //n2kService->connectTo(*sdcardTask);
+    reader1->addRepeater(*sdcardTask);
+    reader2->addRepeater(*sdcardTask);
+    if (reader3) reader3->addRepeater(*sdcardTask);
+    if (reader4) reader4->addRepeater(*sdcardTask);
+    n2kService->addSentenceRepeater(*sdcardTask);
     taskManager.addTask(sdcardTask);
   }
 
@@ -202,11 +218,6 @@ void setup() {
   // (like logging to nmea2 output), the kbox setup might have messed
   // up the debug configuration.
   DEBUG("setup done");
-
-  Serial.setTimeout(0);
-  Serial1.setTimeout(0);
-  Serial2.setTimeout(0);
-  Serial3.setTimeout(0);
 }
 
 void loop() {
