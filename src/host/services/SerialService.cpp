@@ -179,7 +179,7 @@ void serialEvent4() {
           // And we know that index is < MAX_NMEA_SENTENCE_LENGTH
           // because we tested buffer.
           buffer[index-1] = 0;
-          NMEASentence s((char*)buffer);
+          SKNMEASentence s((char*)buffer);
           received4->add(s);
         }
         // Start again from scratch
@@ -222,7 +222,7 @@ void serialEvent5() {
           // And we know that index is < MAX_NMEA_SENTENCE_LENGTH
           // because we tested buffer.
           buffer[index-1] = 0;
-          NMEASentence s((char*)buffer);
+          SKNMEASentence s((char*)buffer);
           received5->add(s);
         }
         // Start again from scratch
