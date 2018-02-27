@@ -232,6 +232,7 @@ void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEACo
   READ_BOOL_VALUE(hdm);
   READ_BOOL_VALUE(rsa);
   READ_BOOL_VALUE(mwv);
+  READ_BOOL_VALUE(dbt);
 
   READ_BOOL_VALUE(propTalkerIDEnabled);
   READ_STRING_VALUE(talkerID);

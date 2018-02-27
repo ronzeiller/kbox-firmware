@@ -118,12 +118,34 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   // *********************************************** */
   if (_config.rsa && update.hasSteeringRudderAngle()) {
     NMEASentenceBuilder sb("II", "RSA", 4);
-    sb.setField(1, SKRadToDeg(SKNormalizeAngle(update.getSteeringRudderAngle())),1 );
+    sb.setField(1, SKRadToDeg(SKNormalizeAngle(update.getSteeringRudderAngle())), 1 );
     sb.setField(2, "A");
     sb.setField(3, "");
     sb.setField(4, "");
     output.write(sb.toNMEA());
   }
+
+  /* ****************************************************************************
+        DBT Depth Below Transducer
+        ==========================
+                1  2  3  4  5  6
+                |  |  |  |  |  |
+        $--DBT,x.x,f,x.x,M,x.x,F*hh
+        1) Depth, feet 2) f = feet
+        3) Depth, meters 4) M = meters
+        5) Depth, Fathoms 6) F = Fathoms
+  *************************************************************************** */
+  if (_config.dbt && update.hasEnvironmentDepthBelowTransducer()) {
+    NMEASentenceBuilder sb("II", "DBT", 6);
+    sb.setField(1, "");
+    sb.setField(2, "f");
+    sb.setField(3, update.getEnvironmentDepthBelowTransducer(), 1);
+    sb.setField(4, "M");
+    sb.setField(5, "");
+    sb.setField(6, "F");
+    output.write(sb.toNMEA());
+  }
+
 
   if (_config.mwv && update.hasEnvironmentWindAngleApparent()
       && update.hasEnvironmentWindSpeedApparent()) {

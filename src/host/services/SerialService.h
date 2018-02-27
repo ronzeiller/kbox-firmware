@@ -46,6 +46,7 @@ class SerialService : public Task, public SKSubscriber, private SKNMEAOutput {
     enum KBoxEvent _rxValidEvent, _rxErrorEvent, _txValidEvent, _txOverflowEvent;
     SKSourceInput _skSourceInput;
     LinkedList<SKNMEAOutput*> _repeaters;
+    uint8_t _comport;
 
   public:
     SerialService(SerialConfig &_config, SKHub &hub, HardwareSerial&s);
@@ -56,4 +57,3 @@ class SerialService : public Task, public SKSubscriber, private SKNMEAOutput {
     bool write(const SKNMEASentence& nmeaSentence) override;
     void addRepeater(SKNMEAOutput &repeater);
 };
-

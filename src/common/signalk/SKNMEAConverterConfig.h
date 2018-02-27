@@ -41,6 +41,8 @@ struct SKNMEAConverterConfig {
   bool hdm = true;
   bool rsa = true;
   bool mwv = true;
+  bool dbt = true;
   bool propTalkerIDEnabled = true;   // proprietary talker-ID for NMEA0183 from intern sensors
   String talkerID = "KB";
+  int outFrequency = 1;
 };

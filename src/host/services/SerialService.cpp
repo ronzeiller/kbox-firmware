@@ -247,6 +247,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
       received2 = &receiveQueue;
     }
     _taskName = "Serial COM1";
+    _comport = 1;
     _rxValidEvent = KBoxEventNMEA1RX;
     _rxErrorEvent = KBoxEventNMEA1RXError;
     _txValidEvent = KBoxEventNMEA1TX;
@@ -258,6 +259,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
       received3 = &receiveQueue;
     }
     _taskName = "Serial COM2";
+    _comport = 2;
     _rxValidEvent = KBoxEventNMEA2RX;
     _rxErrorEvent = KBoxEventNMEA2RXError;
     _txValidEvent = KBoxEventNMEA2TX;
@@ -269,6 +271,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
       received5 = &receiveQueue;
     }
     _taskName = "Serial COM3";
+    _comport = 3;
     /*
     _rxValidEvent = KBoxEventNMEA1RX;
     _rxErrorEvent = KBoxEventNMEA1RXError;
@@ -282,6 +285,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
       received5 = &receiveQueue;
     }
     _taskName = "Serial COM4";
+    _comport = 4;
     /*
     _rxValidEvent = KBoxEventNMEA1RX;
     _rxErrorEvent = KBoxEventNMEA1RXError;
@@ -293,7 +297,7 @@ SerialService::SerialService(SerialConfig &config, SKHub &hub, HardwareSerial &s
 }
 
 // ****************************************************************************
-// Für die beiden SKSourceInputs wird die serielle Schnittstelle gestartet - begin()
+// Es wird die serielle Schnittstelle gestartet - begin()
 // Wenn output auch zum Schreiben konfiguriert -> digitalWrite(pin, value)
 // ****************************************************************************
 void SerialService::setup() {
@@ -345,8 +349,8 @@ void SerialService::setup() {
 //  In der Loop wird die receivedQueue Liste abgearbeitet und auf Null gesetzt
 //  KBoxMetrics wird hochgezählt (Error, Valid)
 //  1.) Daten werden über sendMessage() an den NMEAVisitor gesendet
-//  (Alle connected Receivers, also WiFi und SD-Card verarbeiten die NMEA Sätze
-//  über processMessage)
+//  (Alle connected Repeaters, also WiFi und SD-Card, wenn config repeatSentence = true
+//  schreiben NMEA sentences über die virtuelle write Funktion)
 //  2.) Sätze werden geparst (SKNMEAParser) und als SKUpdate an den Hub gesendet
 //  (Hub.publish(SKUpdate))
 // ****************************************************************************
@@ -355,11 +359,8 @@ void SerialService::loop() {
     return;
   }
   // Send all queue sentences
-  /*
-  DEBUG("Serial COM[%i]: Found %i sentences waiting",
-        _skSourceInput == SKSourceInputNMEA0183_1 ? 1 : 2,
-        receiveQueue.size());
-  */
+  // DEBUG("COM%i: Found %i sentences waiting", _comport, receiveQueue.size());
+
   for (auto it = receiveQueue.begin(); it != receiveQueue.end(); it++) {
     if (it->isValid()) {
       KBoxMetrics.event(_rxValidEvent);
@@ -369,6 +370,7 @@ void SerialService::loop() {
         (*repeater)->write(*it);
       }
 
+      // Parse incoming NMEA sentences and publish them on the Hub
       SKNMEAParser p;
       //FIXME: Get the time properly here!
       const SKUpdate &update = p.parse(_skSourceInput, *it, SKTime(0));
@@ -390,7 +392,8 @@ void SerialService::loop() {
 //  SKHub benachrichtigt alle Subscriber, wenn ein neues Update angekommen ist.
 //  Ist Serial OUT auf NMEA konfiguriert, werden updates über den SKNMEAConverter
 //  in NMEA0183 Sätze konvertiert und über write() direkt von dort aufgerufen
-//  an die Schnittstelle geschrieben
+//  (in *this = SKNMEAOutput& output steckt das virtual write)
+//  geschrieben.
 // ****************************************************************************
 void SerialService::updateReceived(const SKUpdate &update) {
   if (_config.outputMode == SerialModeNMEA) {
@@ -402,13 +405,13 @@ void SerialService::updateReceived(const SKUpdate &update) {
 // ****************************************************************************
 //  In SKNMEAConverter als virtuelle Funktion definiert, wird write von dort
 //  aufgerufen und der NMEA0183 Satz wird auf die Schnittstelle geschrieben
+//  Vorher wird noch überprüft, ob für diese Schnittstelle die Ausgabefrequenz
+//  eingehalten wurde.
 // ****************************************************************************
 bool SerialService::write(const SKNMEASentence &nmeaSentence) {
-  /*
-  DEBUG("Writing NMEA to Serial[%i] output: %s",
-        _skSourceInput == SKSourceInputNMEA0183_1 ? 1 : 2,
-        nmeaSentence.c_str());
-  */
+
+  DEBUG("COM%i output: %s", _comport, nmeaSentence.c_str());
+
   if ((size_t)stream.availableForWrite() >= nmeaSentence.length() + 2) {
     stream.write(nmeaSentence.c_str());
     stream.write("\r\n");

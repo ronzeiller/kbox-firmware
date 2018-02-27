@@ -61,7 +61,8 @@
       "xdrBattery": false,
       "hdm": true,
       "mwv": true,
-      "rsa": true
+      "rsa": true,
+      "dpt": true
     },
     "dataFormatType": {
       "dataFormat" : "NMEA"
