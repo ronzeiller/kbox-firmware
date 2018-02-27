@@ -54,7 +54,9 @@
     "inputMode": "disabled",
     "outputMode": "nmea",
     "baudRate": 115200,
+    "repeatSentence": false,
     "nmeaConverter": {
+      "outFrequency": 1,
       "xdrPressure": true,
       "xdrAttitude": true,
       "xdrBattery": false,
@@ -70,6 +72,7 @@
     "inputMode": "nmea",
     "outputMode": "disabled",
     "baudRate": 38400,
+    "repeatSentence": false,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
@@ -87,7 +90,9 @@
     "inputMode": "disabled",
     "outputMode": "nmea",
     "baudRate": 4800,
+    "repeatSentence": false,
     "nmeaConverter": {
+      "outFrequency": 1,
       "xdrPressure": false,
       "xdrAttitude": false,
       "xdrBattery": false,
@@ -102,7 +107,8 @@
   "serial4": {
     "inputMode": "disabled",
     "outputMode": "disabled",
-    "baudRate": 4800
+    "baudRate": 4800,
+    "repeatSentence": false
   },
   "nmea2000": {
     "txEnabled": true,
