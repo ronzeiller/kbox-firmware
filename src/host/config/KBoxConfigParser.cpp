@@ -60,10 +60,12 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.serial1Config.baudRate = 38400;
   config.serial1Config.inputMode = SerialModeNMEA;
   config.serial1Config.outputMode = SerialModeNMEA;
+  config.serial1Config.repeatSentence = true;
 
   config.serial2Config.baudRate = 4800;
   config.serial2Config.inputMode = SerialModeNMEA;
   config.serial2Config.outputMode = SerialModeNMEA;
+  config.serial2Config.repeatSentence = true;
   config.serial2Config.nmeaConverterConfig.xdrAttitude = false;
   config.serial2Config.nmeaConverterConfig.xdrBattery = false;
   config.serial2Config.nmeaConverterConfig.xdrPressure = false;
@@ -71,10 +73,12 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.serial3Config.baudRate = 4800;
   config.serial3Config.inputMode = SerialModeDisabled;
   config.serial3Config.outputMode = SerialModeDisabled;
+  config.serial3Config.repeatSentence = true;
 
   config.serial4Config.baudRate = 4800;
   config.serial4Config.inputMode = SerialModeDisabled;
   config.serial4Config.outputMode = SerialModeDisabled;
+  config.serial4Config.repeatSentence = true;
 
   config.nmea2000Config.txEnabled = true;
   config.nmea2000Config.rxEnabled = true;
