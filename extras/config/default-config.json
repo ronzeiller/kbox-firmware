@@ -54,6 +54,7 @@
     "inputMode": "nmea",
     "outputMode": "nmea",
     "baudRate": 38400,
+    "repeatSentence": true,
     "nmeaConverter": {
       "xdrPressure": true,
       "xdrAttitude": true,
@@ -64,12 +65,13 @@
     },
     "dataFormatType": {
       "dataFormat" : "NMEA"
-    }
+    },
   },
   "serial2": {
     "inputMode": "nmea",
     "outputMode": "nmea",
     "baudRate": 4800,
+    "repeatSentence": true,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
@@ -85,12 +87,14 @@
   "serial3": {
     "inputMode": "disabled",
     "outputMode": "disabled",
-    "baudRate": 4800
+    "baudRate": 4800,
+    "repeatSentence": true,
   },
   "serial4": {
     "inputMode": "disabled",
     "outputMode": "disabled",
-    "baudRate": 4800
+    "baudRate": 4800,
+    "repeatSentence": true,
   },
   "nmea2000": {
     "txEnabled": true,
