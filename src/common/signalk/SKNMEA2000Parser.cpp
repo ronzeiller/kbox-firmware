@@ -87,7 +87,8 @@ const SKUpdate& SKNMEA2000Parser::parse(const SKSourceInput& input, const tN2kMs
     //case 129283: // Cross Track Error
     //case 130314: // Actual Pressure
     //case 130316: // Temperature extended range
-    //case 130577L: // Direction Data
+    //case 130577L: // Direction Data -> Gibt es noch nicht in Timos Library!!
+    //  return parse130577(input, msg, timestamp);
     //case 130578L: // Vessel Speed Components
     default:
       //DEBUG("No known conversion for PGN %i", msg.PGN);
@@ -431,6 +432,20 @@ const SKUpdate& SKNMEA2000Parser::parse130306(const SKSourceInput& input, const 
   DEBUG("Unable to parse NMEA2000 with PGN %i", msg.PGN);
   return _invalidSku;
 }
+
+/*
+ *    Gibt es noch nicht in Timos Library!!
+const SKUpdate& SKNMEA2000Parser::parse130577(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp) {
+  unsigned char sid;
+
+  if (ParseN2kPGN130577(msg,sid,windSpeed,windAngle,windReference)) {
+  SKUpdateStatic<2> *update = new SKUpdateStatic<2>();
+  update->setTimestamp(timestamp);
+
+  _sku = update;
+  return *_sku;
+}
+*/
 
 // *****************************************************************************
 //    PGN 128000 Nautical Leeway Angle (new 2017)

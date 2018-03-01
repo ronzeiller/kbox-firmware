@@ -43,10 +43,10 @@ class SKNMEAConverter : SKVisitor {
 
     void generateMWV(SKNMEAOutput& out, double windAngle, double windSpeed, bool apparent);
 
-    static double _sog, _cog;
-
   public:
-    SKNMEAConverter(const SKNMEAConverterConfig &config) : _config(config), _currentOutput(nullptr) {};
+    SKNMEAConverter(const SKNMEAConverterConfig &config) : _config(config), _currentOutput(nullptr) {
+
+    };
 
     /**
      * Process a SKUpdate and sends messages to the output.
