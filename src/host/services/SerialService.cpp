@@ -25,17 +25,32 @@
 /*
   Das Service liest von der und schreibt an die seriellen Schnittstellen
 
-  Daten Eingang -> Loop:
+  L E S E N
+  =========
+  1. Daten Eingang -> Event gesteuert
+    1.1 NMEA Sätze werden in einen buffer eingelesen
+    1.2 in die jeweilige (je nach Serial1,2,5,6) Liste "received" geschrieben
 
-  1.) Sätze werden geparst (SKNMEAParser) und als SKUpdate an den Hub gesendet
-  (Hub.publish(SKUpdate))
+  2. In der Loop wird die Liste "received" abgearbeitet:
+      2.1 An alle "repeater" gesendet (1:1 Weiterleitung, config gesteuert)
+      2.2 Ein SKNMEAParser Objekt erstellt
+      2.3 Die Sätze einzeln geparst und SKUpdate an SKHub gesendet. (Hub.publish(SKUpdate))
+          SKHub selbst sendet an alle "Receiver" das Update
 
-  Schreiben: Über updateReceived werden SKUpdates vom Hub über den
-  SKNMEAConverter in NMEA0183 Sätze umgeformt, die über die virtuelelle Funktion
-  write(SKNMEASentence) direkt an die Serielle Schnittstelle geschrieben werden.
+          Anm.: Jedes SKUpdate landet in SKHub!
+
+  S C H R E I B E N
+  =================
+  1. SerialService ist selbst "Receiver", bekommt also von SKHub über "updateReceived"
+  SKUpdates geliefert.
+
+  2. Es wird ein "SKNMEAConverter" Objekt erstellt, das NMEA0183 Sätze umgeformt.
+
+  3. Über die virtuelelle Funktion write(SKNMEASentence) wird dann der NMEA0183 Satz
+  direkt an die Serielle Schnittstelle geschrieben.
 
   Anmerkung:
-  Sind In und Out konfiguriert, werden theoretisch empfangene Sätze über Hub update
+  Sind In UND Out konfiguriert, werden theoretisch empfangene Sätze über Hub update
   auch wieder zurückgeschrieben!
 
 */

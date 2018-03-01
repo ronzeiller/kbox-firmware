@@ -21,6 +21,16 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+/*
+    Jeder Eingang liefert letztendlich ein SKUpdate, das hier im SKHub landet.
+    Über die Funktion publish werden diese SKUpdates an alle Subscriber verteilt.
+
+    D.h. die Service Class bekommt als Parameter SKHub übergeben und vom lokalen
+    Objekt _hub übernommen.
+    Die Subscription erfolgt über den Aufruf: _hub.subscribe(this);
+    Womit der Service in die Liste der Subscriber aufgenommen wird.
+
+*/
 
 #include <KBoxLogging.h>
 #include "SKHub.h"
