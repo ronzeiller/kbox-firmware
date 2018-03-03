@@ -35,7 +35,11 @@
 #include <KBoxLogging.h>
 #include "SKHub.h"
 #include "SKSubscriber.h"
+#include "SKUpdate.h"
+#include "SKUnits.h"
 
+double SKHub::sog = SKDoubleNAN;
+double SKHub::cog = SKDoubleNAN;
 
 SKHub::SKHub() {
 }
@@ -48,6 +52,25 @@ void SKHub::subscribe(SKSubscriber* subscriber) {
 }
 
 void SKHub::publish(const SKUpdate& update) {
+
+  if (update.hasEnvironmentWindDirectionTrue()){}
+  if (update.hasEnvironmentWindSpeedTrue()){}
+  if (update.hasNavigationCourseOverGroundTrue()){
+    cog = update.getNavigationCourseOverGroundTrue();
+    //DEBUG("COG = %f°", SKRadToDeg(cog));
+  }
+
+  if (update.hasNavigationMagneticVariation()){}
+  if (update.hasNavigationPosition()){}
+  if (update.hasNavigationSpeedOverGround()){
+    sog = update.getNavigationSpeedOverGround();
+    //DEBUG("SOG = %f ktn", SKMsToKnot(sog));
+  }
+  if (update.hasNavigationSpeedThroughWater()){}
+  if (update.hasNavigationTripLog()){}
+  if (update.hasNavigationLog()){}
+  if (update.hasPerformanceLeeway()){}
+
   for (LinkedListIterator<SKSubscriber*> it = _subscribers.begin(); it != _subscribers.end(); it++) {
     (*it)->updateReceived(update);
   }

@@ -40,6 +40,9 @@ class SKHub {
     SKHub();
     ~SKHub();
 
+    static double cog;
+    static double sog;
+
     /**
      * Adds a new subscriber which will be notified when updates
      * are received by the hub.

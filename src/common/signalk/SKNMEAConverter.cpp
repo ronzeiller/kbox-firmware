@@ -31,11 +31,8 @@
 #include <KBoxLogging.h>
 #include "SKUnits.h"
 #include "common/nmea/NMEASentenceBuilder.h"
-
+#include "SKHub.h"
 #include "SKNMEAConverter.h"
-
-static double sog;
-static double cog;
 
 void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   String talkerID;
@@ -46,17 +43,6 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   if (_config.xdrBattery) {
     update.accept(*this, SKPathElectricalBatteriesVoltage);
   }
-
-  if (update.hasEnvironmentWindDirectionTrue()){}
-  if (update.hasEnvironmentWindSpeedTrue()){}
-  if (update.hasNavigationCourseOverGroundTrue()){ cog = update.hasNavigationCourseOverGroundTrue(); }
-  if (update.hasNavigationMagneticVariation()){}
-  if (update.hasNavigationPosition()){}
-  if (update.hasNavigationSpeedOverGround()){ sog = update.getNavigationSpeedOverGround(); }
-  if (update.hasNavigationSpeedThroughWater()){}
-  if (update.hasNavigationTripLog()){}
-  if (update.hasNavigationLog()){}
-  if (update.hasPerformanceLeeway()){}
 
   if (_config.xdrPressure && update.hasEnvironmentOutsidePressure()) {
     if (_config.propTalkerIDEnabled &&
@@ -101,6 +87,8 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     sb.setField(7, "D");
     sb.setField(8, "ROLL");
     output.write(sb.toNMEA());
+    // Test to access variables from SKUpdates/SKHub
+    // DEBUG("SOG = %f ktn", SKMsToKnot(SKHub::sog));
   }
 
   if (_config.hdm && update.hasNavigationHeadingMagnetic()) {
