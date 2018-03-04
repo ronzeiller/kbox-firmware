@@ -24,7 +24,7 @@
     "frequency": 1
   },
   "wifi": {
-    "enabled": false,
+    "enabled": true,
     "nmeaConverter": {
       "xdrPressure": true,
       "xdrAttitude": true,
