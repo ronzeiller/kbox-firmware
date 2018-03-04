@@ -97,6 +97,7 @@ void WiFiService::updateReceived(const SKUpdate& u) {
   nmeaConverter.convert(u, *this);
 
   // Now send in JSON format
+  /*
   StaticJsonBuffer<1024> jsonBuffer;
   SKJSONVisitor jsonVisitor(_config.vesselURN, jsonBuffer);
   JsonObject &jsonData = jsonVisitor.processUpdate(u);
@@ -104,7 +105,7 @@ void WiFiService::updateReceived(const SKUpdate& u) {
   jsonData.printTo(k);
   k.write(0);
   _slip.writeFrame(k.getBytes(), k.getSize());
-
+  */
 }
 
 // ****************************************************************************
