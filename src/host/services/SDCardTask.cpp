@@ -44,6 +44,9 @@ void SDCardTask::setup() {
   }
 }
 
+/*
+ *    Data Handling
+ */
 void SDCardTask::loop() {
   if (!isLogging()) {
     return;
@@ -66,6 +69,36 @@ void SDCardTask::loop() {
   receivedMessages.clear();
 }
 
+bool SDCardTask::write(const SKNMEASentence &nmeaSentence) {
+  if (!isLogging()) {
+    return true;
+  }
+
+  receivedMessages.add(Loggable("", nmeaSentence));
+  return true;
+}
+
+bool SDCardTask::write(const tN2kMsg &msg) {
+  if (!isLogging()) {
+    return true;
+  }
+
+  if (msg.DataLen > 500) {
+    return false;
+  }
+
+  char pcdin[30 + msg.DataLen * 2];
+  if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
+    receivedMessages.add(Loggable("", pcdin));
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/*
+ *    File Handling
+ */
 String SDCardTask::generateNewFileName(const String& baseName) {
   if (baseName.length() > 6) {
     DEBUG("basename too long (%s)", baseName.c_str());
@@ -119,31 +152,4 @@ String SDCardTask::getLogFileName() const {
   char name[13];
   logFile->getName(name, sizeof(name));
   return String(name);
-}
-
-bool SDCardTask::write(const SKNMEASentence &nmeaSentence) {
-  if (!isLogging()) {
-    return true;
-  }
-
-  receivedMessages.add(Loggable("", nmeaSentence));
-  return true;
-}
-
-bool SDCardTask::write(const tN2kMsg &msg) {
-  if (!isLogging()) {
-    return true;
-  }
-
-  if (msg.DataLen > 500) {
-    return false;
-  }
-
-  char pcdin[30 + msg.DataLen * 2];
-  if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
-    receivedMessages.add(Loggable("", pcdin));
-    return true;
-  } else {
-    return false;
-  }
 }
