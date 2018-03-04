@@ -88,7 +88,7 @@ void setup() {
     File configFile = KBox.getSdFat().open(configFilename);
     // We can afford to allocate a lot of memory on the stack for this because we have not started doing
     // anything real yet.
-    StaticJsonBuffer<4096> jsonBuffer;
+    StaticJsonBuffer<6144> jsonBuffer;
     JsonObject &root =jsonBuffer.parseObject(configFile);
 
     if (root.success()) {
