@@ -58,7 +58,7 @@ void SDCardTask::loop() {
     }
     // PCDIN only are written
     // TODO: kryptische Zeichen als Debug Ausgabe
-    // DEBUG("%s", it->_message);
+    DEBUG("it->message: %s", it->_message);
     logFile->print(it->_message);
   }
   // Force data to SD and update the directory entry to avoid data loss.
@@ -75,6 +75,7 @@ bool SDCardTask::write(const SKNMEASentence &nmeaSentence) {
   }
 
   receivedMessages.add(Loggable("", nmeaSentence));
+  DEBUG("add(Loggable): %s ",nmeaSentence);
   return true;
 }
 
