@@ -22,7 +22,6 @@
   THE SOFTWARE.
 */
 
-// Über WiFi wird im Moment 23.1.2018 entweder $PCDIN oder NMEA0183 gesendet
 #include "WiFiService.h"
 
 #include <KBoxLogging.h>
@@ -74,13 +73,13 @@ void WiFiService::loop() {
 }
 
 // ****************************************************************************
-// Gegenstück zu processMessage()
-// Hier werden alle SKSubscriber von einem SignalK Update informiert
-// Im SKNMEAConverter wird das SignalK JSON in ein NMEA0183 konvertiert
-// über convert(u, *this); --> wird im SKNMEAConverter write(SKNMEASentence)
-// aufgerufen und der NMEA0183 Satz geschrieben.
+// Schickt SKHub an alle Subscriber, wenn es ein neues SKUpdate gibt
+// Im SKNMEAConverter wird das SKUpdate in einen NMEA0183 Satz konvertiert
+// --> convert(u, *this); Im SKNMEAConverter wird die virtuelle Funktion write(SKNMEASentence)
+// aufgerufen und hier über write(SKNMEASentence) der NMEA0183 Satz geschrieben.
 //
 // Danach "Now send in JSON format" scheint nicht zu funktionieren.....
+// WiFi überlastet
 // ****************************************************************************
 void WiFiService::updateReceived(const SKUpdate& u) {
   /* This is where we convert the data in SignalK format that floats inside KBox
@@ -115,11 +114,17 @@ void WiFiService::updateReceived(const SKUpdate& u) {
 bool WiFiService::write(const SKNMEASentence& sentence) {
   // NMEA Sentences should always be 82 bytes or less
   FixedSizeKommand<100> k(KommandNMEASentence);
-  k.appendNullTerminatedString(sentence.c_str());
+  String s = sentence + "\r\n";
+  k.appendNullTerminatedString(s.c_str());
   _slip.writeFrame(k.getBytes(), k.getSize());
   return true;
 }
 
+// ****************************************************************************
+// Wenn WiWiService als repeater zu NMEA2000Service hinzugefügt wurde,
+// wird von dort write(tN2kMsg) aufgerufen, ein PCDIN erstellt und über writeFrame
+// an den Ausgang geschickt.
+// ****************************************************************************
 bool WiFiService::write(const tN2kMsg& msg) {
   // PCDIN sentences should have a similar size as NMEA sentences.
   FixedSizeKommand<500> k(KommandNMEASentence);
@@ -128,8 +133,10 @@ bool WiFiService::write(const tN2kMsg& msg) {
     return false;
   }
 
-  char pcdin[30 + msg.DataLen * 2];
+  char pcdin[30 + msg.DataLen * 2 + 2];
   if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < 500) {
+    pcdin[sizeof(pcdin)-2] = '\r';
+    pcdin[sizeof(pcdin)-1] = '\n';
     k.appendNullTerminatedString(pcdin);
     _slip.writeFrame(k.getBytes(), k.getSize());
     return true;
