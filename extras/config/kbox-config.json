@@ -54,7 +54,7 @@
     "inputMode": "disabled",
     "outputMode": "nmea",
     "baudRate": 115200,
-    "repeatSentence": false,
+    "repeatSentence": true,
     "nmeaConverter": {
       "outFrequency": 1,
       "xdrPressure": true,
@@ -73,7 +73,7 @@
     "inputMode": "nmea",
     "outputMode": "disabled",
     "baudRate": 38400,
-    "repeatSentence": false,
+    "repeatSentence": true,
     "nmeaConverter": {
       "xdrPressure": false,
       "xdrAttitude": true,
