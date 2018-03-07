@@ -65,5 +65,7 @@ class Performance : public Task, public SKSubscriber {
     void loop(){};
 
     virtual void updateReceived(const SKUpdate& update);
-
+    double returnLeeway (){
+      return _leeway;
+    }
 };

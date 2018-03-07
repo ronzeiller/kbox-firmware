@@ -48,6 +48,7 @@ class SKHub {
      * are received by the hub.
      */
     void subscribe(SKSubscriber* subscriber);
+    void subscribeFiltered(SKSubscriber* subscriber);
 
     /**
      * Publish a new update on the hub. All the subscribers will be notified.
@@ -58,4 +59,5 @@ class SKHub {
 
   private:
     LinkedList<SKSubscriber*> _subscribers;
+    LinkedList<SKSubscriber*> _filteredSubscribers;
 };

@@ -63,14 +63,16 @@
 Performance::Performance(PerformanceConfig &config, SKHub &skHub) :
     Task("Performance"), _config(config), _hub(skHub) {
 
-  _hub.subscribe(this);
   _leeway = SKDoubleNAN;
   _heel = SKDoubleNAN;
   _bs_kts_corr = SKDoubleNAN;
 
+  _hub.subscribeFiltered(this);
+
   //Polar polar(config);
 }
 
+// Special Update for Performance
 void Performance::updateReceived(const SKUpdate& update) {
 
   if (_config.enabled &&

@@ -51,6 +51,21 @@ void SKHub::subscribe(SKSubscriber* subscriber) {
   _subscribers.add(subscriber);
 }
 
+void SKHub::subscribeFiltered(SKSubscriber* subscriber) {
+  _filteredSubscribers.add(subscriber);
+}
+
+/*
+ *    Services which get values from input sources, or
+ *    Sensors which produce values send their datas in SKUpdate format
+ *    to SKHub by publish(SKUpdate)
+ *
+ *    Some of the values are High Speed Values with 10Hz just needed for calculations.
+ *    They will run through a filter and will be sent in 1Hz to filteredSubscribers only.
+ *
+ *    Other Subscribers subscribe to NMEA0183 sentences and will get informed if
+ *    new values are on the Hub.
+ */
 void SKHub::publish(const SKUpdate& update) {
 
   if (update.hasEnvironmentWindDirectionTrue()){}
@@ -70,6 +85,10 @@ void SKHub::publish(const SKUpdate& update) {
   if (update.hasNavigationTripLog()){}
   if (update.hasNavigationLog()){}
   if (update.hasPerformanceLeeway()){}
+
+  for (LinkedListIterator<SKSubscriber*> it = _filteredSubscribers.begin(); it != _filteredSubscribers.end(); it++) {
+    (*it)->updateReceived(update);
+  }
 
   for (LinkedListIterator<SKSubscriber*> it = _subscribers.begin(); it != _subscribers.end(); it++) {
     (*it)->updateReceived(update);
