@@ -53,99 +53,40 @@
 
 #include <KBoxLogging.h>
 #include "host/config/KBoxConfig.h"
-#include "common/signalk/SKUpdate.h"
-#include "common/signalk/SKUpdateStatic.h"
 #include "common/signalk/SKUnits.h"
 #include "host/config/PerformanceConfig.h"
 //#include <SdFat.h>
 //#include "Polar.h"
 
-Performance::Performance(PerformanceConfig &config, SKHub &skHub) :
-    Task("Performance"), _config(config), _hub(skHub) {
+Performance::Performance(PerformanceConfig &config) : _config(config) {
 
   _leeway = SKDoubleNAN;
   _heel = SKDoubleNAN;
   _bs_kts_corr = SKDoubleNAN;
 
-  _hub.subscribeFiltered(this);
-
   //Polar polar(config);
 }
 
-// Special Update for Performance
-void Performance::updateReceived(const SKUpdate& update) {
-
-  if (_config.enabled &&
-      update.getSource().getInput() != SKSourceInputPerformance) {
-
-    // heel should come with around 10Hz, so we should have actual heel values
-    // for calculating true boatspeed through water
-    if (update.hasNavigationAttitude()){
-      _heel = update.getNavigationAttitude().roll;
-      //DEBUG("SKUpdate --> Heel: %f °", SKRadToDeg(_heel));
-    }
-
-    // When update for AWS and AWD are coming store value
-    if (update.hasEnvironmentWindAngleApparent()) {
-      // measured AWA
-      // AWA pos coming from starboard, neg from port, relative to centerline vessel
-      _awa_m = update.getEnvironmentWindAngleApparent();
-    }
-    if ( update.hasEnvironmentWindSpeedApparent()) {
-      _aws_m = update.getEnvironmentWindSpeedApparent();
-    }
-
-    // On most systems boatspeed will come with 1Hz
-    // So we take update of boat speed to trigger all performance calculations
-    if (update.hasNavigationSpeedThroughWater() &&
-        update.getNavigationSpeedThroughWater() > 0 ){
-
-      // SKUpdate in m/s --> knots
-      double bs_kts_m = SKMsToKnot(update.getNavigationSpeedThroughWater());
-      calcBoatSpeed(bs_kts_m);
-
-      calcApparentWind(_aws_m, _awa_m, _heel);
-
-      // TODO: set back values, because we need them fresh?
-      /*
-      _leeway = SKDoubleNAN;
-      _heel = SKDoubleNAN;
-      _bs_kts_corr = SKDoubleNAN;
-      _awa = SKDoubleNAN;
-      _aws = SKDoubleNAN;
-      */
-    }
-  }
-}
-
 // ****************************************************************************
-// param boatspeed in knots (converted) from SKUpdate
+//  Calculate Boat Speed by applying calibration and count for heel
 // ****************************************************************************
-void Performance::calcBoatSpeed(double &bs_kts) {
+double Performance::calcBoatSpeed(double &bs_kts, double &heel, double &leeway) {
 
-  _bs_kts_corr = getCorrForNonLinearTransducer(bs_kts, _heel);
-
-  // if heel is positive => wind from port => leeway positive (but AWA will be negative!!)
-  _leeway = getLeeway(_bs_kts_corr, _heel);
+  _bs_kts_corr = getCorrForNonLinearTransducer(bs_kts, heel);
 
   // Correct measured speed for Leeway
-  _bs_kts_corr = abs(_bs_kts_corr / cos(_leeway));
+  _bs_kts_corr = abs(_bs_kts_corr / cos(leeway));
 
   DEBUG("Boatspeed from Transducer: %.3f kts--> Corrected Boatspeed: %.3f kts", bs_kts, _bs_kts_corr);
-  SKUpdateStatic<2> updateWrite;
-  SKSource source = SKSource::performanceCalc();
-  updateWrite.setSource(source);
-  updateWrite.setTimestamp(now());
-  updateWrite.setNavigationSpeedThroughWater(SKKnotToMs(_bs_kts_corr));
-  updateWrite.setPerformanceLeeway(_leeway);
-  _hub.publish(updateWrite);
 
+  return _bs_kts_corr;
 }
 
 // ****************************************************************************
 // Leeway is an angle of drift due to sidewards wind force
 // it is depending of a hull-factor (given in config), actual heel and boat speed
 // Leeway angle positiv or negative, depending from where the wind is coming.
+// if heel is positive => wind from port => leeway positive (but AWA will be negative!!)
 // ****************************************************************************
 double Performance::getLeeway(double &bs_kts, double &heel) {
 
@@ -182,6 +123,7 @@ void Performance::calcApparentWind(double &aws_m, double &awa_m, double &heel){
       _config.windSensorHeight > 10000) {
     aws_corr = aws_corr * (1 / (0.9 + 0.1 * _config.windSensorHeight / 1000));
   }
+  /*
   SKUpdateStatic<2> updateWrite;
   SKSource source = SKSource::performanceCalc();
   updateWrite.setSource(source);
@@ -191,16 +133,18 @@ void Performance::calcApparentWind(double &aws_m, double &awa_m, double &heel){
   updateWrite.setEnvironmentWindAngleApparent(awa_corr);
   DEBUG("AWA sensor: %.3f --> AWA corrected: %.3f kts", awa_m, awa_corr);
   _hub.publish(updateWrite);
+  */
 }
 
 // ****************************************************************************
 // Load correction table from SD-Card and correct boat speed
 // ****************************************************************************
-double Performance::getCorrForNonLinearTransducer(double &bs_kts, double &heel_deg) {
+double Performance::getCorrForNonLinearTransducer(double &bs_kts, double &heel) {
 
   // TODO: read file with correction values for boat speed transducer.
   // If heel is more than _maxForHeelCorrectionBoatSpeed then take
   // heeled correction values
+  // double heelDeg = SKRadToDeg(heel);
 
   return bs_kts;
 }

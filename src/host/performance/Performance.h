@@ -38,33 +38,29 @@
 
 #pragma once
 
-#include "common/os/Task.h"
-#include "common/signalk/SKHub.h"
-#include "common/signalk/SKSubscriber.h"
 #include "common/signalk/SKSource.h"
 #include "host/config/PerformanceConfig.h"
 
 
-class Performance : public Task, public SKSubscriber {
+class Performance {
   private:
     const PerformanceConfig &_config;
-    SKHub &_hub;
 
     double _leeway, _heel, _bs_kts_corr, _awa_m, _aws_m;
 
-    void calcBoatSpeed(double &bs_kts);
-    double getCorrForNonLinearTransducer(double &bs_kts, double &heel_deg);
-    double getLeeway(double &bs_kts, double &heel);
-    void calcApparentWind(double &aws_m, double &awa_m, double &heel);
+    double getCorrForNonLinearTransducer(double &bs_kts, double &heel);
 
   public:
-    Performance(PerformanceConfig &config, SKHub &skHub);
+    Performance(PerformanceConfig &config);
     ~Performance(){};
 
     //void setup();
     void loop(){};
 
-    virtual void updateReceived(const SKUpdate& update);
+    double calcBoatSpeed(double &bs_kts, double &heel, double &leeway);
+    double getLeeway(double &bs_kts, double &heel);
+    void calcApparentWind(double &aws_m, double &awa_m, double &heel);
+
     double returnLeeway (){
       return _leeway;
     }
