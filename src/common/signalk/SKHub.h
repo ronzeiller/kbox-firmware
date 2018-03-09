@@ -25,6 +25,9 @@
 #pragma once
 
 #include "common/algo/List.h"
+#include "util/iirfilter.h"
+#include "host/config/KBoxConfig.h"
+#include "host/performance/Performance.h"
 
 class SKUpdate;
 class SKSubscriber;
@@ -36,12 +39,31 @@ class SKSubscriber;
  * which updates to get.
  */
 class SKHub {
+  private:
+    KBoxConfig _kboxConfig;
+
+    // Damping values 1.....100 --> 0.5 no filter ......0.005 max filter
+    // TODO: put it to config 
+    const float _dampingFactor10Hz = 0.05;
+    iirfilter   _awsFilter;
+    iirfilter   _awaFilter;
+    iirfilter   _heelFilter;
+
+    double _cog;
+    double _sog;
+    double _aws, _awsFiltered;
+    double _awa, _awaFiltered;
+    double _heel, _heelFiltered;
+
   public:
     SKHub();
     ~SKHub();
 
-    static double cog;
-    static double sog;
+
+
+    // As soon as the config is read from SD-Card it is handed over to SKHub, where
+    // all config settings are now available!
+    void setSKHubConfig(KBoxConfig config) { _kboxConfig = config;}
 
     /**
      * Adds a new subscriber which will be notified when updates

@@ -32,16 +32,32 @@
 
 */
 
+#include <time.h>
 #include <KBoxLogging.h>
 #include "SKHub.h"
 #include "SKSubscriber.h"
 #include "SKUpdate.h"
 #include "SKUnits.h"
+#include "SKUpdateStatic.h"
 
+/* for static variables only, but static probably not necessary
 double SKHub::sog = SKDoubleNAN;
 double SKHub::cog = SKDoubleNAN;
+double SKHub::awa = SKDoubleNAN;
+double SKHub::awaFiltered = SKDoubleNAN;
+double SKHub::aws = SKDoubleNAN;
+double SKHub::awsFiltered = SKDoubleNAN;
+*/
 
 SKHub::SKHub() {
+
+  _awsFilter.setType(IIRFILTER_TYPE_LINEAR);
+  _awsFilter.setFC(_dampingFactor10Hz);
+  _awaFilter.setType(IIRFILTER_TYPE_DEG);
+  _awaFilter.setFC(_dampingFactor10Hz);
+  _heelFilter.setType(IIRFILTER_TYPE_LINEAR);
+  _heelFilter.setFC(_dampingFactor10Hz);
+
 }
 
 SKHub::~SKHub() {
@@ -68,29 +84,91 @@ void SKHub::subscribeFiltered(SKSubscriber* subscriber) {
  */
 void SKHub::publish(const SKUpdate& update) {
 
+  Performance performance(_kboxConfig.performanceConfig);
+
+  bool sendHighSpeedUpdate = true;
+  bool sendPerformanceUpdate = false;
+  SKUpdateStatic<2> updatePerf;
+
+  // All KBox config settings are available here
+  //if (_kboxConfig.serial1Config.repeatSentence) {}
+
+  // Wind direction and wind speed are coming from NMEA2000 with around 8 to 10 Hz
+  // we store the value and we filter (damp) the value in IIR-filter
+  // TODO: Calculations could be done with high speed values or damped
+  if (update.hasEnvironmentWindSpeedApparent()){
+    _aws = update.getEnvironmentWindSpeedApparent();
+    _awsFiltered = _awsFilter.filter(_aws);
+  }
+  if (update.hasEnvironmentWindAngleApparent()){
+    _awa = update.getEnvironmentWindAngleApparent();
+    _awaFiltered = _awaFilter.filter(_awa);
+  }
+
+  // For calculating corrected boat speed, apparent and true wind etc. we need
+  // heel values from IMUService or external IMU-sensor, which should come with
+  // around 10Hz.
+  // For heel we make filtered values too.
+  if (update.hasNavigationAttitude()){
+    _heel = update.getNavigationAttitude().roll;
+    //DEBUG("SKUpdate --> Heel: %f °", SKRadToDeg(_heel));
+    _heelFiltered = _heelFilter.filter(_heel);
+  }
+
+  // On most systems boatspeed will come with 1Hz
+  // So we take update of boat speed to trigger all performance calculations
+  // SpeedThroughWater is so far the uncorrected measured raw value, which we
+  // have to correct by calibration values and leeway!
+  if (update.hasNavigationSpeedThroughWater() &&
+      update.getNavigationSpeedThroughWater() > 0 ){
+
+    // SKUpdate is in m/s --> we need knots for furmulas
+    double bs_kts_m = SKMsToKnot(update.getNavigationSpeedThroughWater());
+    double leeway = performance.getLeeway(bs_kts_m, _heel);
+    double bs_kts_corr = performance.calcBoatSpeed(bs_kts_m, _heel, leeway);
+
+    // change value in update to corrected one
+
+    SKSource source = SKSource::performanceCalc();
+    updatePerf.setSource(source);
+    updatePerf.setTimestamp(now());
+    updatePerf.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
+    updatePerf.setPerformanceLeeway(leeway);
+
+    sendPerformanceUpdate = true;
+  }
+
   if (update.hasEnvironmentWindDirectionTrue()){}
   if (update.hasEnvironmentWindSpeedTrue()){}
+
   if (update.hasNavigationCourseOverGroundTrue()){
-    cog = update.getNavigationCourseOverGroundTrue();
+    _cog = update.getNavigationCourseOverGroundTrue();
     //DEBUG("COG = %f°", SKRadToDeg(cog));
   }
 
   if (update.hasNavigationMagneticVariation()){}
   if (update.hasNavigationPosition()){}
   if (update.hasNavigationSpeedOverGround()){
-    sog = update.getNavigationSpeedOverGround();
+    _sog = update.getNavigationSpeedOverGround();
     //DEBUG("SOG = %f ktn", SKMsToKnot(sog));
   }
-  if (update.hasNavigationSpeedThroughWater()){}
+
   if (update.hasNavigationTripLog()){}
   if (update.hasNavigationLog()){}
   if (update.hasPerformanceLeeway()){}
 
   for (LinkedListIterator<SKSubscriber*> it = _filteredSubscribers.begin(); it != _filteredSubscribers.end(); it++) {
-    (*it)->updateReceived(update);
+    if ( !sendPerformanceUpdate ) {
+      (*it)->updateReceived(update);
+    } else {
+      (*it)->updateReceived(updatePerf);
+    }
   }
 
-  for (LinkedListIterator<SKSubscriber*> it = _subscribers.begin(); it != _subscribers.end(); it++) {
-    (*it)->updateReceived(update);
+  // High speed subscribers
+  if (sendHighSpeedUpdate){
+    for (LinkedListIterator<SKSubscriber*> it = _subscribers.begin(); it != _subscribers.end(); it++) {
+      (*it)->updateReceived(update);
+    }
   }
 }
