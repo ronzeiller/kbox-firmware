@@ -1,6 +1,6 @@
 {
   "imu": {
-    "enabled": false,
+    "enabled": true,
     "frequency": 10,
     "enableHdg": true,
     "enableHeelPitch": true,
