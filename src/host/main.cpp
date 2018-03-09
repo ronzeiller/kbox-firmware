@@ -103,6 +103,8 @@ void setup() {
     DEBUG("No configuration file found. Using defaults.");
   }
 
+  skHub.setSKHubConfig(config);
+
   // Test
   //Polar polar;
   //polar.readPolarDataFile();
@@ -208,11 +210,6 @@ void setup() {
     taskManager.addTask(new IntervalTask(adcService, 1000 / config.adcConfig.frequency));
     BatteryMonitorPage *batPage = new BatteryMonitorPage(config.adcConfig, skHub);
     mfd.addPage(batPage);
-  }
-
-  if (config.performanceConfig.enabled) {
-    Performance *performance = new Performance(config.performanceConfig, skHub);
-    taskManager.addTask(performance);
   }
 
   StatsPage *statsPage = new StatsPage();
