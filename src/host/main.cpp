@@ -118,14 +118,22 @@ void setup() {
   taskManager.addTask(new IntervalTask(new RunningLightService(), 250));
 
   delay(1000);  // for full DEBUG display befor N2k starts
+
+  // NMEA 2000 SERVICE
   NMEA2000Service *n2kService = new NMEA2000Service(config.nmea2000Config, skHub);
-  n2kService->addSentenceRepeater(usbService);
+  // SentenceRepeater will get tN2kMsg, which converts it into PCDIN
+  if (config.nmea2000Config.repeatSentence) {
+    n2kService->addSentenceRepeater(usbService);
+  }
   taskManager.addTask(n2kService);
 
   // WIFI SERVICE
   WiFiService *wifi = new WiFiService(config.wifiConfig, skHub, gc);
   if (config.wifiConfig.enabled) {
-    n2kService->addSentenceRepeater(*wifi);
+    // enabled/disabled PCDIN sentences repeating to WiFi
+    if (config.nmea2000Config.repeatSentence) {
+      n2kService->addSentenceRepeater(*wifi);
+    }
     taskManager.addTask(wifi);
   }
 
