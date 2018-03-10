@@ -120,9 +120,10 @@ void SKHub::publish(const SKUpdate& update) {
   // SpeedThroughWater is so far the uncorrected measured raw value, which we
   // have to correct by calibration values and leeway!
   if (update.hasNavigationSpeedThroughWater() &&
-      update.getNavigationSpeedThroughWater() > 0 ){
+      update.getNavigationSpeedThroughWater() > 0 &&
+      _kboxConfig.performanceConfig.enabled){
 
-    // SKUpdate is in m/s --> we need knots for furmulas
+    // SKUpdate is in m/s --> we need knots for formulas
     double bs_kts_m = SKMsToKnot(update.getNavigationSpeedThroughWater());
     double leeway = performance.getLeeway(bs_kts_m, _heel);
     double bs_kts_corr = performance.calcBoatSpeed(bs_kts_m, _heel, leeway);
@@ -168,7 +169,11 @@ void SKHub::publish(const SKUpdate& update) {
   // High speed subscribers
   if (sendHighSpeedUpdate){
     for (LinkedListIterator<SKSubscriber*> it = _subscribers.begin(); it != _subscribers.end(); it++) {
-      (*it)->updateReceived(update);
+      if ( !sendPerformanceUpdate ) {
+        (*it)->updateReceived(update);
+      } else {
+        (*it)->updateReceived(updatePerf);
+      }
     }
   }
 }
