@@ -82,6 +82,7 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
 
   config.nmea2000Config.txEnabled = true;
   config.nmea2000Config.rxEnabled = true;
+  config.nmea2000Config.repeatSentence = true;  // original KBox repeats N2kMsg to USBService
 
   config.imuConfig.enabled = true;
   config.imuConfig.frequency = 20;
@@ -193,6 +194,7 @@ void KBoxConfigParser::parseNMEA2000Config(const JsonObject &json,
                                            NMEA2000Config &config) {
   READ_BOOL_VALUE(rxEnabled);
   READ_BOOL_VALUE(txEnabled);
+  READ_BOOL_VALUE(repeatSentence);
 
   parseNMEA2000ParserConfig(json["nmea2000Parser"], config.nmea2000Parser);
 }

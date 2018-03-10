@@ -35,5 +35,6 @@
 struct  NMEA2000Config {
   bool rxEnabled;
   bool txEnabled;
+  bool repeatSentence = true;
   SKNMEA2000ParserConfig nmea2000Parser;
 };
