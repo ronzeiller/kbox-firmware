@@ -89,20 +89,35 @@ void SKHub::publish(const SKUpdate& update) {
   bool sendHighSpeedUpdate = true;
   bool sendPerformanceUpdate = false;
   SKUpdateStatic<2> updatePerf;
+  SKSource source = SKSource::performanceCalc();
+  updatePerf.setSource(source);
+  updatePerf.setTimestamp(now());
 
-  // All KBox config settings are available here
+  // All KBox config settings are available here, e.g.:
   //if (_kboxConfig.serial1Config.repeatSentence) {}
 
   // Wind direction and wind speed are coming from NMEA2000 with around 8 to 10 Hz
   // we store the value and we filter (damp) the value in IIR-filter
   // TODO: Calculations could be done with high speed values or damped
-  if (update.hasEnvironmentWindSpeedApparent()){
+  // Wind speed and angle are coming in one update
+  if (update.hasEnvironmentWindSpeedApparent() &&
+      update.hasEnvironmentWindAngleApparent()){
     _aws = update.getEnvironmentWindSpeedApparent();
     _awsFiltered = _awsFilter.filter(_aws);
-  }
-  if (update.hasEnvironmentWindAngleApparent()){
     _awa = update.getEnvironmentWindAngleApparent();
     _awaFiltered = _awaFilter.filter(_awa);
+
+    if (!_kboxConfig.performanceConfig.enabled) {
+      // now calculate corrected wind Values. We should have an actual value for heel
+      performance.calcApparentWind(_aws, _awa, _heel);
+      // AWS Apparent Wind Speed
+      updatePerf.setEnvironmentWindSpeedApparent(_aws);
+      // AWA pos coming from starboard, neg from port, relative to centerline vessel
+      updatePerf.setEnvironmentWindAngleApparent(SKNormalizeAngle(_awa));
+      // send calculated performance update instead of update with incoming datas
+      //TODO: calculate True Wind, but for this we need COG, SOG, boat speed vector, course
+      sendPerformanceUpdate = true;
+    }
   }
 
   // For calculating corrected boat speed, apparent and true wind etc. we need
@@ -129,13 +144,8 @@ void SKHub::publish(const SKUpdate& update) {
     double bs_kts_corr = performance.calcBoatSpeed(bs_kts_m, _heel, leeway);
 
     // change value in update to corrected one
-
-    SKSource source = SKSource::performanceCalc();
-    updatePerf.setSource(source);
-    updatePerf.setTimestamp(now());
     updatePerf.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
     updatePerf.setPerformanceLeeway(leeway);
-
     sendPerformanceUpdate = true;
   }
 
@@ -160,8 +170,10 @@ void SKHub::publish(const SKUpdate& update) {
 
   for (LinkedListIterator<SKSubscriber*> it = _filteredSubscribers.begin(); it != _filteredSubscribers.end(); it++) {
     if ( !sendPerformanceUpdate ) {
+      // send original datas from input
       (*it)->updateReceived(update);
     } else {
+      // send update corrected by performance calculations
       (*it)->updateReceived(updatePerf);
     }
   }
