@@ -100,6 +100,7 @@
   "nmea2000": {
     "txEnabled": true,
     "rxEnabled": true,
+    "repeatSentence": true,
     "nmea2000Parser": {
       "heading_127250_enabled": true,
       "attitude_127257_enabled": true,
