@@ -99,7 +99,12 @@
   },
   "nmea2000": {
     "txEnabled": true,
-    "rxEnabled": true
+    "rxEnabled": true,
+    "nmea2000Parser": {
+      "heading_127250_enabled": true,
+      "attitude_127257_enabled": true,
+      "depth_128267_enabled": true
+    }
   },
   "performance": {
     "enabled": true,
@@ -115,11 +120,6 @@
     "TrueWindN2kID": 10,
     "polarDataFileName": "polarData.pol",
     "efficiencyFactor": 100
-  },
-  "nmea2000Parser": {
-    "heading_127250_enabled": true,
-    "attitude_127257_enabled": true,
-    "depth_128267_enabled": true
   },
   "sdcard": {
     "enabled": true,
