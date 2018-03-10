@@ -28,7 +28,6 @@
   THE SOFTWARE.
 */
 // TODO: N2kParser should parse only enabled by config PGN's
-// TODO: N2kParser should have access to performance class
 
 #include <N2kMessages.h>
 #include <KBoxLogging.h>
