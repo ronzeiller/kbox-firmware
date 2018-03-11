@@ -61,6 +61,7 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.serial1Config.inputMode = SerialModeNMEA;
   config.serial1Config.outputMode = SerialModeNMEA;
   config.serial1Config.repeatSentence = true;
+  config.serial1Config.subscribeTypeConfig.subscribe = subscribe;
 
   config.serial2Config.baudRate = 4800;
   config.serial2Config.inputMode = SerialModeNMEA;
@@ -69,6 +70,7 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.serial2Config.nmeaConverterConfig.xdrAttitude = false;
   config.serial2Config.nmeaConverterConfig.xdrBattery = false;
   config.serial2Config.nmeaConverterConfig.xdrPressure = false;
+  config.serial2Config.subscribeTypeConfig.subscribe = subscribeFiltered;
 
   config.serial3Config.baudRate = 4800;
   config.serial3Config.inputMode = SerialModeDisabled;
@@ -114,19 +116,19 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.wifiConfig.client.enabled = false;
   config.wifiConfig.client.ssid = "";
   config.wifiConfig.client.password = "";
-  config.wifiConfig.dataFormatConfig.dataFormat = NMEA;
+  config.wifiConfig.subscribeTypeConfig.subscribe = subscribeFiltered;
   config.wifiConfig.nmeaConverterConfig.propTalkerIDEnabled = true;
   config.wifiConfig.nmeaConverterConfig.talkerID = "KB";
 
   config.sdcardConfig.enabled = true;
   config.sdcardConfig.writeTimestamp = true;
-  config.sdcardConfig.dataFormatConfig.dataFormat = NMEA_Seasmart;
+  config.sdcardConfig.subscribeTypeConfig.subscribe = PCDIN;
 
   config.performanceConfig.enabled = true;
   config.performanceConfig.boatSpeedCorrTableFileName = "boatspeedCorr.cal";
   config.performanceConfig.leewayHullFactor = 0;    // no entry
   config.performanceConfig.windCorr10m = false;
-  config.performanceConfig.windSensorHeight = 0;    // no entry
+  config.performanceConfig.windSensorHeight = 10000;    // 10 meters
   config.performanceConfig.polarDataFileName = "polarData.pol";
   config.performanceConfig.sendTrueWindToN2k = false;
   config.performanceConfig.calcTrueWind = false;
@@ -201,12 +203,12 @@ void KBoxConfigParser::parseNMEA2000Config(const JsonObject &json,
   parseNMEA2000ParserConfig(json["nmea2000Parser"], config.nmea2000Parser);
 }
 
-void KBoxConfigParser::parseDataFormatConfig(const JsonObject &json, DataFormatConfig &config) {
+void KBoxConfigParser::parseSubscribeTypeConfig(const JsonObject &json, SubscribeTypeConfig &config) {
   if (json == JsonObject::invalid()) {
     return;
   }
 
-  READ_ENUM_VALUE(dataFormat, convertDataFormatType);
+  READ_ENUM_VALUE(subscribe, convertSubscribeType);
 }
 
 void KBoxConfigParser::parseWiFiConfig(const JsonObject &json, WiFiConfig &config) {
@@ -222,7 +224,7 @@ void KBoxConfigParser::parseWiFiConfig(const JsonObject &json, WiFiConfig &confi
   parseWiFiNetworkConfig(json["client"], config.client);
   parseWiFiNetworkConfig(json["accessPoint"], config.accessPoint);
   parseNMEAConverterConfig(json["nmeaConverter"], config.nmeaConverterConfig);
-  parseDataFormatConfig(json["dataFormat"], config.dataFormatConfig);
+  parseSubscribeTypeConfig(json["subscribe"], config.subscribeTypeConfig);
 }
 
 void KBoxConfigParser::parseNMEAConverterConfig(const JsonObject &json, SKNMEAConverterConfig &config) {
@@ -266,7 +268,7 @@ void KBoxConfigParser::parseSDCardConfig(const JsonObject &json, SDCardConfig &c
   }
   READ_BOOL_VALUE(enabled);
   READ_BOOL_VALUE(writeTimestamp);
-  parseDataFormatConfig(json["dataFormatConfig"], config.dataFormatConfig);
+  parseSubscribeTypeConfig(json["subscribeTypeConfig"], config.subscribeTypeConfig);
 }
 
 void KBoxConfigParser::parsePerformanceConfig(const JsonObject &json, PerformanceConfig &config) {
@@ -318,16 +320,16 @@ enum IMUMounting KBoxConfigParser::convertIMUMounting(const String &s) {
   return verticalPortHull;
 }
 
-enum DataFormatType KBoxConfigParser::convertDataFormatType(const String &s) {
-  if (s == "NMEA") {
-    return NMEA;
+enum SubscribeType KBoxConfigParser::convertSubscribeType(const String &s) {
+  if (s == "subscribe") {
+    return subscribe;
   }
-  if (s == "NMEA_Seasmart") {
-    return NMEA_Seasmart;
+  if (s == "subscribeFiltered") {
+    return subscribeFiltered;
   }
-  if (s == "Seasmart") {
-    return Seasmart;
+  if (s == "PCDIN") {
+    return PCDIN;
   }
   // default
-  return NMEA_Seasmart;
+  return subscribe;
 }

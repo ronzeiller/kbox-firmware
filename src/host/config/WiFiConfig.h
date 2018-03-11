@@ -31,7 +31,7 @@
 #pragma once
 
 #include "common/signalk/SKNMEAConverterConfig.h"
-#include "DataFormatConfig.h"
+#include "SubscribeTypeConfig.h"
 
 struct WiFiNetworkConfig {
   bool enabled;
@@ -46,5 +46,5 @@ struct WiFiConfig {
   String vesselURN;
   WiFiNetworkConfig client;
   WiFiNetworkConfig accessPoint;
-  DataFormatConfig dataFormatConfig;
+  SubscribeTypeConfig subscribeTypeConfig;
 };

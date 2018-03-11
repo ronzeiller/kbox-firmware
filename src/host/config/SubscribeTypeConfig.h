@@ -5,11 +5,13 @@
      \ \_\ \_\  \ \_____\  \ \_____\   /\_\/\_\
        \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
 
+  Project  :  KBox
+              Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
+  Purpose  :  Config for Services for different subsciptions to SKHub
+  Author(s):  Ronnie Zeiller ronnie@zeiller.eu
+  *********************************************************************************
+
   The MIT License
-
-  Copyright (c) 2017 Thomas Sarlandie thomas@sarlandie.net
-  Copyright (c) 2018 Ronnie Zeiller ronnie@zeiller.eu
-
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -31,15 +33,12 @@
 
 #pragma once
 
-enum DataFormatType {
-  NMEA,           // pure NMEA0183
-  Seasmart,       // $PCDIN
-  NMEA_Seasmart,  // Combination of both
-  // LoggingDataAsCSV
-  // ActisenseBinary
-  // SignalK ?
+enum SubscribeType {
+  subscribe,           // normal (high speed) subscriber
+  subscribeFiltered,   // IIR-filtered values in displayFrequency
+  PCDIN
 };
 
-struct DataFormatConfig {
-  enum DataFormatType dataFormat = NMEA_Seasmart;
+struct SubscribeTypeConfig {
+  enum SubscribeType subscribe = subscribe;
 };

@@ -30,12 +30,12 @@
 
 #pragma once
 
-#include "DataFormatConfig.h"
+#include "SubscribeTypeConfig.h"
 
 struct SDCardConfig {
   bool enabled;
   bool writeTimestamp;
   // TODO: implement writing (debug-)messages to SD-Card
   bool writeDebug;
-  DataFormatConfig dataFormatConfig;
+  SubscribeTypeConfig subscribeTypeConfig;
 };

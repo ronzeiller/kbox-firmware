@@ -43,7 +43,7 @@ class KBoxConfigParser {
     String _defaultVesselURN;
     SerialMode convertSerialMode(const String &s);
     IMUMounting convertIMUMounting(const String &s);
-    DataFormatType convertDataFormatType(const String &s);
+    SubscribeType convertSubscribeType(const String &s);
 
   public:
     KBoxConfigParser(const String &defaultVesselURN) : _defaultVesselURN(defaultVesselURN) {};
@@ -73,7 +73,7 @@ class KBoxConfigParser {
                                   SKNMEAConverterConfig &config);
     void parseNMEA2000ParserConfig(const JsonObject &json, SKNMEA2000ParserConfig &config);
     void parseSDCardConfig(const JsonObject &json, SDCardConfig &config);
-    void parseDataFormatConfig(const JsonObject &json, DataFormatConfig &config);
+    void parseSubscribeTypeConfig(const JsonObject &json, SubscribeTypeConfig &config);
     void parsePerformanceConfig(const JsonObject &json, PerformanceConfig &config);
 
 };
