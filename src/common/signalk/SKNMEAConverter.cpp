@@ -105,6 +105,40 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   }
 
   //  ***********************************************
+  //  VHW Water Speed and Heading
+  //  ===========================
+  //          1  2  3  4  5  6  7  8
+  //          |  |  |  |  |  |  |  |
+  //  $--VHW,x.x,T,x.x,M,x.x,N,x.x,K*hh
+  //    1) Degress True
+  //    2) T = True
+  //    3) Degrees Magnetic
+  //    4) M = Magnetic
+  //    5) Knots (speed of vessel relative to the water)
+  //    6) N = Knots
+  //    7) Kilometers (speed of vessel relative to the water)
+  //    8) K = Kilometres
+  //  ***********************************************
+  if ( update.hasNavigationSpeedThroughWater() ) {
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputPerformance) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    NMEASentenceBuilder sb(talkerID, "VHW", 8);
+    sb.setField(1, "");
+    sb.setField(2, "");
+    sb.setField(3, "");
+    sb.setField(4, "");
+    sb.setField(5, SKMsToKnot(update.getNavigationSpeedThroughWater()), 1);
+    sb.setField(6, "N");
+    sb.setField(7, "");
+    sb.setField(8, "");
+    output.write(sb.toNMEA());
+  }
+
+  //  ***********************************************
   //    RSA Rudder Sensor Angle
   //    Talker-ID: AG - Autopilot general
   //    also seen: ERRSA
@@ -117,7 +151,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   //      2) Status, A means data is valid
   //      3) Port rudder sensor
   //      4) Status, A means data is valid
-  // *********************************************** */
+  // ***********************************************
   if (_config.rsa && update.hasSteeringRudderAngle()) {
     NMEASentenceBuilder sb("II", "RSA", 4);
     sb.setField(1, SKRadToDeg(SKNormalizeAngle(update.getSteeringRudderAngle())), 1 );
@@ -127,16 +161,16 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     output.write(sb.toNMEA());
   }
 
-  /* ****************************************************************************
-        DBT Depth Below Transducer
-        ==========================
-                1  2  3  4  5  6
-                |  |  |  |  |  |
-        $--DBT,x.x,f,x.x,M,x.x,F*hh
-        1) Depth, feet 2) f = feet
-        3) Depth, meters 4) M = meters
-        5) Depth, Fathoms 6) F = Fathoms
-  *************************************************************************** */
+  // ***********************************************
+  //      DBT Depth Below Transducer
+  //      ==========================
+  //              1  2  3  4  5  6
+  //              |  |  |  |  |  |
+  //      $--DBT,x.x,f,x.x,M,x.x,F*hh
+  //      1) Depth, feet 2) f = feet
+  //      3) Depth, meters 4) M = meters
+  //      5) Depth, Fathoms 6) F = Fathoms
+  // **********************************************
   if (_config.dbt && update.hasEnvironmentDepthBelowTransducer()) {
     NMEASentenceBuilder sb("II", "DBT", 6);
     sb.setField(1, "");
@@ -146,29 +180,6 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     sb.setField(5, "");
     sb.setField(6, "F");
     output.write(sb.toNMEA());
-  }
-
-
-  if (_config.mwv && update.hasEnvironmentWindAngleApparent()
-      && update.hasEnvironmentWindSpeedApparent()) {
-    if (_config.propTalkerIDEnabled &&
-        update.getSource().getInput() == SKSourceInputPerformance) {
-      talkerID =  _config.talkerID;
-    } else {
-      talkerID = "II";
-    }
-    generateMWV(talkerID, output, update.getEnvironmentWindAngleApparent(), update.getEnvironmentWindSpeedApparent(), true);
-  }
-
-  if (_config.mwv && update.hasEnvironmentWindAngleTrueWater()
-      && update.hasEnvironmentWindSpeedTrue()) {
-    if (_config.propTalkerIDEnabled &&
-        update.getSource().getInput() == SKSourceInputPerformance) {
-      talkerID =  _config.talkerID;
-    } else {
-      talkerID = "II";
-    }
-    generateMWV(talkerID,output, update.getEnvironmentWindAngleTrueWater(), update.getEnvironmentWindSpeedTrue(), false);
   }
 
   //  ***********************************************
@@ -192,16 +203,30 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     sb.setField(2, SKRadToDeg(update.getPerformanceLeeway()),1);
     output.write(sb.toNMEA());
   }
-}
 
-void SKNMEAConverter::visitSKElectricalBatteriesVoltage(const SKUpdate& u, const SKPath &p, const SKValue &v) {
-  NMEASentenceBuilder sb("II", "XDR", 4);
-  sb.setField(1, "V");
-  sb.setField(2, v.getNumberValue(), 2);
-  sb.setField(3, "V");
-  sb.setField(4, p.getIndex());
+  //  ***********************************************
+  //      Apparent Wind and True Wind
+  if (_config.mwv && update.hasEnvironmentWindAngleApparent()
+      && update.hasEnvironmentWindSpeedApparent()) {
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputPerformance) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    generateMWV(talkerID, output, update.getEnvironmentWindAngleApparent(), update.getEnvironmentWindSpeedApparent(), true);
+  }
 
-  _currentOutput->write(sb.toNMEA());
+  if (_config.mwv && update.hasEnvironmentWindAngleTrueWater()
+      && update.hasEnvironmentWindSpeedTrue()) {
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputPerformance) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    generateMWV(talkerID,output, update.getEnvironmentWindAngleTrueWater(), update.getEnvironmentWindSpeedTrue(), false);
+  }
 }
 
 // ***********************  Wind Speed and Angle  ************************
@@ -229,4 +254,14 @@ void SKNMEAConverter::generateMWV(String talkerID, SKNMEAOutput &output, double 
   sb.setField(4, "M");
   sb.setField(5, "A");
   output.write(sb.toNMEA());
+}
+
+void SKNMEAConverter::visitSKElectricalBatteriesVoltage(const SKUpdate& u, const SKPath &p, const SKValue &v) {
+  NMEASentenceBuilder sb("II", "XDR", 4);
+  sb.setField(1, "V");
+  sb.setField(2, v.getNumberValue(), 2);
+  sb.setField(3, "V");
+  sb.setField(4, p.getIndex());
+
+  _currentOutput->write(sb.toNMEA());
 }
