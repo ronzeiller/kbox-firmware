@@ -27,7 +27,6 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-// TODO: N2kParser should parse only enabled by config PGN's
 
 #include <N2kMessages.h>
 #include <KBoxLogging.h>
@@ -62,6 +61,8 @@ const SKUpdate& SKNMEA2000Parser::parse(const SKSourceInput& input, const tN2kMs
     //case 127258L:  // Magnetic Variation
     //    return parse127258(input, msg, timestamp);
     //  break;
+    case 128000L: // Nautical Leeway Angle
+      return parse128000(input, msg, timestamp);
     case 128259L: // Boat speed
       return parse128259(input, msg, timestamp);
     case 128267L: // Water depth
@@ -448,8 +449,28 @@ const SKUpdate& SKNMEA2000Parser::parse130577(const SKSourceInput& input, const 
 
 // *****************************************************************************
 //    PGN 128000 Nautical Leeway Angle (new 2017)
-// https://www.nmea.org/Assets/20170204%20nmea%202000%20leeway%20pgn%20final.pdf
-// Upcoming in Timos library:
-// void SetN2kPGN128000(tN2kMsg &N2kMsg, unsigned char SID, double Leeway) {
-// N2kMsg.Add2ByteDouble(Leeway,0.0001);
+//    https://www.nmea.org/Assets/20170204%20nmea%202000%20leeway%20pgn%20final.pdf
+//    Timos library:
+//    void SetN2kPGN128000(tN2kMsg &N2kMsg, unsigned char SID, double Leeway) {
+//    N2kMsg.Add2ByteDouble(Leeway,0.0001);
 // *****************************************************************************
+const SKUpdate& SKNMEA2000Parser::parse128000(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp) {
+  unsigned char sid;
+  double leeway = N2kDoubleNA;
+  if (ParseN2kPGN128000(msg,sid,leeway)) {
+    SKUpdateStatic<2> *update = new SKUpdateStatic<2>();
+    update->setTimestamp(timestamp);
+
+    SKSource source = SKSource::sourceForNMEA2000(input, msg.PGN, msg.Priority, msg.Source);
+    update->setSource(source);
+
+    if (leeway != N2kDoubleNA) {
+      update->setPerformanceLeeway(leeway);
+    }
+    _sku = update;
+    return *_sku;
+  }
+
+  DEBUG("Unable to parse NMEA2000 with PGN %i", msg.PGN);
+  return _invalidSku;
+}
