@@ -41,7 +41,7 @@ class SKNMEAConverter : SKVisitor {
     SKNMEAOutput *_currentOutput;
     void visitSKElectricalBatteriesVoltage(const SKUpdate& u, const SKPath &p, const SKValue &v) override;
 
-    void generateMWV(SKNMEAOutput& out, double windAngle, double windSpeed, bool apparent);
+    void generateMWV(String talkerID, SKNMEAOutput& out, double windAngle, double windSpeed, bool apparent);
 
   public:
     SKNMEAConverter(const SKNMEAConverterConfig &config) : _config(config), _currentOutput(nullptr) {
