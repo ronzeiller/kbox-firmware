@@ -48,7 +48,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     if (_config.propTalkerIDEnabled &&
         update.getSource().getInput() == SKSourceInputKBoxBarometer) {
       talkerID =  _config.talkerID;
-      DEBUG("Talker-ID: %s",talkerID);
+      //DEBUG("Talker-ID: %s",talkerID);
     } else {
       talkerID = "II";
     }
@@ -151,12 +151,24 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
 
   if (_config.mwv && update.hasEnvironmentWindAngleApparent()
       && update.hasEnvironmentWindSpeedApparent()) {
-    generateMWV(output, update.getEnvironmentWindAngleApparent(), update.getEnvironmentWindSpeedApparent(), true);
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputPerformance) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    generateMWV(talkerID, output, update.getEnvironmentWindAngleApparent(), update.getEnvironmentWindSpeedApparent(), true);
   }
 
   if (_config.mwv && update.hasEnvironmentWindAngleTrueWater()
       && update.hasEnvironmentWindSpeedTrue()) {
-    generateMWV(output, update.getEnvironmentWindAngleTrueWater(), update.getEnvironmentWindSpeedTrue(), false);
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputPerformance) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    generateMWV(talkerID,output, update.getEnvironmentWindAngleTrueWater(), update.getEnvironmentWindSpeedTrue(), false);
   }
 
   //  ***********************************************
@@ -168,7 +180,18 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   //      1) Valid or not A/V
   //      2) leeway in degrees and decimal degrees, positiv slipping to starboard
   //  ***********************************************
-  //  TODO!
+  if (update.hasPerformanceLeeway()) {
+    if (_config.propTalkerIDEnabled &&
+        update.getSource().getInput() == SKSourceInputPerformance) {
+      talkerID =  _config.talkerID;
+    } else {
+      talkerID = "II";
+    }
+    NMEASentenceBuilder sb(talkerID, "LWY", 2);
+    sb.setField(1, "A");
+    sb.setField(2, SKRadToDeg(update.getPerformanceLeeway()),1);
+    output.write(sb.toNMEA());
+  }
 }
 
 void SKNMEAConverter::visitSKElectricalBatteriesVoltage(const SKUpdate& u, const SKPath &p, const SKValue &v) {
@@ -197,8 +220,9 @@ void SKNMEAConverter::visitSKElectricalBatteriesVoltage(const SKUpdate& u, const
 //  4) Wind Speed Units: K = km/s, M = m/s, N = Knots
 //  5) Status, A = Data Valid
 // ************************************************************************
-void SKNMEAConverter::generateMWV(SKNMEAOutput &output, double windAngle, double windSpeed, bool apparent) {
-  NMEASentenceBuilder sb( "II", "MWV", 5);
+void SKNMEAConverter::generateMWV(String talkerID, SKNMEAOutput &output, double windAngle, double windSpeed, bool apparent) {
+
+  NMEASentenceBuilder sb( talkerID, "MWV", 5);
   sb.setField(1, SKRadToDeg(SKNormalizeDirection(windAngle)), 1);
   sb.setField(2, apparent ? "R" : "T");
   sb.setField(3, windSpeed, 2 );
