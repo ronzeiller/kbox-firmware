@@ -71,7 +71,7 @@ SKHub::SKHub() {
   _awsFilter.setFC(_dampingFactor10Hz);
   _awaFilter.setType(IIRFILTER_TYPE_DEG);
   _awaFilter.setFC(_dampingFactor10Hz);
-  _heelFilter.setType(IIRFILTER_TYPE_LINEAR);
+  _heelFilter.setType(IIRFILTER_TYPE_DEG);
   _heelFilter.setFC(_dampingFactor10Hz);
   _heel = SKDoubleNAN;
 
