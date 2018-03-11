@@ -42,8 +42,8 @@
       "ssid": "netzwerkname",
       "password": "secret"
     },
-    "dataFormatType": {
-      "dataFormat" : "NMEA_Seasmart"
+    "subscribeType": {
+      "subscribe" : "subscribeFiltered"
     },
     "nmeaConverter": {
       "propTalkerIDEnabled": true,
@@ -64,8 +64,8 @@
       "rsa": true,
       "dpt": true
     },
-    "dataFormatType": {
-      "dataFormat" : "NMEA"
+    "subscribeType": {
+      "subscribe" : "subscribe"
     },
   },
   "serial2": {
@@ -81,8 +81,8 @@
       "mwv": true,
       "rsa": true
     },
-    "dataFormatType": {
-      "dataFormat" : "NMEA"
+    "subscribeType": {
+      "subscribe" : "subscribeFiltered"
     }
   },
   "serial3": {
@@ -105,6 +105,9 @@
       "heading_127250_enabled": true,
       "attitude_127257_enabled": true,
       "depth_128267_enabled": true
+    },
+    "subscribeType": {
+      "subscribe" : "subscribe"
     }
   },
   "performance": {
@@ -131,5 +134,8 @@
   "nmeaConverter": {
     "propTalkerIDEnabled": true,
     "talkerID": "KB"
+  },
+  "subscribeType": {
+    "subscribe" : "PCDIN"
   }
 }

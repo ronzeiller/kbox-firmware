@@ -42,8 +42,8 @@
       "ssid": "netzwerkname",
       "password": "secret"
     },
-    "dataFormatType": {
-      "dataFormat" : "NMEA"
+    "subscribeType": {
+      "subscribe" : "subscribeFiltered"
     },
     "nmeaConverter": {
       "propTalkerIDEnabled": true,
@@ -65,8 +65,8 @@
       "rsa": true,
       "dpt": true
     },
-    "dataFormatType": {
-      "dataFormat" : "NMEA"
+    "subscribeType": {
+      "subscribe" : "subscribe"
     }
   },
   "serial2": {
@@ -82,9 +82,6 @@
       "hdt": true,
       "mwv": false,
       "rsa": false
-    },
-    "dataFormatType": {
-      "dataFormat" : "NMEA"
     }
   },
   "serial3": {
@@ -101,8 +98,8 @@
       "mwv": true,
       "rsa": false
     },
-    "dataFormatType": {
-      "dataFormat" : "NMEA"
+    "subscribeType": {
+      "subscribe" : "subscribeFiltered"
     }
   },
   "serial4": {
@@ -119,6 +116,9 @@
       "heading_127250_enabled": true,
       "attitude_127257_enabled": false,
       "depth_128267_enabled": true
+    },
+    "subscribeType": {
+      "subscribe" : "subscribe"
     }
   },
   "performance": {
@@ -144,5 +144,8 @@
   "nmeaConverter": {
     "propTalkerIDEnabled": true,
     "talkerID": "KB"
+  },
+  "subscribeType": {
+    "subscribe" : "PCDIN"
   }
 }
