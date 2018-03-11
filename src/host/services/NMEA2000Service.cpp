@@ -36,7 +36,7 @@
 static NMEA2000Service *handlerContext;
 
 static void handler(const tN2kMsg &msg) {
-  DEBUG("Received N2K Message with pgn: %i", msg.PGN);
+  //DEBUG("Received N2K Message with pgn: %i", msg.PGN);
   handlerContext->publishN2kMessage(msg);
 }
 

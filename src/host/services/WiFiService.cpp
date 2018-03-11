@@ -1,8 +1,17 @@
 /*
+     __  __     ______     ______     __  __
+    /\ \/ /    /\  == \   /\  __ \   /\_\_\_\
+    \ \  _"-.  \ \  __<   \ \ \/\ \  \/_/\_\/_
+     \ \_\ \_\  \ \_____\  \ \_____\   /\_\/\_\
+       \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
+
+  Project  :  KBox
+              Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
+  Purpose  :  WiFi Service for reading and writing to Wireless LAN
+  Author(s):  Thomas Sarlandie thomas@sarlandie.net, Ronnie Zeiller ronnie@zeiller.eu
+  *********************************************************************************
+
   The MIT License
-
-  Copyright (c) 2016 Thomas Sarlandie thomas@sarlandie.net
-
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -46,7 +55,12 @@ void WiFiService::setup() {
     KBox.espRebootInProgram();
   }
 
-  _hub.subscribe(this);
+  if ( _config.subscribeTypeConfig.subscribe == subscribe){
+    _hub.subscribe(this);
+  }
+  if ( _config.subscribeTypeConfig.subscribe == subscribeFiltered){
+    _hub.subscribeFiltered(this);
+  }
 }
 
 void WiFiService::loop() {
