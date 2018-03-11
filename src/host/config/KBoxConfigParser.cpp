@@ -128,6 +128,8 @@ void KBoxConfigParser::defaultConfig(KBoxConfig &config) {
   config.performanceConfig.windCorr10m = false;
   config.performanceConfig.windSensorHeight = 0;    // no entry
   config.performanceConfig.polarDataFileName = "polarData.pol";
+  config.performanceConfig.sendTrueWindToN2k = false;
+  config.performanceConfig.calcTrueWind = false;
 
   config.nmeaConverterConfig.propTalkerIDEnabled = true;
   config.nmeaConverterConfig.talkerID = "KB";
@@ -274,6 +276,8 @@ void KBoxConfigParser::parsePerformanceConfig(const JsonObject &json, Performanc
   READ_INT_VALUE(windSensorHeight);
   READ_STRING_VALUE(polarDataFileName);
   READ_BOOL_VALUE(windCorr10m);
+  READ_BOOL_VALUE(calcTrueWind);
+  READ_BOOL_VALUE(sendTrueWindToN2k);
 }
 
 enum SerialMode KBoxConfigParser::convertSerialMode(const String &s) {

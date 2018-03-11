@@ -42,4 +42,6 @@ struct PerformanceConfig {
   int windSensorHeight;   // in mm
   bool windCorr10m;       // correct wind speed from sensor height to 10m above water
   String polarDataFileName;
+  bool calcTrueWind;
+  bool sendTrueWindToN2k;
 };
