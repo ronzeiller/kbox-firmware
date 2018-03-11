@@ -62,7 +62,6 @@ Performance::Performance(PerformanceConfig &config) : _config(config) {
 
   _leeway = SKDoubleNAN;
   _heel = SKDoubleNAN;
-  _bs_kts_corr = SKDoubleNAN;
 
   //Polar polar(config);
 }
@@ -72,14 +71,14 @@ Performance::Performance(PerformanceConfig &config) : _config(config) {
 // ****************************************************************************
 double Performance::calcBoatSpeed(double &bs_kts, double &heel, double &leeway) {
 
-  _bs_kts_corr = getCorrForNonLinearTransducer(bs_kts, heel);
+  double bs_kts_corr = getCorrForNonLinearTransducer(bs_kts, heel);
 
   // Correct measured speed for Leeway
-  _bs_kts_corr = abs(_bs_kts_corr / cos(leeway));
+  bs_kts_corr = bs_kts_corr / cos(leeway);
+  if (bs_kts_corr < 0) bs_kts_corr *= -1;
+  //DEBUG("Boatspeed from Transducer: %.3f kts--> Corrected Boatspeed: %.3f kts", bs_kts, bs_kts_corr);
 
-  DEBUG("Boatspeed from Transducer: %.3f kts--> Corrected Boatspeed: %.3f kts", bs_kts, _bs_kts_corr);
-
-  return _bs_kts_corr;
+  return bs_kts_corr;
 }
 
 // ****************************************************************************
@@ -87,16 +86,19 @@ double Performance::calcBoatSpeed(double &bs_kts, double &heel, double &leeway) 
 // it is depending of a hull-factor (given in config), actual heel and boat speed
 // Leeway angle positiv or negative, depending from where the wind is coming.
 // if heel is positive => wind from port => leeway positive (but AWA will be negative!!)
+// internal all angles in radians
 // ****************************************************************************
 double Performance::getLeeway(double &bs_kts, double &heel) {
+
+  if (bs_kts == 0) return 0;
 
   // when there is no leewayHullFactor entered in config then it will be 0 by default
   double leewayHullFactor = _config.leewayHullFactor / 10.0;
   double lw = 0;
-  // DEBUG("kBoxConfig leewayHullFactor: %f", leewayHullFactor);
+  //DEBUG("Boat speed: %fkts, Heel: %f°, kBoxConfig leewayHullFactor: %f", bs_kts, SKRadToDeg(heel), leewayHullFactor);
 
   lw = leewayHullFactor * heel / (bs_kts * bs_kts);
-  DEBUG("Leeway : %f°", SKRadToDeg(lw));
+  //DEBUG("Leeway : %f°", SKRadToDeg(lw));
 
   // Validation check
   // Leeway with more than 20° (0.349rad) is probably wrong!
@@ -107,33 +109,38 @@ double Performance::getLeeway(double &bs_kts, double &heel) {
   }
 }
 
-void Performance::calcApparentWind(double &aws_m, double &awa_m, double &heel){
+void Performance::calcApparentWind(double &aws, double &awa, double &heel){
+  //DEBUG("Heel: %f°", SKRadToDeg(heel));
+  //DEBUG("AWS sensor: %.3fm/s", aws_m);
+  //DEBUG("AWA sensor: %.3f°", SKRadToDeg(awa_m));
 
   double awa_corr, aws_corr;
-  // TODO: check for pos/neg values
-  awa_corr = atan2(tan(awa_m), cos(abs(heel)));
+  bool awaComingPort = false;
+
+  if (heel < 0) heel *= -1;
+  if (awa < 0) {
+    awaComingPort = true;
+    awa *= -1;
+  }
+
+  // AWA pos coming from starboard, neg from port, relative to centerline vessel
+  awa_corr = atan2(tan(awa), cos(heel));
+  if (awaComingPort) awa_corr *= -1;
 
   // Correction measurement for heel
-  aws_corr = aws_m * (cos(awa_m)/cos(awa_corr));
+  aws_corr = aws * (cos(awa)/cos(awa_corr));
 
   // Correction measurement from sensor height to 10m above water as needed
   // for ORC performance calculations
   // Is there any sensorheight (in mm) more than 10m in config?
   if (_config.windCorr10m &&
       _config.windSensorHeight > 10000) {
-    aws_corr = aws_corr * (1 / (0.9 + 0.1 * _config.windSensorHeight / 1000));
+    aws_corr = aws_corr * (1 / (0.9 + 0.00984252 * _config.windSensorHeight / 1000));
   }
-  /*
-  SKUpdateStatic<2> updateWrite;
-  SKSource source = SKSource::performanceCalc();
-  updateWrite.setSource(source);
-  updateWrite.setTimestamp(now());
-  updateWrite.setEnvironmentWindSpeedApparent(aws_corr);
-  DEBUG("AWS sensor: %.3f --> AWS corrected: %.3f kts", aws_m, aws_corr);
-  updateWrite.setEnvironmentWindAngleApparent(awa_corr);
-  DEBUG("AWA sensor: %.3f --> AWA corrected: %.3f kts", awa_m, awa_corr);
-  _hub.publish(updateWrite);
-  */
+  DEBUG("--> AWS corrected: %.3fm/s", aws_corr);
+  DEBUG("--> AWA corrected: %.3f°", SKRadToDeg(awa_corr));
+  awa = awa_corr;
+  aws = aws_corr;
 }
 
 // ****************************************************************************

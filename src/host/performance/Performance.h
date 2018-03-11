@@ -46,7 +46,7 @@ class Performance {
   private:
     const PerformanceConfig &_config;
 
-    double _leeway, _heel, _bs_kts_corr, _awa_m, _aws_m;
+    double _leeway, _heel, _awa_m, _aws_m;
 
     double getCorrForNonLinearTransducer(double &bs_kts, double &heel);
 
