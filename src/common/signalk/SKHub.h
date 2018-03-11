@@ -1,8 +1,17 @@
 /*
+     __  __     ______     ______     __  __
+    /\ \/ /    /\  == \   /\  __ \   /\_\_\_\
+    \ \  _"-.  \ \  __<   \ \ \/\ \  \/_/\_\/_
+     \ \_\ \_\  \ \_____\  \ \_____\   /\_\/\_\
+       \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
+
+  Project:  KBox
+            Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
+  Purpose:  Central Data Hub in KBox
+  Authors:  Thomas Sarlandie thomas@sarlandie.net, Ronnie Zeiller ronnie@zeiller.eu
+  *********************************************************************************
+
   The MIT License
-
-  Copyright (c) 2017 Thomas Sarlandie thomas@sarlandie.net
-
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -24,10 +33,12 @@
 
 #pragma once
 
+#include <elapsedMillis.h>
 #include "common/algo/List.h"
 #include "util/iirfilter.h"
 #include "host/config/KBoxConfig.h"
 #include "host/performance/Performance.h"
+
 
 class SKUpdate;
 class SKSubscriber;
@@ -43,7 +54,7 @@ class SKHub {
     KBoxConfig _kboxConfig;
 
     // Damping values 1.....100 --> 0.5 no filter ......0.005 max filter
-    // TODO: put it to config 
+    // TODO: put it to config
     const float _dampingFactor10Hz = 0.05;
     iirfilter   _awsFilter;
     iirfilter   _awaFilter;
@@ -54,6 +65,13 @@ class SKHub {
     double _aws, _awsFiltered;
     double _awa, _awaFiltered;
     double _heel, _heelFiltered;
+    double _leeway;
+
+    const uint32_t _displayInterval = 1000;
+    // TODO: if no update of a value is coming within this interval stop performance calc
+    const uint32_t _validInterval = 5000;
+    elapsedMillis _timeSinceLastHeel;
+    elapsedMillis _timeSinceLastWind;
 
   public:
     SKHub();

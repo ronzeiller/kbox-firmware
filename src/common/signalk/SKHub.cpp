@@ -1,8 +1,17 @@
 /*
+     __  __     ______     ______     __  __
+    /\ \/ /    /\  == \   /\  __ \   /\_\_\_\
+    \ \  _"-.  \ \  __<   \ \ \/\ \  \/_/\_\/_
+     \ \_\ \_\  \ \_____\  \ \_____\   /\_\/\_\
+       \/_/\/_/   \/_____/   \/_____/   \/_/\/_/
+
+  Project  :  KBox
+              Copyright (c) 2018 Thomas Sarlandie thomas@sarlandie.net
+  Purpose  :  Central Data Hub in KBox
+  Author(s):  Thomas Sarlandie thomas@sarlandie.net, Ronnie Zeiller ronnie@zeiller.eu
+  *********************************************************************************
+
   The MIT License
-
-  Copyright (c) 2017 Thomas Sarlandie thomas@sarlandie.net
-
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -29,6 +38,13 @@
     Objekt _hub übernommen.
     Die Subscription erfolgt über den Aufruf: _hub.subscribe(this);
     Womit der Service in die Liste der Subscriber aufgenommen wird.
+
+    New list which subscribers can subscribe to: _filteredSubscribers
+    This updates could be used for displays, pages, navigation,....
+    Here IIR filtered datas with _displayInterval (e.g. 1Hz) will be sent like:
+      - Heel
+      - Additionally datas which originally come in 1 Hz like:
+          Boat Speed (more coming soon)
 
 */
 
@@ -57,6 +73,7 @@ SKHub::SKHub() {
   _awaFilter.setFC(_dampingFactor10Hz);
   _heelFilter.setType(IIRFILTER_TYPE_LINEAR);
   _heelFilter.setFC(_dampingFactor10Hz);
+  _heel = SKDoubleNAN;
 
 }
 
@@ -86,28 +103,48 @@ void SKHub::publish(const SKUpdate& update) {
 
   Performance performance(_kboxConfig.performanceConfig);
 
-  bool sendHighSpeedUpdate = true;
+  //bool sendHighSpeedUpdate = true;
+  bool sendLowSpeedUpdate = true;   // by default all values are sent if not identified as high speed values
+  bool sendFilteredUpdate = false;
   bool sendPerformanceUpdate = false;
+
   SKUpdateStatic<2> updatePerf;
   SKSource source = SKSource::performanceCalc();
   updatePerf.setSource(source);
   updatePerf.setTimestamp(now());
 
+  // SKUpdate for display filtered Values
+  SKUpdateStatic<2> updateFiltered;
+  // TODO: may be wise to make a new source for filtered values?
+  updateFiltered.setSource(source);
+
   // All KBox config settings are available here, e.g.:
   //if (_kboxConfig.serial1Config.repeatSentence) {}
 
-  // Wind direction and wind speed are coming from NMEA2000 with around 8 to 10 Hz
-  // we store the value and we filter (damp) the value in IIR-filter
-  // TODO: Calculations could be done with high speed values or damped
-  // Wind speed and angle are coming in one update
-  if (update.hasEnvironmentWindSpeedApparent() &&
-      update.hasEnvironmentWindAngleApparent()){
-    _aws = update.getEnvironmentWindSpeedApparent();
-    _awsFiltered = _awsFilter.filter(_aws);
-    _awa = update.getEnvironmentWindAngleApparent();
-    _awaFiltered = _awaFilter.filter(_awa);
+  /* *************************************************************
+  // If calcTrueWind is set by performance config we discard all True Wind values,
+  // as we do not know how they are calculated!
+   * *********************************************************** */
+  if (_kboxConfig.performanceConfig.calcTrueWind) {
+    if (update.hasEnvironmentWindDirectionTrue() ||
+        update.hasEnvironmentWindSpeedTrue()){
+      return;
+    }
+  }
 
-    if (!_kboxConfig.performanceConfig.enabled) {
+  /* *************************************************************
+  // Wind direction and wind speed are assumed to come from NMEA2000 with around 8 to 10 Hz
+  // we store the value and we filter (damp) the value in IIR-filter
+  // Calculations are done with high speed values
+   * *********************************************************** */
+  if (update.hasEnvironmentWindSpeedApparent() &&
+      update.hasEnvironmentWindAngleApparent()){        // Wind speed and angle are coming in one update
+    _aws = update.getEnvironmentWindSpeedApparent();
+    _awa = update.getEnvironmentWindAngleApparent();    // AWA pos coming from starboard, neg from port, relative to centerline vessel
+
+    sendLowSpeedUpdate = false;  // LowSpeed Subscribers do not get all incoming values
+
+    if (_kboxConfig.performanceConfig.enabled) {
       // now calculate corrected wind Values. We should have an actual value for heel
       performance.calcApparentWind(_aws, _awa, _heel);
       // AWS Apparent Wind Speed
@@ -118,40 +155,80 @@ void SKHub::publish(const SKUpdate& update) {
       //TODO: calculate True Wind, but for this we need COG, SOG, boat speed vector, course
       sendPerformanceUpdate = true;
     }
-  }
 
+    _awsFiltered = _awsFilter.filter(_aws);
+    _awaFiltered = _awaFilter.filter(_awa);
+
+    // it is assumed that wind values are coming
+    if ( _timeSinceLastWind > _displayInterval){
+      DEBUG("Time since last Wind: %d, AWA: %.1f, AWS: %.1f", millis(), SKRadToDeg(_awaFiltered), _awsFiltered);
+      updateFiltered.setTimestamp(now());
+      updateFiltered.setEnvironmentWindSpeedApparent(_awsFiltered);
+      updateFiltered.setEnvironmentWindAngleApparent(_awaFiltered);
+      _timeSinceLastWind = 0;
+      sendFilteredUpdate = true;
+    }
+  }
+  /* *************************************************************
   // For calculating corrected boat speed, apparent and true wind etc. we need
   // heel values from IMUService or external IMU-sensor, which should come with
   // around 10Hz.
   // For heel we make filtered values too.
-  if (update.hasNavigationAttitude()){
+   * *********************************************************** */
+  if (update.hasNavigationAttitude() &&
+      update.getNavigationAttitude().roll != SKDoubleNAN){
+
+    sendLowSpeedUpdate = false;  // LowSpeed Subscribers do not get all incoming values
     _heel = update.getNavigationAttitude().roll;
     //DEBUG("SKUpdate --> Heel: %f °", SKRadToDeg(_heel));
+
     _heelFiltered = _heelFilter.filter(_heel);
+    if (_timeSinceLastHeel > _displayInterval){
+      // DEBUG("Time since last Heel: %d, Heel: %.1f", millis(), SKRadToDeg(_heelFiltered));
+      updateFiltered.setTimestamp(now());
+      // for pitch we take the unfiltered actual value, as pitch is not needed at this time,
+      // but we do not want empty NMEA sentence later on.
+      updateFiltered.setNavigationAttitude(SKTypeAttitude( _heelFiltered,
+                                                          update.getNavigationAttitude().pitch,
+                                                          SKDoubleNAN));
+      _timeSinceLastHeel = 0;
+      sendFilteredUpdate = true;
+    }
   }
 
+  /* *************************************************************
   // On most systems boatspeed will come with 1Hz
   // So we take update of boat speed to trigger all performance calculations
-  // SpeedThroughWater is so far the uncorrected measured raw value, which we
-  // have to correct by calibration values and leeway!
+  // SpeedThroughWater is so far the uncorrected measured raw value,
+  // which we have to correct by calibration values and leeway!
+   * *********************************************************** */
   if (update.hasNavigationSpeedThroughWater() &&
-      update.getNavigationSpeedThroughWater() > 0 &&
-      _kboxConfig.performanceConfig.enabled){
+      update.getNavigationSpeedThroughWater() > 0) {
 
-    // SKUpdate is in m/s --> we need knots for formulas
-    double bs_kts_m = SKMsToKnot(update.getNavigationSpeedThroughWater());
-    double leeway = performance.getLeeway(bs_kts_m, _heel);
-    double bs_kts_corr = performance.calcBoatSpeed(bs_kts_m, _heel, leeway);
+    if (_kboxConfig.performanceConfig.enabled && _heel != SKDoubleNAN) {
+      // SKUpdate is in m/s --> we need knots for formulas
+      double bs_kts_m = SKMsToKnot(update.getNavigationSpeedThroughWater());
+      //TODO: if leeway is max due to too low speed and/or too high heel, may be SKDoubleNAN should be sent
+      // and following no value in NMEA0183?
+      _leeway = performance.getLeeway(bs_kts_m, _heel);
+      //DEBUG("Leeway : %f°", SKRadToDeg(_leeway));
+      double bs_kts_corr = performance.calcBoatSpeed(bs_kts_m, _heel, _leeway);
 
-    // change value in update to corrected one
-    updatePerf.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
-    updatePerf.setPerformanceLeeway(leeway);
-    sendPerformanceUpdate = true;
+      // change value in update to corrected one
+      updatePerf.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
+      updatePerf.setPerformanceLeeway(_leeway);
+      sendPerformanceUpdate = true;
+
+      // to block normal update for low speed
+      sendLowSpeedUpdate = false;
+      updateFiltered.setTimestamp(now());
+      updateFiltered.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
+      updateFiltered.setPerformanceLeeway(_leeway);
+      sendFilteredUpdate = true;
+    }
   }
 
-  if (update.hasEnvironmentWindDirectionTrue()){}
-  if (update.hasEnvironmentWindSpeedTrue()){}
-
+  // TODO
   if (update.hasNavigationCourseOverGroundTrue()){
     _cog = update.getNavigationCourseOverGroundTrue();
     //DEBUG("COG = %f°", SKRadToDeg(cog));
@@ -163,23 +240,27 @@ void SKHub::publish(const SKUpdate& update) {
     _sog = update.getNavigationSpeedOverGround();
     //DEBUG("SOG = %f ktn", SKMsToKnot(sog));
   }
-
   if (update.hasNavigationTripLog()){}
   if (update.hasNavigationLog()){}
-  if (update.hasPerformanceLeeway()){}
 
-  for (LinkedListIterator<SKSubscriber*> it = _filteredSubscribers.begin(); it != _filteredSubscribers.end(); it++) {
-    if ( !sendPerformanceUpdate ) {
-      // send original datas from input
+
+  /* *************************************************************
+  // Filtered Updates for Displays,  Low Speed Updates
+   * *********************************************************** */
+    for (LinkedListIterator<SKSubscriber*> it = _filteredSubscribers.begin(); it != _filteredSubscribers.end(); it++) {
+    if ( sendLowSpeedUpdate ) {
+      // send original datas from input (if not identified as high frequently coming in)
       (*it)->updateReceived(update);
-    } else {
-      // send update corrected by performance calculations
-      (*it)->updateReceived(updatePerf);
+    }
+    if ( sendFilteredUpdate ) {
+      // send updates filtered for display interval
+      (*it)->updateReceived(updateFiltered);
+      DEBUG("Filtered Update coming! Heel: %.1f, AWA: %.1f, AWS: %.1f", _heelFiltered, SKRadToDeg(_awaFiltered), _awsFiltered);
     }
   }
 
-  // High speed subscribers
-  if (sendHighSpeedUpdate){
+  // High speed subscribers get all updates as usual
+  //if (sendHighSpeedUpdate){
     for (LinkedListIterator<SKSubscriber*> it = _subscribers.begin(); it != _subscribers.end(); it++) {
       if ( !sendPerformanceUpdate ) {
         (*it)->updateReceived(update);
@@ -187,5 +268,5 @@ void SKHub::publish(const SKUpdate& update) {
         (*it)->updateReceived(updatePerf);
       }
     }
-  }
+  //}
 }
