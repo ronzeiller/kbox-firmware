@@ -63,6 +63,8 @@ class SKNMEA2000Parser {
     const SKUpdate& parse127250(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp);
     // PGN 127257 Attitude Yaw, Pitch, Roll
     const SKUpdate& parse127257(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp);
+    // PGN 128000 Nautical Leeway Angle (new 2017)
+    const SKUpdate& parse128000(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp);
     // PGN 128259 Boat Speed
     const SKUpdate& parse128259(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp);
     // PGN 128267 Water depth
@@ -74,9 +76,6 @@ class SKNMEA2000Parser {
     // PGN 130306 Wind Speed
     const SKUpdate& parse130306(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp);
 
-
-
     // Magnetic variation
     //const SKUpdate& parse127258(const SKSourceInput& input, const tN2kMsg& msg, const SKTime& timestamp);
-
 };
