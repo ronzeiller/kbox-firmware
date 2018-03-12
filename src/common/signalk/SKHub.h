@@ -66,6 +66,7 @@ class SKHub {
     double _awa, _awaFiltered;
     double _heel, _heelFiltered;
     double _leeway;
+    double _stwCorr;
 
     const uint32_t _displayInterval = 1000;
     // TODO: if no update of a value is coming within this interval stop performance calc

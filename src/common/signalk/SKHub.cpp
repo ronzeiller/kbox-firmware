@@ -69,9 +69,9 @@ SKHub::SKHub() {
 
   _awsFilter.setType(IIRFILTER_TYPE_LINEAR);
   _awsFilter.setFC(_dampingFactor10Hz);
-  _awaFilter.setType(IIRFILTER_TYPE_DEG);
+  _awaFilter.setType(IIRFILTER_TYPE_RAD);
   _awaFilter.setFC(_dampingFactor10Hz);
-  _heelFilter.setType(IIRFILTER_TYPE_DEG);
+  _heelFilter.setType(IIRFILTER_TYPE_RAD);
   _heelFilter.setFC(_dampingFactor10Hz);
   _heel = SKDoubleNAN;
 
@@ -156,12 +156,13 @@ void SKHub::publish(const SKUpdate& update) {
       sendPerformanceUpdate = true;
     }
 
-    _awsFiltered = _awsFilter.filter(_aws);
-    _awaFiltered = _awaFilter.filter(_awa);
+    _awsFiltered = _awsFilter.filter( round(_aws * 100)/100.0 );
+    _awaFiltered = _awaFilter.filter( round(_awa * 100)/100.0 );
 
-    // it is assumed that wind values are coming
+    // it is assumed that wind values are coming with 8 to 10Hz
     if ( _timeSinceLastWind > _displayInterval){
-      DEBUG("Time since last Wind: %d, AWA: %.1f, AWS: %.1f", millis(), SKRadToDeg(_awaFiltered), _awsFiltered);
+      DEBUG("Wind Aktuell --> Filtered: AWA %.2f° --> %.2f° // AWS %.2fkts --> %.2fkts",
+            SKRadToDeg(_awa), SKRadToDeg(_awaFiltered), SKMsToKnot(_aws), SKMsToKnot(_awsFiltered));
       updateFiltered.setTimestamp(now());
       updateFiltered.setEnvironmentWindSpeedApparent(_awsFiltered);
       updateFiltered.setEnvironmentWindAngleApparent(_awaFiltered);
@@ -183,6 +184,8 @@ void SKHub::publish(const SKUpdate& update) {
     //DEBUG("SKUpdate --> Heel: %f °", SKRadToDeg(_heel));
 
     _heelFiltered = _heelFilter.filter(_heel);
+    //_heelFiltered = _heel;
+
     if (_timeSinceLastHeel > _displayInterval){
       // DEBUG("Time since last Heel: %d, Heel: %.1f", millis(), SKRadToDeg(_heelFiltered));
       updateFiltered.setTimestamp(now());
@@ -212,17 +215,17 @@ void SKHub::publish(const SKUpdate& update) {
       // and following no value in NMEA0183?
       _leeway = performance.getLeeway(bs_kts_m, _heel);
       //DEBUG("Leeway : %f°", SKRadToDeg(_leeway));
-      double bs_kts_corr = performance.calcBoatSpeed(bs_kts_m, _heel, _leeway);
-
+      _stwCorr = SKKnotToMs(performance.calcBoatSpeed(bs_kts_m, _heel, _leeway));
+      DEBUG("boat Speed Through Water corrected: %.2fkts --> %.2fkts", bs_kts_m, SKMsToKnot(_stwCorr));
       // change value in update to corrected one
-      updatePerf.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
+      updatePerf.setNavigationSpeedThroughWater(_stwCorr);
       updatePerf.setPerformanceLeeway(_leeway);
       sendPerformanceUpdate = true;
 
       // to block normal update for low speed
       sendLowSpeedUpdate = false;
       updateFiltered.setTimestamp(now());
-      updateFiltered.setNavigationSpeedThroughWater(SKKnotToMs(bs_kts_corr));
+      updateFiltered.setNavigationSpeedThroughWater(_stwCorr);
       updateFiltered.setPerformanceLeeway(_leeway);
       sendFilteredUpdate = true;
     }
@@ -255,7 +258,6 @@ void SKHub::publish(const SKUpdate& update) {
     if ( sendFilteredUpdate ) {
       // send updates filtered for display interval
       (*it)->updateReceived(updateFiltered);
-      DEBUG("Filtered Update coming! Heel: %.1f, AWA: %.1f, AWS: %.1f", _heelFiltered, SKRadToDeg(_awaFiltered), _awsFiltered);
     }
   }
 
@@ -270,3 +272,37 @@ void SKHub::publish(const SKUpdate& update) {
     }
   //}
 }
+
+/* --> IIR FILTER FÜR HEEL aus alter IMUPage Version, die funktionierte!!!
+if ( up.hasNavigationHeadingMagnetic() ) {
+    const SKValue& vm = up.getNavigationHeadingMagnetic();
+    _IMU_HDGFiltered = IMU_HdgFilter.filter( round ( SKRadToDeg( vm.getNumberValue()) * 10) / 10.0 );
+    //DEBUG("HDG: %f\n", round( SKRadToDeg( vm.getNumberValue()) * 10) / 10.0 );
+  }
+
+  if ( up.hasNavigationAttitude() ) {
+    const SKValue& vm = up.getNavigationAttitude();
+    _IMU_HeelFiltered = IMU_HeelFilter.filter( round( SKRadToDeg( vm.getAttitudeValue().roll ) * 10) / 10.0 );
+    _IMU_PitchFiltered = IMU_PitchFilter.filter( round( SKRadToDeg( vm.getAttitudeValue().pitch )* 10) / 10.0 );
+    //DEBUG("Heel: %f\n", round( SKRadToDeg( vm.getAttitudeValue().roll ) * 10) / 10.0);
+    //DEBUG("Pitch: %f\n", round( SKRadToDeg( vm.getAttitudeValue().pitch )* 10) / 10.0);
+  }
+
+
+  // Display interval 400ms
+  if (millis() > _nextPrint) {
+    _nextPrint = millis() + 400;
+
+
+    //DEBUG("%f\n", _IMU_HDGFiltered);
+    //DEBUG("%f\n",_IMU_PitchFiltered);
+    //DEBUG("%f\n",_IMU_HeelFiltered);
+    if ( _IMU_HDGFiltered < 361 && _IMU_HDGFiltered >= 0 )
+      hdgTL->setText(String( _IMU_HDGFiltered, 1) + "°        ");
+    if ( _IMU_PitchFiltered < 181 && _IMU_PitchFiltered > -181 )
+      pitchTL->setText(String( _IMU_PitchFiltered, 1 ) + "°     ");
+    if ( _IMU_HeelFiltered < 181 && _IMU_HeelFiltered > -181 )
+      heelTL->setText(String( _IMU_HeelFiltered, 1 ) + "°     ");
+
+  }
+  */
