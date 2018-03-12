@@ -131,7 +131,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     sb.setField(2, "");
     sb.setField(3, "");
     sb.setField(4, "");
-    sb.setField(5, SKMsToKnot(update.getNavigationSpeedThroughWater()), 1);
+    sb.setField(5, SKMsToKnot(update.getNavigationSpeedThroughWater()), 2);
     sb.setField(6, "N");
     sb.setField(7, "");
     sb.setField(8, "");
