@@ -94,7 +94,7 @@ bool SDCardTask::write(const tN2kMsg &msg) {
   //TODO: should be choosed by config setting
   //if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
   if (N2kToSailmax(msg, msg.MsgTime, pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
-    receivedMessages.add(Loggable("", pcdin));
+    receivedMessages.add(Loggable("", pcdin + "\r\n"));
     return true;
   } else {
     return false;
