@@ -27,6 +27,7 @@
 #include <KBoxLogging.h>
 #include <KBoxHardware.h>
 #include <Seasmart.h>
+#include "host/util/SailmaxFormat.h"
 
 SDCardTask::SDCardTask(SDCardConfig &config) : Task("SDCard"),  _config(config) {
 }
@@ -89,7 +90,10 @@ bool SDCardTask::write(const tN2kMsg &msg) {
   }
 
   char pcdin[30 + msg.DataLen * 2];
-  if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
+
+  //TODO: should be choosed by config setting
+  //if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
+  if (N2kToSailmax(msg, msg.MsgTime, pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
     receivedMessages.add(Loggable("", pcdin));
     return true;
   } else {
