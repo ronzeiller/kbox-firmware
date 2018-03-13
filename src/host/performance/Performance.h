@@ -46,8 +46,6 @@ class Performance {
   private:
     const PerformanceConfig &_config;
 
-    double _leeway, _heel, _awa_m, _aws_m;
-
     double getCorrForNonLinearTransducer(double &bs_kts, double &heel);
 
   public:
@@ -61,7 +59,4 @@ class Performance {
     double getLeeway(double &bs_kts, double &heel);
     void calcApparentWind(double &aws_m, double &awa_m, double &heel);
 
-    double returnLeeway (){
-      return _leeway;
-    }
 };

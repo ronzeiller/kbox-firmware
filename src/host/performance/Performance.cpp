@@ -60,9 +60,6 @@
 
 Performance::Performance(PerformanceConfig &config) : _config(config) {
 
-  _leeway = SKDoubleNAN;
-  _heel = SKDoubleNAN;
-
   //Polar polar(config);
 }
 
@@ -76,7 +73,7 @@ double Performance::calcBoatSpeed(double &bs_kts, double &heel, double &leeway) 
   // Correct measured speed for Leeway
   bs_kts_corr = bs_kts_corr / cos(leeway);
   if (bs_kts_corr < 0) bs_kts_corr *= -1;
-  //DEBUG("Boatspeed from Transducer: %.3f kts--> Corrected Boatspeed: %.3f kts", bs_kts, bs_kts_corr);
+  DEBUG("Boatspeed from Transducer: %.3f kts--> Corrected Boatspeed: %.3f kts", bs_kts, bs_kts_corr);
 
   return bs_kts_corr;
 }
