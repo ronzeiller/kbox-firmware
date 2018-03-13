@@ -61,6 +61,7 @@ void SDCardTask::loop() {
     // TODO: kryptische Zeichen als Debug Ausgabe
     DEBUG("it->message: %s", it->_message);
     logFile->print(it->_message);
+    logFile->print("\r\n");
   }
   // Force data to SD and update the directory entry to avoid data loss.
   if (!logFile->sync() || logFile->getWriteError()) {
@@ -94,7 +95,7 @@ bool SDCardTask::write(const tN2kMsg &msg) {
   //TODO: should be choosed by config setting
   //if (N2kToSeasmart(msg, millis(), pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
   if (N2kToSailmax(msg, msg.MsgTime, pcdin, sizeof(pcdin)) < sizeof(pcdin)) {
-    receivedMessages.add(Loggable("", pcdin + "\r\n"));
+    receivedMessages.add(Loggable("", pcdin));
     return true;
   } else {
     return false;
