@@ -140,6 +140,7 @@ void setup() {
   // SD-CARD SERVICE
   SDCardTask *sdcardTask = new SDCardTask(config.sdcardConfig);
   if (config.sdcardConfig.enabled){
+    n2kService->addSentenceRepeater(*sdcardTask);
     taskManager.addTask(sdcardTask);
   }
 
