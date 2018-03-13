@@ -35,7 +35,7 @@
 
 #include <elapsedMillis.h>
 #include "common/algo/List.h"
-#include "util/iirfilter.h"
+#include "host/util/IIRFilter.h"
 #include "host/config/KBoxConfig.h"
 #include "host/performance/Performance.h"
 
