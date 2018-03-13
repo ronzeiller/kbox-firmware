@@ -137,8 +137,7 @@
   },
   "sdcard": {
     "enabled": true,
-    "logtype": "seasmart",
-    "timestamp": false,
+    "writeTimestamp": false,
     "writeDebug": true
   },
   "nmeaConverter": {

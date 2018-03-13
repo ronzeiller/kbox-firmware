@@ -57,9 +57,9 @@ void SDCardTask::loop() {
       logFile->print(it->timestamp);
       logFile->print(",");
     }
-    // PCDIN only are written
+    // PCDIN or SailmaxFormat only are written
     // TODO: kryptische Zeichen als Debug Ausgabe
-    DEBUG("it->message: %s", it->_message);
+    // DEBUG("it->message: %s", it->_message);
     logFile->print(it->_message);
     logFile->print("\r\n");
   }
