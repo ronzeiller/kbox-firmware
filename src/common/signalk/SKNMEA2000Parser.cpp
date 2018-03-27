@@ -110,13 +110,22 @@ const SKUpdate& SKNMEA2000Parser::parse126992(const SKSourceInput& input, const 
   tN2kTimeSource timeSource;  // see tN2kTimeSource (z.B.: GPS)
 
   if (ParseN2kSystemTime(msg,sid,systemDate,systemTime,timeSource) ) {
-    /*
-    TODO: Signal K for /environment/time + 3 fields
+
     SKUpdateStatic<2> *update = new SKUpdateStatic<2>();
     update->setTimestamp(timestamp);
+    SKSource source = SKSource::sourceForNMEA2000(input, msg.PGN, msg.Priority, msg.Source);
+    update->setSource(source);
 
+    //  at the moment we have no Signal K for Time......
+    //  therefore I take (because I will never need....):
+    //  EnvironmentOutsideApparentWindChillTemperature --> Days since 1970-01-01
+    //  EnvironmentWaterTemperature --> seconds since midnight with 2 digits
+    update->setEnvironmentOutsideApparentWindChillTemperature((double) systemDate);
+    update->setEnvironmentWaterTemperature(systemTime);
     _sku = update;
     return *_sku;
+    /*
+    TODO: Signal K for /environment/time + 3 fields
     */
   }
 
