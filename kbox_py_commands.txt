@@ -1,0 +1,1 @@
+tools/kbox.py --port /dev/cu.usbmodem3070521 fwrite extras/config/kbox-config.json kbox-config.json
