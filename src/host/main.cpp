@@ -35,6 +35,7 @@
 #include "host/services/BarometerService.h"
 #include "host/services/IMUService.h"
 #include "host/pages/IMUMonitorPage.h"
+#include "host/pages/IMUMonitorPage2.h"
 #include "host/services/NMEA2000Service.h"
 #include "host/services/SerialService.h"
 #include "host/services/RunningLightService.h"
@@ -213,6 +214,11 @@ void setup() {
     IMUMonitorPage *imuPage = new IMUMonitorPage(config.imuConfig, skHub, *imuService);
     mfd.addPage(imuPage);
   }
+
+  // New page for external heel, pitch and hdg sensor
+  // TODO: config to en/disable
+  IMUMonitorPage2 *imuPage2 = new IMUMonitorPage2(config.imuConfig, skHub);
+  mfd.addPage(imuPage2);
 
   if (config.adcConfig.enabled) {
     ADCService *adcService = new ADCService(config.adcConfig, skHub, KBox.getADC());
