@@ -56,15 +56,6 @@
 #include "SKUnits.h"
 #include "SKUpdateStatic.h"
 
-/* for static variables only, but static probably not necessary
-double SKHub::sog = SKDoubleNAN;
-double SKHub::cog = SKDoubleNAN;
-double SKHub::awa = SKDoubleNAN;
-double SKHub::awaFiltered = SKDoubleNAN;
-double SKHub::aws = SKDoubleNAN;
-double SKHub::awsFiltered = SKDoubleNAN;
-*/
-
 SKHub::SKHub() {
 
   _awsFilter.setType(IIRFILTER_TYPE_LINEAR);
@@ -74,6 +65,13 @@ SKHub::SKHub() {
   _heelFilter.setType(IIRFILTER_TYPE_RAD);
   _heelFilter.setFC(_dampingFactor10Hz);
   _heel = SKDoubleNAN;
+  _cog  = SKDoubleNAN;
+  _sog  = SKDoubleNAN;
+  _hdgMag = 2 * M_PI + 0.1;   // over 360° not valid
+  _hdgTrue = 2 * M_PI + 0.1;  // ditto
+  _variationMagn = 0;
+  _lat = 0;
+  _lon = 0;
 
 }
 
@@ -108,13 +106,14 @@ void SKHub::publish(const SKUpdate& update) {
   bool sendFilteredUpdate = false;
   bool sendPerformanceUpdate = false;
 
-  SKUpdateStatic<2> updatePerf;
+  // We need minimum 4 updates for combined values in NMEA0183 sentences
+  SKUpdateStatic<4> updatePerf;
   SKSource source = SKSource::performanceCalc();
   updatePerf.setSource(source);
   updatePerf.setTimestamp(now());
 
   // SKUpdate for display filtered Values
-  SKUpdateStatic<2> updateFiltered;
+  SKUpdateStatic<6> updateFiltered;
   // TODO: may be wise to make a new source for filtered values?
   updateFiltered.setSource(source);
 
@@ -220,6 +219,15 @@ void SKHub::publish(const SKUpdate& update) {
       // change value in update to corrected one
       updatePerf.setNavigationSpeedThroughWater(_stwCorr);
       updatePerf.setPerformanceLeeway(_leeway);
+
+      // add Heading True/Mag  [rad] from rapid PGN to this update so it is possible to convert
+      // to NMEA0183 VHW with STW + HDG
+      if (_hdgMag <= 2 * M_PI){
+        updatePerf.setNavigationHeadingMagnetic(_hdgMag);
+      }
+      if (_hdgTrue <= 2 * M_PI){
+        updatePerf.setNavigationHeadingTrue(_hdgTrue);
+      }
       sendPerformanceUpdate = true;
 
       // to block normal update for low speed
@@ -231,18 +239,73 @@ void SKHub::publish(const SKUpdate& update) {
     }
   }
 
-  // TODO
+  /* *************************************************************
+  //  For RMC NMEA0183 sentence we need:
+  //  129025 Pos. Rapid Update + 129026 COG & SOG Rapid + 127258 Variation
+  //  126992 System Time / Date (Trigger)
+  //  But at the moment we have no Signal K for Time......
+  //  in the meantime I take (because I will never need....):
+  //  EnvironmentOutsideApparentWindChillTemperature --> Days since 1970-01-01
+  //  EnvironmentWaterTemperature --> seconds since midnight with 2 digits
+  //  TODO: change as soon as we have SKUpdate for Time
+   * *********************************************************** */
+   if (update.hasEnvironmentOutsideApparentWindChillTemperature()){
+     _daysSince1970 = update.getEnvironmentOutsideApparentWindChillTemperature();
+   }
+   if (update.hasEnvironmentWaterTemperature()){
+     _secondsSinceMidnight = update.getEnvironmentWaterTemperature();
+
+     updateFiltered.setTimestamp(now());
+     updateFiltered.setEnvironmentOutsideApparentWindChillTemperature(_daysSince1970);
+     updateFiltered.setEnvironmentWaterTemperature(_secondsSinceMidnight);
+
+     // add actual COG and SOG
+     updateFiltered.setNavigationCourseOverGroundTrue(_cog);
+     updateFiltered.setNavigationSpeedOverGround(_sog);
+
+     // add actual Lat and Lon
+     updateFiltered.setNavigationPosition(SKTypePosition(_lat, _lon, 0));
+
+     // add variation
+     updateFiltered.setNavigationMagneticVariation(_variationMagn);
+
+     sendFilteredUpdate = true;
+   }
+
+
+  /* *************************************************************
+  //  We take from PGN 129026 COG & SOG, Rapid Update
+  //  Should come with around 10Hz
+   * *********************************************************** */
   if (update.hasNavigationCourseOverGroundTrue()){
     _cog = update.getNavigationCourseOverGroundTrue();
     //DEBUG("COG = %f°", SKRadToDeg(cog));
   }
 
-  if (update.hasNavigationMagneticVariation()){}
-  if (update.hasNavigationPosition()){}
   if (update.hasNavigationSpeedOverGround()){
     _sog = update.getNavigationSpeedOverGround();
     //DEBUG("SOG = %f ktn", SKMsToKnot(sog));
   }
+
+  if (update.hasNavigationHeadingMagnetic()){
+    _hdgMag = update.getNavigationHeadingMagnetic();
+  }
+
+  if (update.hasNavigationHeadingTrue()){
+    _hdgTrue = update.getNavigationHeadingTrue();
+  }
+
+  if (update.hasNavigationPosition()){
+    _lat = 0;
+    _lon = 0;
+  }
+
+  if (update.hasNavigationMagneticVariation()){
+    _variationMagn = update.getNavigationMagneticVariation();
+  }
+
+  // TODO
+
   if (update.hasNavigationTripLog()){}
   if (update.hasNavigationLog()){}
 

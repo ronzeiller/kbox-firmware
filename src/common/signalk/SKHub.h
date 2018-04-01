@@ -60,13 +60,16 @@ class SKHub {
     iirfilter   _awaFilter;
     iirfilter   _heelFilter;
 
-    double _cog;
-    double _sog;
+    double _cog, _sog;
+    double _hdgMag, _hdgTrue;
     double _aws, _awsFiltered;
     double _awa, _awaFiltered;
     double _heel, _heelFiltered;
     double _leeway;
     double _stwCorr;
+    double _lat, _lon;
+    double _daysSince1970, _secondsSinceMidnight;
+    double _variationMagn;
 
     const uint32_t _displayInterval = 1000;
     // TODO: if no update of a value is coming within this interval stop performance calc

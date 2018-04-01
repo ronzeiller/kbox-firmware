@@ -27,6 +27,20 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+/*
+Already Converters for:
+  XDR   Pressure/Barometer
+  XDR   Battery
+  XDR   ROLL / PITCH
+  HDM   Heading Magnetic
+  VHW   Water Speed and Heading True or Magnetic
+  RMC   Recommended Minimum Navigation Information
+  RSA   Rudder Sensor Angle
+  DBT   Depth Below Transducer
+  LWY   Leeway
+  MWV   Wind Speed and Angle
+
+*/
 
 #include <KBoxLogging.h>
 #include "SKUnits.h"
@@ -44,6 +58,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     update.accept(*this, SKPathElectricalBatteriesVoltage);
   }
 
+  // ----  XDR   Pressure/Barometer
   if (_config.xdrPressure && update.hasEnvironmentOutsidePressure()) {
     if (_config.propTalkerIDEnabled &&
         update.getSource().getInput() == SKSourceInputKBoxBarometer) {
@@ -60,6 +75,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     output.write(sb.toNMEA());
   }
 
+  // ---  XDR   ROLL / PITCH
   if (_config.xdrAttitude && update.hasNavigationAttitude()) {
     // check if update is coming from internal sensor
     // DEBUG("%i",update.getSource().getInput());
@@ -91,6 +107,7 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     // DEBUG("SOG = %f ktn", SKMsToKnot(SKHub::sog));
   }
 
+  //  --- HDM   Heading Magnetic (from PGN 127250 Vessel Heading rapid)
   if (_config.hdm && update.hasNavigationHeadingMagnetic()) {
     if (_config.propTalkerIDEnabled &&
         update.getSource().getInput() == SKSourceInputKBoxIMU) {
@@ -105,8 +122,9 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   }
 
   //  ***********************************************
-  //  VHW Water Speed and Heading
-  //  ===========================
+  //  --- VHW Water Speed and Heading
+  //  From PGN 128259 Boat Speed (Trigger) + PGN 127250 Vessel Heading rapid
+  //
   //          1  2  3  4  5  6  7  8
   //          |  |  |  |  |  |  |  |
   //  $--VHW,x.x,T,x.x,M,x.x,N,x.x,K*hh
@@ -126,12 +144,24 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
     } else {
       talkerID = "II";
     }
+
     NMEASentenceBuilder sb(talkerID, "VHW", 8);
-    sb.setField(1, "");
-    sb.setField(2, "");
-    sb.setField(3, "");
-    sb.setField(4, "");
-    sb.setField(5, SKMsToKnot(update.getNavigationSpeedThroughWater()), 2);
+    if (update.hasNavigationHeadingTrue() ){
+      sb.setField(1, SKRadToDeg( update.getNavigationHeadingTrue() ),1);
+      sb.setField(2, "T");
+    } else {
+      sb.setField(1, "");
+      sb.setField(2, "");
+    }
+    if (update.hasNavigationHeadingMagnetic() ){
+      sb.setField(3, SKRadToDeg( update.getNavigationHeadingMagnetic() ),1);
+      sb.setField(4, "M");
+    } else {
+      sb.setField(3, "");
+      sb.setField(4, "");
+    }
+
+    sb.setField(5, SKMsToKnot( update.getNavigationSpeedThroughWater() ), 2);
     sb.setField(6, "N");
     sb.setField(7, "");
     sb.setField(8, "");
@@ -139,7 +169,30 @@ void SKNMEAConverter::convert(const SKUpdate& update, SKNMEAOutput& output) {
   }
 
   //  ***********************************************
-  //    RSA Rudder Sensor Angle
+  //    RMC Recommended Minimum Navigation Information
+  //    From 129025 Pos. Rapid Update +
+  //    129026 COG & SOG Rapid + 127258 Variation +
+  //    126992 System Time / Date (as Trigger)
+  //
+  //
+  //              1      2     3   4      5   6  7   8    9  10  11
+  //              |      |     |   |      |   |  |   |    |   |  |
+  //    $--RMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,xxxx,x.x,a*hh
+  //    1) Time (UTC)
+  //    2) Status, V = Navigation receiver warning
+  //    3) Latitude
+  //    4) N or S
+  //    5) Longitude
+  //    6) E or W
+  //    7) Speed over ground, knots
+  //    8) Track made good, degrees true
+  //    9) Date, ddmmyy
+  //    10) Magnetic Variation, degrees
+  //    11) E or W
+  // ***********************************************
+
+  //  ***********************************************
+  //    RSA   Rudder Sensor Angle
   //    Talker-ID: AG - Autopilot general
   //    also seen: ERRSA
   //    Expedition: IIXDR
@@ -256,6 +309,7 @@ void SKNMEAConverter::generateMWV(String talkerID, SKNMEAOutput &output, double 
   output.write(sb.toNMEA());
 }
 
+// ---  XDR   Battery
 void SKNMEAConverter::visitSKElectricalBatteriesVoltage(const SKUpdate& u, const SKPath &p, const SKValue &v) {
   NMEASentenceBuilder sb("II", "XDR", 4);
   sb.setField(1, "V");

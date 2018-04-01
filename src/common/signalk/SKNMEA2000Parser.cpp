@@ -60,7 +60,6 @@ const SKUpdate& SKNMEA2000Parser::parse(const SKSourceInput& input, const tN2kMs
       }
     //case 127258L:  // Magnetic Variation
     //    return parse127258(input, msg, timestamp);
-    //  break;
     case 128000L: // Nautical Leeway Angle
       return parse128000(input, msg, timestamp);
     case 128259L: // Boat speed
