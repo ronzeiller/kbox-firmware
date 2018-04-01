@@ -77,7 +77,8 @@ bool SDCardTask::write(const SKNMEASentence &nmeaSentence) {
   }
 
   receivedMessages.add(Loggable("", nmeaSentence));
-  DEBUG("add(Loggable): %s ",nmeaSentence);
+  // TODO: nmeaSentence doesn´t show string value
+  //DEBUG("add(Loggable): %s ",nmeaSentence);
   return true;
 }
 
