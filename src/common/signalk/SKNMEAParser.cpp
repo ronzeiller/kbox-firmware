@@ -173,9 +173,10 @@ const SKUpdate& SKNMEAParser::parseXDR(const SKSourceInput& input, NMEASentenceR
 
 
     xdr->setTimestamp(time);
-    // SKSource source = SKSource::sourceForNMEA0183(input, reader.getTalkerId(), reader.getSentenceCode());
-    // xdr->setSource(source);
-    xdr->setSource(SKSource::sourceForKBoxSensor(SKSourceInputKBoxIMU));
+    SKSource source = SKSource::sourceForNMEA0183(input, reader.getTalkerId(), reader.getSentenceCode());
+    xdr->setSource(source);
+    // if source is builtin IMU sensor
+    //xdr->setSource(SKSource::sourceForKBoxSensor(SKSourceInputKBoxIMU));
 
     double pitch = SKDegToRad(reader.getFieldAsDouble(2));
     double roll = SKDegToRad(reader.getFieldAsDouble(6));
