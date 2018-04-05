@@ -20,6 +20,19 @@ Sailmax-CU Hardware includes:
    panels, generators, etc)
 
 ## Changelog Sailmax-CU
+* 2018 03 13
+  -  rewritten `SKHub`, where services can `subscribe` to the "normal" `SKUpdate` and `subscribeFiltered`  
+     to low frequency (1Hz) updates filtered by an IIR-filter.
+  -  rewritten Performance class, directly called by SKHub
+  
+  - deleted the different dataFormats in config as in the future services can subscribe to (more) different Updates
+  - If performance is enabled in the config, it will calculate Leeway, correct boat speed by the cosine of Leeway and calculate Apparent Wind's speed and angles (from sensor height to 10m and correct for heel)
+Those calculated values overrule the values coming from NMEA0183 or the NMEA2000 bus.
+Also you will find a new NMEA0183 and N2k PGN for Leeway.
+  - introduced a new proprietary format similar to PCDIN for logging. (shows PGN in human readable way)
+  - added config to stop repeating datas where not needed
+  
+
 * 2018 02 24 - v2.5 merged Sarfatas PR#128
   - New USB mode active when the connection speed is set to 38400 bauds
     In this mode all NMEA and NMEA2000 messages are repeated to USB (closes #66)
